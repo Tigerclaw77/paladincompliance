@@ -1,7 +1,7 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-import { useState, type FormEvent } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { sendMagicLink } from "./actions";
 
 type LoginFormProps = {
   callbackUrl: string;
@@ -12,52 +12,36 @@ export default function LoginForm({
   callbackUrl,
   initialMessage,
 }: LoginFormProps) {
+  const [state, formAction, isPending] = useActionState(sendMagicLink, {
+    message: "",
+    status: "idle" as const,
+  });
   const [email, setEmail] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(initialMessage ?? "");
+  const successMessage =
+    state.status === "success"
+      ? state.message
+      : state.status === "idle"
+        ? initialMessage ?? ""
+        : "";
+  const errorMessage = state.status === "error" ? state.message : "";
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setErrorMessage("");
-    setSuccessMessage("");
-    setIsLoading(true);
-
-    try {
-      const result = await signIn("nodemailer", {
-        email: email.trim().toLowerCase(),
-        redirect: false,
-        redirectTo: callbackUrl,
-      });
-
-      if (!result.ok) {
-        setErrorMessage(
-          result.error ??
-            "We could not send a secure sign-in link. Please try again."
-        );
-        return;
-      }
-
-      setSuccessMessage("Check your email for a secure Paladin sign-in link.");
+  useEffect(() => {
+    if (state.status === "success") {
       setEmail("");
-    } catch {
-      setErrorMessage(
-        "We could not send a secure sign-in link. Please try again."
-      );
-    } finally {
-      setIsLoading(false);
     }
-  }
+  }, [state.status]);
 
   return (
-    <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
+    <form action={formAction} className="mt-8 grid gap-5">
+      <input name="callbackUrl" type="hidden" value={callbackUrl} />
       <label className="grid gap-2 text-sm font-semibold text-slate-200">
         Work email
         <input
           autoComplete="email"
           className="h-12 rounded-lg border border-white/10 bg-slate-950/70 px-4 text-base text-white outline-none ring-0 transition placeholder:text-slate-500 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/25"
-          disabled={isLoading}
+          disabled={isPending}
           inputMode="email"
+          name="email"
           onChange={(event) => setEmail(event.target.value)}
           placeholder="you@organization.com"
           required
@@ -67,12 +51,12 @@ export default function LoginForm({
       </label>
 
       <button
-        aria-busy={isLoading}
+        aria-busy={isPending}
         className="h-12 rounded-lg border border-blue-300/20 bg-gradient-to-r from-blue-700 to-blue-500 px-4 text-sm font-black text-white shadow-[0_14px_32px_rgba(37,99,235,0.28)] transition hover:from-blue-600 hover:to-blue-400 disabled:cursor-not-allowed disabled:opacity-65"
-        disabled={isLoading}
+        disabled={isPending}
         type="submit"
       >
-        {isLoading ? "Sending secure link..." : "Send Magic Link"}
+        {isPending ? "Sending secure link..." : "Send Magic Link"}
       </button>
 
       {successMessage && (

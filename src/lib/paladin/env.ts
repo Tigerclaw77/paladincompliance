@@ -5,6 +5,14 @@ type EnvironmentIssue = {
 
 export type StripeRuntimeMode = "live" | "test";
 
+const localDevelopmentSiteUrl = "http://localhost:3000";
+const publicSiteUrlEnvKeys = [
+  "NEXT_PUBLIC_SITE_URL",
+  "NEXT_PUBLIC_APP_URL",
+  "AUTH_URL",
+  "NEXTAUTH_URL",
+] as const;
+
 export class EnvironmentValidationError extends Error {
   constructor(public readonly issues: EnvironmentIssue[]) {
     super(issues.map((issue) => issue.message).join("\n"));
@@ -18,6 +26,10 @@ export function getRuntimeEnvironment() {
   return process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "development";
 }
 
+export function isDevelopmentRuntime() {
+  return process.env.NODE_ENV === "development";
+}
+
 export function isProductionRuntime() {
   return (
     process.env.NODE_ENV === "production" &&
@@ -26,17 +38,30 @@ export function isProductionRuntime() {
 }
 
 export function getPublicSiteUrl() {
-  return getConfiguredPublicSiteUrl() ?? "http://localhost:3000";
+  const configuredUrl = getConfiguredPublicSiteUrl();
+
+  if (configuredUrl) {
+    return configuredUrl;
+  }
+
+  if (isDevelopmentRuntime()) {
+    return localDevelopmentSiteUrl;
+  }
+
+  throw createMissingPublicSiteUrlError();
 }
 
 export function getConfiguredPublicSiteUrl() {
-  const configuredUrl = [
-    process.env.NEXT_PUBLIC_SITE_URL ?? "",
-    process.env.NEXT_PUBLIC_APP_URL ?? "",
-    getVercelDeploymentUrl(),
-  ]
-    .map((value) => value.trim().replace(/\/$/, ""))
-    .find(Boolean);
+  const allowLocalhost = isDevelopmentRuntime();
+  const configuredUrl = getPublicSiteUrlCandidates()
+    .map(normalizePublicSiteUrl)
+    .find((value): value is string => {
+      if (!value) {
+        return false;
+      }
+
+      return allowLocalhost || !isLocalhostUrl(value);
+    });
 
   return configuredUrl ?? null;
 }
@@ -109,29 +134,92 @@ export function validateRuntimeEnvironment({
 }
 
 function validateSiteUrl(issues: EnvironmentIssue[], strict: boolean) {
-  const siteUrl = getPublicSiteUrl();
+  const siteUrl =
+    getConfiguredPublicSiteUrl() ??
+    (isDevelopmentRuntime() ? localDevelopmentSiteUrl : null);
+
+  if (!siteUrl) {
+    issues.push({
+      message:
+        "A production site URL is required. Configure NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_APP_URL, AUTH_URL, NEXTAUTH_URL, or VERCEL_URL; refusing to fall back to http://localhost:3000 outside local development.",
+      severity: strict ? "error" : "warn",
+    });
+    return;
+  }
 
   try {
     const parsedUrl = new URL(siteUrl);
 
-    if (strict && parsedUrl.protocol !== "https:") {
+    if (strict && (parsedUrl.protocol !== "https:" || isLocalhostUrl(siteUrl))) {
       issues.push({
         message:
-          "NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_APP_URL, or VERCEL_URL must use HTTPS in production.",
+          "NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_APP_URL, AUTH_URL, NEXTAUTH_URL, or VERCEL_URL must use a non-local HTTPS URL in production.",
         severity: "error",
       });
     }
   } catch {
     issues.push({
       message:
-        "NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_APP_URL, or VERCEL_URL must be a valid URL.",
+        "NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_APP_URL, AUTH_URL, NEXTAUTH_URL, or VERCEL_URL must be a valid URL.",
       severity: strict ? "error" : "warn",
     });
   }
 }
 
 function getVercelDeploymentUrl() {
-  return process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "";
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+
+  if (!vercelUrl) {
+    return "";
+  }
+
+  return vercelUrl.startsWith("http") ? vercelUrl : `https://${vercelUrl}`;
+}
+
+function getPublicSiteUrlCandidates() {
+  return [
+    ...publicSiteUrlEnvKeys.map((key) => process.env[key] ?? ""),
+    getVercelDeploymentUrl(),
+  ];
+}
+
+function normalizePublicSiteUrl(value: string) {
+  const trimmedValue = value.trim().replace(/\/$/, "");
+
+  if (!trimmedValue) {
+    return null;
+  }
+
+  try {
+    return new URL(trimmedValue).origin;
+  } catch {
+    return null;
+  }
+}
+
+export function isLocalhostUrl(value: string) {
+  try {
+    const hostname = new URL(value).hostname;
+
+    return (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "::1" ||
+      hostname === "[::1]"
+    );
+  } catch {
+    return false;
+  }
+}
+
+function createMissingPublicSiteUrlError() {
+  return new EnvironmentValidationError([
+    {
+      message:
+        "Public site URL is required outside local development. Configure NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_APP_URL, AUTH_URL, NEXTAUTH_URL, or VERCEL_URL; refusing to generate http://localhost:3000 links.",
+      severity: "error",
+    },
+  ]);
 }
 
 function validateAuth(issues: EnvironmentIssue[], strict: boolean) {

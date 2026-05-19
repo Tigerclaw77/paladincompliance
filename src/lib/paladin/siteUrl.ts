@@ -1,6 +1,8 @@
 import {
   getConfiguredPublicSiteUrl,
   getPublicSiteUrl,
+  isDevelopmentRuntime,
+  isLocalhostUrl,
 } from "@/lib/paladin/env";
 
 export function getSiteOrigin(request?: Request) {
@@ -11,20 +13,26 @@ export function getSiteOrigin(request?: Request) {
       return new URL(configuredUrl).origin;
     } catch {
       if (request) {
-        return new URL(request.url).origin;
+        return getRequestOrigin(request);
       }
     }
   }
 
   if (request) {
-    return new URL(request.url).origin;
+    return getRequestOrigin(request);
   }
 
-  try {
-    return new URL(getPublicSiteUrl()).origin;
-  } catch {
-    return "http://localhost:3000";
+  return new URL(getPublicSiteUrl()).origin;
+}
+
+function getRequestOrigin(request: Request) {
+  const origin = new URL(request.url).origin;
+
+  if (isDevelopmentRuntime() || !isLocalhostUrl(origin)) {
+    return origin;
   }
+
+  return new URL(getPublicSiteUrl()).origin;
 }
 
 export function getAbsoluteVerificationUrl(slug: string, request?: Request) {
