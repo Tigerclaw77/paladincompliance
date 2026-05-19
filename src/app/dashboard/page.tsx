@@ -67,6 +67,19 @@ export default async function DashboardPage() {
   );
   const downloadsEnabled = canAccessFeature(entitlements, "downloadableAssets");
   const hasStripeCustomer = Boolean(subscription?.stripeCustomerId);
+  const coverageStatus = getCoverageStatusLabel({
+    lifecycle,
+    subscriptionStatus: subscription?.status,
+  });
+  const hasCoverageRecord = Boolean(subscription);
+  const hasActiveCoverage = entitlements.hasActiveSubscription;
+  const coverageThrough = subscription?.currentPeriodEnd
+    ? formatLifecycleDate(subscription.currentPeriodEnd)
+    : "Pending";
+  const tierLabel = getCoverageTierLabel({
+    hipaaEnabled: entitlements.features.hipaaAddOn.allowed,
+    planLabel: planSnapshot.label,
+  });
 
   return (
     <div className="grid gap-6">
@@ -163,26 +176,75 @@ export default async function DashboardPage() {
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-slate-900/90 p-6 shadow-[0_22px_70px_rgba(2,6,23,0.34)]">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
-            Administrative Actions
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
+                Coverage Status
+              </p>
+              <h2 className="mt-3 text-2xl font-black text-white">
+                Paladin Coverage
+              </h2>
+            </div>
+            <CoverageStatusPill status={coverageStatus} />
+          </div>
+
+          {!hasCoverageRecord && (
+            <div className="mt-5 rounded-xl border border-amber-200/20 bg-amber-200/[0.07] p-4">
+              <p className="text-sm font-black text-amber-100">
+                Coverage status unavailable
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-300">
+                Coverage appears here after checkout and Stripe webhook
+                confirmation create the Paladin subscription record.
+              </p>
+            </div>
+          )}
+
+          <dl className="mt-5 grid gap-3">
+            <CoverageDatum label="Status" value={coverageStatus} />
+            <CoverageDatum label="Tier" value={tierLabel} />
+            <CoverageDatum label="Coverage Through" value={coverageThrough} />
+            <CoverageDatum
+              label="Verification Status"
+              value={lifecycle.badgeLabel}
+            />
+            <CoverageDatum label="Billing Cadence" value="Annual" />
+          </dl>
+
+          <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-xs font-semibold leading-5 text-slate-400">
+            Billing is managed securely through Stripe.
           </p>
-          <h2 className="mt-3 text-2xl font-black text-white">
-            Verification assets
-          </h2>
+
           <div className="mt-5 grid gap-3">
-            <AdminAction
-              href={`/verify/${verificationSlug}`}
-              label="Preview Public Page"
-              tone="primary"
+            {!hasActiveCoverage && (
+              <AdminAction
+                href="/pricing"
+                label="Select Annual Coverage"
+                tone="primary"
+              />
+            )}
+            <ManageBillingButton
+              disabled={!hasStripeCustomer}
+              disabledReason="Billing portal access appears after Stripe creates the customer record."
             />
             <AdminAction
-              href="/whats-included"
-              label="What's Included / About the Binder"
+              href={`/verify/${verificationSlug}`}
+              label="View Public Verification"
             />
             <AdminAction
               disabled={!certificateHref}
               href={certificateHref || "#"}
-              label="Download Verification Certificate"
+              label="Download Certificate"
+            />
+          </div>
+
+          <div className="mt-5 grid gap-3 border-t border-white/10 pt-5">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+              Administrative Actions
+            </p>
+            <AdminAction
+              href="/whats-included"
+              label="What's Included / About the Binder"
             />
             <AdminAction
               disabled={!downloadsEnabled}
@@ -193,10 +255,6 @@ export default async function DashboardPage() {
                   ? undefined
                   : "Assets become available after verification activation."
               }
-            />
-            <ManageBillingButton
-              disabled={!hasStripeCustomer}
-              disabledReason="Billing portal access appears after Stripe creates the customer record."
             />
             <AdminAction href="/dashboard/assets" label="Open Binder Assets" />
             <AdminAction href="/dashboard/settings" label="Edit Organization Metadata" />
@@ -309,6 +367,39 @@ function OperationsDatum({ label, value }: { label: string; value: string }) {
   );
 }
 
+function CoverageDatum({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3">
+      <dt className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">
+        {label}
+      </dt>
+      <dd className="min-w-0 break-words text-right text-sm font-black text-slate-100">
+        {value}
+      </dd>
+    </div>
+  );
+}
+
+function CoverageStatusPill({ status }: { status: string }) {
+  const normalizedStatus = status.toLowerCase();
+  const className =
+    normalizedStatus === "active" || normalizedStatus === "trialing"
+      ? "border-emerald-300/30 bg-emerald-300/12 text-emerald-100"
+      : normalizedStatus === "renewal due"
+        ? "border-amber-300/35 bg-amber-300/12 text-amber-100"
+        : normalizedStatus === "pending"
+          ? "border-blue-300/30 bg-blue-300/12 text-blue-100"
+          : "border-slate-400/25 bg-slate-400/10 text-slate-200";
+
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center rounded-full border px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] ${className}`}
+    >
+      {status}
+    </span>
+  );
+}
+
 function AdminAction({
   description,
   disabled = false,
@@ -353,4 +444,63 @@ function AdminAction({
       )}
     </Link>
   );
+}
+
+function getCoverageStatusLabel({
+  lifecycle,
+  subscriptionStatus,
+}: {
+  lifecycle: VerificationLifecycle;
+  subscriptionStatus?: string | null;
+}) {
+  const normalizedStatus = subscriptionStatus?.trim().toLowerCase() ?? "";
+
+  if (normalizedStatus === "trialing") {
+    return "Trialing";
+  }
+
+  if (lifecycle.state === "active") {
+    return "Active";
+  }
+
+  if (lifecycle.state === "renewal_due") {
+    return "Renewal Due";
+  }
+
+  if (lifecycle.state === "lapsed") {
+    return "Lapsed";
+  }
+
+  if (
+    [
+      "",
+      "inactive",
+      "incomplete",
+      "incomplete_expired",
+      "pending",
+      "pending_checkout",
+    ].includes(normalizedStatus)
+  ) {
+    return "Pending";
+  }
+
+  return "Unknown";
+}
+
+function getCoverageTierLabel({
+  hipaaEnabled,
+  planLabel,
+}: {
+  hipaaEnabled: boolean;
+  planLabel: string;
+}) {
+  const normalizedPlanLabel = planLabel
+    .replace("Custom Enterprise Coverage", "Enterprise")
+    .replace(" + Optional HIPAA Add-On", " + HIPAA Add-On");
+
+  if (!hipaaEnabled || normalizedPlanLabel.toLowerCase().includes("hipaa")) {
+    return normalizedPlanLabel;
+  }
+
+  return `${normalizedPlanLabel} + HIPAA Add-On`;
 }
