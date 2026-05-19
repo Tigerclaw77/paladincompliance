@@ -1,16 +1,17 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getToken } from "next-auth/jwt";
+import { type NextRequest, NextResponse } from "next/server";
 
 const protectedRoutes = [
   "/admin",
   "/dashboard",
   "/onboarding",
   "/start/growth",
+  "/start/operational",
   "/start/starter",
 ];
 
-export default auth((request) => {
-  const isAuthenticated = Boolean(request.auth);
+export default async function middleware(request: NextRequest) {
+  const isAuthenticated = await hasValidSessionToken(request);
   const { nextUrl } = request;
   const isProtectedRoute = protectedRoutes.some((route) =>
     nextUrl.pathname.startsWith(route)
@@ -31,7 +32,23 @@ export default auth((request) => {
   }
 
   return NextResponse.next();
-});
+}
+
+async function hasValidSessionToken(request: NextRequest) {
+  const secret = process.env.AUTH_SECRET;
+
+  if (!secret) {
+    return false;
+  }
+
+  const token = await getToken({
+    req: request,
+    secret,
+    secureCookie: process.env.NODE_ENV === "production",
+  });
+
+  return Boolean(token);
+}
 
 export const config = {
   matcher: [
@@ -40,6 +57,7 @@ export const config = {
     "/dashboard/:path*",
     "/onboarding/:path*",
     "/start/growth",
+    "/start/operational",
     "/start/starter",
   ],
 };
