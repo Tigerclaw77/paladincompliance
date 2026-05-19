@@ -1,4 +1,3 @@
-import { getToken } from "next-auth/jwt";
 import { type NextRequest, NextResponse } from "next/server";
 
 const protectedRoutes = [
@@ -10,14 +9,21 @@ const protectedRoutes = [
   "/start/starter",
 ];
 
-export default async function middleware(request: NextRequest) {
-  const isAuthenticated = await hasValidSessionToken(request);
+const authSessionCookieNames = [
+  "__Secure-authjs.session-token",
+  "authjs.session-token",
+  "__Secure-next-auth.session-token",
+  "next-auth.session-token",
+] as const;
+
+export default function middleware(request: NextRequest) {
+  const hasSession = hasAuthSessionCookie(request);
   const { nextUrl } = request;
   const isProtectedRoute = protectedRoutes.some((route) =>
     nextUrl.pathname.startsWith(route)
   );
 
-  if (!isAuthenticated && isProtectedRoute) {
+  if (!hasSession && isProtectedRoute) {
     const loginUrl = new URL("/login", nextUrl);
     loginUrl.searchParams.set(
       "callbackUrl",
@@ -27,32 +33,23 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAuthenticated && nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/dashboard", nextUrl));
-  }
-
   return NextResponse.next();
 }
 
-async function hasValidSessionToken(request: NextRequest) {
-  const secret = process.env.AUTH_SECRET;
+function hasAuthSessionCookie(request: NextRequest) {
+  return request.cookies.getAll().some((cookie) => {
+    if (!cookie.value) {
+      return false;
+    }
 
-  if (!secret) {
-    return false;
-  }
-
-  const token = await getToken({
-    req: request,
-    secret,
-    secureCookie: process.env.NODE_ENV === "production",
+    return authSessionCookieNames.some(
+      (name) => cookie.name === name || cookie.name.startsWith(`${name}.`)
+    );
   });
-
-  return Boolean(token);
 }
 
 export const config = {
   matcher: [
-    "/login",
     "/admin/:path*",
     "/dashboard/:path*",
     "/onboarding/:path*",
