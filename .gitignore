@@ -20,6 +20,15 @@
 # production
 /build
 
+# local database
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# local asset storage
+.paladin-assets/
+
 # misc
 .DS_Store
 *.pem

@@ -1,0 +1,436 @@
+{
+  "expectedCatalog": [
+    {
+      "amountCents": 12499,
+      "displayName": "Paladin Additional Binder",
+      "family": "binder",
+      "key": "additionalBinder",
+      "priceId": "price_1TUvzXJWAlqh6e3YYs77LtdY",
+      "productId": "prod_UTtnsWBZgxRpmH"
+    },
+    {
+      "amountCents": 17499,
+      "displayName": "Paladin Additional Binder + HIPAA",
+      "family": "binder",
+      "key": "additionalBinderHipaa",
+      "priceId": "price_1TUw00JWAlqh6e3YjBIWM85P",
+      "productId": "prod_UTtnMAWvKS6chl"
+    },
+    {
+      "amountCents": 24999,
+      "displayName": "Paladin Compliance Binder",
+      "family": "binder",
+      "key": "complianceBinder",
+      "priceId": "price_1TUvxIJWAlqh6e3Y8VodUnKK",
+      "productId": "prod_UTtkfp4tyuAzWE"
+    },
+    {
+      "amountCents": 34999,
+      "displayName": "Paladin Compliance Binder + HIPAA",
+      "family": "binder",
+      "key": "complianceBinderHipaa",
+      "priceId": "price_1TUvxrJWAlqh6e3YnVn3EEyF",
+      "productId": "prod_UTtl77jPUWvIXw"
+    },
+    {
+      "amountCents": 499900,
+      "displayName": "Paladin Growth 101-250",
+      "family": "coverage",
+      "key": "growth101To250",
+      "priceId": "price_1TUvjzJWAlqh6e3YPbbU9t37",
+      "productId": "prod_UTtXmvykhtioz2"
+    },
+    {
+      "amountCents": 699900,
+      "displayName": "Paladin Growth 101-250 + HIPAA",
+      "family": "coverage",
+      "key": "growth101To250Hipaa",
+      "priceId": "price_1TUvr5JWAlqh6e3YfnVbdydq",
+      "productId": "prod_UTteNdXw3f5k00"
+    },
+    {
+      "amountCents": 99900,
+      "displayName": "Paladin Growth 1-25",
+      "family": "coverage",
+      "key": "growth1To25",
+      "priceId": "price_1TUvfcJWAlqh6e3YoPYyApn5",
+      "productId": "prod_UTtSHArnshNfpG"
+    },
+    {
+      "amountCents": 139900,
+      "displayName": "Paladin Growth 1-25 + HIPAA",
+      "family": "coverage",
+      "key": "growth1To25Hipaa",
+      "priceId": "price_1TUvpSJWAlqh6e3YFScTt2KC",
+      "productId": "prod_UTtcDm73Y2fQI2"
+    },
+    {
+      "amountCents": 249900,
+      "displayName": "Paladin Growth 26-100",
+      "family": "coverage",
+      "key": "growth26To100",
+      "priceId": "price_1TUviKJWAlqh6e3Yak7L2Xeu",
+      "productId": "prod_UTtVpWCaFKwXeC"
+    },
+    {
+      "amountCents": 349900,
+      "displayName": "Paladin Growth 26-100 + HIPAA",
+      "family": "coverage",
+      "key": "growth26To100Hipaa",
+      "priceId": "price_1TUvqJJWAlqh6e3Y9mnlIkmZ",
+      "productId": "prod_UTtdJysJIP2Nj4"
+    },
+    {
+      "amountCents": 49900,
+      "displayName": "Paladin Starter",
+      "family": "coverage",
+      "key": "starter",
+      "priceId": "price_1TUvb7JWAlqh6e3YDjnXfEsg",
+      "productId": "prod_UTtNC0tCOgtnbH"
+    },
+    {
+      "amountCents": 69900,
+      "displayName": "Paladin Starter + HIPAA",
+      "family": "coverage",
+      "key": "starterHipaa",
+      "priceId": "price_1TUvogJWAlqh6e3YqdWjNkZ0",
+      "productId": "prod_UTtbLO7yjhJXr1"
+    }
+  ],
+  "exportedAt": "2026-05-17T23:00:24.910Z",
+  "mode": "test",
+  "prices": [
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUw00JWAlqh6e3YjBIWM85P",
+      "interval": null,
+      "livemode": false,
+      "product": "prod_UTtnMAWvKS6chl",
+      "type": "one_time",
+      "unit_amount": 17499
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUvzXJWAlqh6e3YYs77LtdY",
+      "interval": null,
+      "livemode": false,
+      "product": "prod_UTtnsWBZgxRpmH",
+      "type": "one_time",
+      "unit_amount": 12499
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUvxrJWAlqh6e3YnVn3EEyF",
+      "interval": null,
+      "livemode": false,
+      "product": "prod_UTtl77jPUWvIXw",
+      "type": "one_time",
+      "unit_amount": 34999
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUvxIJWAlqh6e3Y8VodUnKK",
+      "interval": null,
+      "livemode": false,
+      "product": "prod_UTtkfp4tyuAzWE",
+      "type": "one_time",
+      "unit_amount": 24999
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUvr5JWAlqh6e3YfnVbdydq",
+      "interval": "year",
+      "livemode": false,
+      "product": "prod_UTteNdXw3f5k00",
+      "type": "recurring",
+      "unit_amount": 699900
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUvqJJWAlqh6e3Y9mnlIkmZ",
+      "interval": "year",
+      "livemode": false,
+      "product": "prod_UTtdJysJIP2Nj4",
+      "type": "recurring",
+      "unit_amount": 349900
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUvpSJWAlqh6e3YFScTt2KC",
+      "interval": "year",
+      "livemode": false,
+      "product": "prod_UTtcDm73Y2fQI2",
+      "type": "recurring",
+      "unit_amount": 139900
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUvogJWAlqh6e3YqdWjNkZ0",
+      "interval": "year",
+      "livemode": false,
+      "product": "prod_UTtbLO7yjhJXr1",
+      "type": "recurring",
+      "unit_amount": 69900
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUvjzJWAlqh6e3YPbbU9t37",
+      "interval": "year",
+      "livemode": false,
+      "product": "prod_UTtXmvykhtioz2",
+      "type": "recurring",
+      "unit_amount": 499900
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUviKJWAlqh6e3Yak7L2Xeu",
+      "interval": "year",
+      "livemode": false,
+      "product": "prod_UTtVpWCaFKwXeC",
+      "type": "recurring",
+      "unit_amount": 249900
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUvfcJWAlqh6e3YoPYyApn5",
+      "interval": "year",
+      "livemode": false,
+      "product": "prod_UTtSHArnshNfpG",
+      "type": "recurring",
+      "unit_amount": 99900
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TUvb7JWAlqh6e3YDjnXfEsg",
+      "interval": "year",
+      "livemode": false,
+      "product": "prod_UTtNC0tCOgtnbH",
+      "type": "recurring",
+      "unit_amount": 49900
+    },
+    {
+      "active": true,
+      "currency": "usd",
+      "id": "price_1TU84zJWAlqh6e3Y5d2ul325",
+      "interval": "month",
+      "livemode": false,
+      "product": "prod_UT4Dc9ERwgA1ka",
+      "type": "recurring",
+      "unit_amount": 4900
+    }
+  ],
+  "products": [
+    {
+      "active": true,
+      "description": "Additional or replacement physical binder for active Paladin Compliance members.",
+      "id": "prod_UTtnMAWvKS6chl",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "binder",
+        "paladin_hipaa": "true",
+        "paladin_interval": "one_time",
+        "paladin_managed": "true",
+        "paladin_plan": "binder",
+        "paladin_price_key": "additionalBinderHipaa",
+        "paladin_visibility": "active_coverage"
+      },
+      "name": "Paladin Additional Binder + HIPAA"
+    },
+    {
+      "active": true,
+      "description": "Additional or replacement physical binder for active Paladin Compliance members.",
+      "id": "prod_UTtnsWBZgxRpmH",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "binder",
+        "paladin_hipaa": "false",
+        "paladin_interval": "one_time",
+        "paladin_managed": "true",
+        "paladin_plan": "binder",
+        "paladin_price_key": "additionalBinder",
+        "paladin_visibility": "active_coverage"
+      },
+      "name": "Paladin Additional Binder"
+    },
+    {
+      "active": true,
+      "description": "Physical Paladin Compliance binder package.",
+      "id": "prod_UTtl77jPUWvIXw",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "binder",
+        "paladin_hipaa": "true",
+        "paladin_interval": "one_time",
+        "paladin_managed": "true",
+        "paladin_plan": "binder",
+        "paladin_price_key": "complianceBinderHipaa",
+        "paladin_visibility": "public"
+      },
+      "name": "Paladin Compliance Binder + HIPAA"
+    },
+    {
+      "active": true,
+      "description": "Physical Paladin Compliance binder package.",
+      "id": "prod_UTtkfp4tyuAzWE",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "binder",
+        "paladin_hipaa": "false",
+        "paladin_interval": "one_time",
+        "paladin_managed": "true",
+        "paladin_plan": "binder",
+        "paladin_price_key": "complianceBinder",
+        "paladin_visibility": "public"
+      },
+      "name": "Paladin Compliance Binder"
+    },
+    {
+      "active": true,
+      "description": "Paladin Compliance annual coverage for Paladin Growth 101-250 + HIPAA.",
+      "id": "prod_UTteNdXw3f5k00",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "coverage",
+        "paladin_hipaa": "true",
+        "paladin_interval": "year",
+        "paladin_managed": "true",
+        "paladin_plan": "growth",
+        "paladin_price_key": "growth101To250Hipaa",
+        "paladin_visibility": "public"
+      },
+      "name": "Paladin Growth 101-250 + HIPAA"
+    },
+    {
+      "active": true,
+      "description": "Paladin Compliance annual coverage for Paladin Growth 26-100 + HIPAA.",
+      "id": "prod_UTtdJysJIP2Nj4",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "coverage",
+        "paladin_hipaa": "true",
+        "paladin_interval": "year",
+        "paladin_managed": "true",
+        "paladin_plan": "growth",
+        "paladin_price_key": "growth26To100Hipaa",
+        "paladin_visibility": "public"
+      },
+      "name": "Paladin Growth 26-100 + HIPAA"
+    },
+    {
+      "active": true,
+      "description": "Paladin Compliance annual coverage for Paladin Growth 1-25 + HIPAA.",
+      "id": "prod_UTtcDm73Y2fQI2",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "coverage",
+        "paladin_hipaa": "true",
+        "paladin_interval": "year",
+        "paladin_managed": "true",
+        "paladin_plan": "growth",
+        "paladin_price_key": "growth1To25Hipaa",
+        "paladin_visibility": "public"
+      },
+      "name": "Paladin Growth 1-25 + HIPAA"
+    },
+    {
+      "active": true,
+      "description": "Paladin Compliance annual coverage for Paladin Starter + HIPAA.",
+      "id": "prod_UTtbLO7yjhJXr1",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "coverage",
+        "paladin_hipaa": "true",
+        "paladin_interval": "year",
+        "paladin_managed": "true",
+        "paladin_plan": "starter",
+        "paladin_price_key": "starterHipaa",
+        "paladin_visibility": "public"
+      },
+      "name": "Paladin Starter + HIPAA"
+    },
+    {
+      "active": true,
+      "description": "Paladin Compliance annual coverage for Paladin Growth 101-250.",
+      "id": "prod_UTtXmvykhtioz2",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "coverage",
+        "paladin_hipaa": "false",
+        "paladin_interval": "year",
+        "paladin_managed": "true",
+        "paladin_plan": "growth",
+        "paladin_price_key": "growth101To250",
+        "paladin_visibility": "public"
+      },
+      "name": "Paladin Growth 101-250"
+    },
+    {
+      "active": true,
+      "description": "Paladin Compliance annual coverage for Paladin Growth 26-100.",
+      "id": "prod_UTtVpWCaFKwXeC",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "coverage",
+        "paladin_hipaa": "false",
+        "paladin_interval": "year",
+        "paladin_managed": "true",
+        "paladin_plan": "growth",
+        "paladin_price_key": "growth26To100",
+        "paladin_visibility": "public"
+      },
+      "name": "Paladin Growth 26-100"
+    },
+    {
+      "active": true,
+      "description": "Paladin Compliance annual coverage for Paladin Growth 1-25.",
+      "id": "prod_UTtSHArnshNfpG",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "coverage",
+        "paladin_hipaa": "false",
+        "paladin_interval": "year",
+        "paladin_managed": "true",
+        "paladin_plan": "growth",
+        "paladin_price_key": "growth1To25",
+        "paladin_visibility": "public"
+      },
+      "name": "Paladin Growth 1-25"
+    },
+    {
+      "active": true,
+      "description": "Paladin Compliance annual coverage for Paladin Starter.",
+      "id": "prod_UTtNC0tCOgtnbH",
+      "livemode": false,
+      "metadata": {
+        "paladin_family": "coverage",
+        "paladin_hipaa": "false",
+        "paladin_interval": "year",
+        "paladin_managed": "true",
+        "paladin_plan": "starter",
+        "paladin_price_key": "starter",
+        "paladin_visibility": "public"
+      },
+      "name": "Paladin Starter"
+    },
+    {
+      "active": false,
+      "description": "AI compliance documentation, policy templates, update service, and verification tools for organizations using AI systems.",
+      "id": "prod_UT4Dc9ERwgA1ka",
+      "livemode": false,
+      "metadata": {},
+      "name": "Paladin Starter (monthly)"
+    }
+  ]
+}
