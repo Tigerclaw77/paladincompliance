@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "Checkout could not be started. Please try again or contact Paladin support.",
+          "Coverage checkout is unavailable right now. Please try again or contact Paladin support.",
       },
       { status: 500 }
     );
@@ -470,6 +470,23 @@ function validateCoverageCatalogSelection({
   organization: NonNullable<NonNullable<CheckoutUserContext>["organization"]>;
 }) {
   const acquisitionIntent = organization.acquisitionIntent;
+  const currentSubscriptionStatus = organization.subscription?.status;
+
+  if (isSubscriptionVerificationActive(currentSubscriptionStatus)) {
+    logOperationalEvent("warn", "stripe_checkout_active_coverage_exists", {
+      catalogKey: catalogItem.key,
+      organizationId: organization.id,
+      subscriptionStatus: currentSubscriptionStatus,
+    });
+
+    return NextResponse.json(
+      {
+        error:
+          "Coverage is already active. Use Manage Billing or Upgrade Coverage.",
+      },
+      { status: 409 }
+    );
+  }
 
   if (!acquisitionIntent) {
     logOperationalEvent("warn", "stripe_checkout_missing_acquisition_intent", {

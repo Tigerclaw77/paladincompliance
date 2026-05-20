@@ -1,0 +1,19 @@
+<svg aria-label="Paladin Compliance shield mark" role="img" viewBox="0 0 360 460" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shield-line" x1="80" x2="282" y1="56" y2="424">
+      <stop offset="0%" stop-color="#f3d996" />
+      <stop offset="48%" stop-color="#c8a45d" />
+      <stop offset="100%" stop-color="#f2d690" />
+    </linearGradient>
+    <linearGradient id="center-line" x1="180" x2="180" y1="64" y2="394">
+      <stop offset="0%" stop-color="#f6dd9b" stop-opacity="0.28" />
+      <stop offset="52%" stop-color="#d2ad63" stop-opacity="0.58" />
+      <stop offset="100%" stop-color="#f3d892" stop-opacity="0.22" />
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M180 35C217 75 262 96 311 100C311 221 266 335 180 421C94 335 49 221 49 100C98 96 143 75 180 35Z" stroke="url(#shield-line)" stroke-width="2.4" />
+    <path d="M180 58C211 90 250 108 292 112C290 222 251 318 180 391C109 318 70 222 68 112C110 108 149 90 180 58Z" opacity="0.74" stroke="url(#shield-line)" stroke-width="1.45" />
+    <path d="M180 72L180 376" opacity="0.64" stroke="url(#center-line)" stroke-width="0.85" />
+  </g>
+</svg>

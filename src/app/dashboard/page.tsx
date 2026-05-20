@@ -80,6 +80,9 @@ export default async function DashboardPage() {
     hipaaEnabled: entitlements.features.hipaaAddOn.allowed,
     planLabel: planSnapshot.label,
   });
+  const hipaaCoverageLabel = entitlements.features.hipaaAddOn.allowed
+    ? "HIPAA materials available"
+    : "HIPAA add-on not enabled";
 
   return (
     <div className="grid gap-6">
@@ -156,8 +159,8 @@ export default async function DashboardPage() {
               value={lifecycle.badgeLabel}
             />
             <OperationsDatum
-              label="HIPAA Add-On"
-              value={entitlements.features.hipaaAddOn.allowed ? "ACTIVE" : "INACTIVE"}
+              label="HIPAA Coverage"
+              value={hipaaCoverageLabel}
             />
             <OperationsDatum
               label="Current Verification URL"
@@ -236,6 +239,16 @@ export default async function DashboardPage() {
               href={certificateHref || "#"}
               label="Download Certificate"
             />
+            <AdminAction
+              disabled={!downloadsEnabled}
+              href="/dashboard/assets"
+              label="Open Downloadable Assets"
+              description={
+                downloadsEnabled
+                  ? undefined
+                  : "Files become available after verification activation."
+              }
+            />
           </div>
 
           <div className="mt-5 grid gap-3 border-t border-white/10 pt-5">
@@ -256,7 +269,6 @@ export default async function DashboardPage() {
                   : "Assets become available after verification activation."
               }
             />
-            <AdminAction href="/dashboard/assets" label="Open Binder Assets" />
             <AdminAction href="/dashboard/settings" label="Edit Organization Metadata" />
             <AdminAction
               description={
@@ -269,16 +281,32 @@ export default async function DashboardPage() {
               label="Order Additional Binder"
             />
           </div>
+
+          <div className="mt-5 grid gap-3 border-t border-white/10 pt-5">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+              Optional Upgrades
+            </p>
+            <AdminAction
+              href={entitlements.features.hipaaAddOn.allowed ? "/dashboard/assets" : "/pricing"}
+              label={
+                entitlements.features.hipaaAddOn.allowed
+                  ? "HIPAA Materials Available"
+                  : "Add HIPAA Coverage"
+              }
+            />
+            <AdminAction href="/pricing" label="Upgrade Organization Tier" />
+            <AdminAction href="/start/enterprise" label="Contact Enterprise" />
+          </div>
         </section>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-2xl border border-white/10 bg-slate-900/90 p-6 shadow-[0_22px_70px_rgba(2,6,23,0.34)]">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
-            Public Module Signals
+            Verification Tools
           </p>
           <h2 className="mt-3 text-2xl font-black text-white">
-            Current verification modules
+            Public verification tools
           </h2>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {activeModules.map((module) => (

@@ -110,7 +110,7 @@ async function readCheckoutSessionResponse(response: Response) {
     return (await response.json()) as CheckoutSessionResponse;
   } catch {
     return {
-      error: "Checkout could not be started. Please try again.",
+      error: "Coverage checkout is unavailable right now. Please try again.",
     };
   }
 }
