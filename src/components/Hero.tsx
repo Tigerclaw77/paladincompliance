@@ -8,7 +8,7 @@ export default function Hero() {
 
       {/* Atmospheric background shield */}
       <div
-        className="pointer-events-none absolute inset-0 z-0 opacity-[0.03]"
+        className="pointer-events-none absolute inset-0 z-0 opacity-[0.23]"
         style={{
           backgroundImage: "url('/paladincompliance-bg.png')",
           backgroundRepeat: "no-repeat",
