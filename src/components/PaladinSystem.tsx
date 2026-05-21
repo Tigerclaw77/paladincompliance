@@ -1,12 +1,173 @@
-const qrPattern = [
-  1, 1, 1, 0, 1, 0, 1,
-  1, 0, 1, 0, 0, 1, 0,
-  1, 1, 1, 0, 1, 1, 1,
-  0, 0, 0, 1, 0, 0, 0,
-  1, 0, 1, 1, 1, 0, 1,
-  0, 1, 0, 0, 1, 1, 0,
-  1, 0, 1, 0, 1, 0, 1,
-];
+import type { ReactNode } from "react";
+
+const qrSize = 21;
+
+const qrDataModules = new Set([
+  "0-8",
+  "0-10",
+  "0-11",
+  "0-13",
+  "1-9",
+  "1-11",
+  "2-8",
+  "2-10",
+  "2-12",
+  "3-9",
+  "3-12",
+  "4-8",
+  "4-11",
+  "5-10",
+  "5-12",
+  "6-8",
+  "6-10",
+  "6-12",
+  "8-0",
+  "8-2",
+  "8-5",
+  "8-9",
+  "8-10",
+  "8-13",
+  "8-16",
+  "8-18",
+  "9-1",
+  "9-4",
+  "9-8",
+  "9-11",
+  "9-14",
+  "9-15",
+  "9-19",
+  "10-3",
+  "10-5",
+  "10-8",
+  "10-10",
+  "10-12",
+  "10-13",
+  "10-17",
+  "10-20",
+  "11-0",
+  "11-2",
+  "11-4",
+  "11-9",
+  "11-12",
+  "11-15",
+  "11-18",
+  "12-1",
+  "12-5",
+  "12-8",
+  "12-11",
+  "12-14",
+  "12-16",
+  "12-19",
+  "13-9",
+  "13-10",
+  "13-12",
+  "13-15",
+  "13-17",
+  "13-20",
+  "14-8",
+  "14-10",
+  "14-13",
+  "14-16",
+  "14-18",
+  "15-9",
+  "15-12",
+  "15-14",
+  "15-17",
+  "15-20",
+  "16-8",
+  "16-11",
+  "16-13",
+  "16-15",
+  "16-19",
+  "17-10",
+  "17-12",
+  "17-16",
+  "17-18",
+  "18-8",
+  "18-9",
+  "18-13",
+  "18-15",
+  "18-20",
+  "19-11",
+  "19-14",
+  "19-17",
+  "19-18",
+  "20-8",
+  "20-10",
+  "20-12",
+  "20-15",
+  "20-19",
+]);
+
+function isFinderModule(row: number, column: number) {
+  return [
+    [0, 0],
+    [0, 14],
+    [14, 0],
+  ].some(([originRow, originColumn]) => {
+    const localRow = row - originRow;
+    const localColumn = column - originColumn;
+
+    if (
+      localRow < 0 ||
+      localRow > 6 ||
+      localColumn < 0 ||
+      localColumn > 6
+    ) {
+      return false;
+    }
+
+    const isOuterRing =
+      localRow === 0 ||
+      localRow === 6 ||
+      localColumn === 0 ||
+      localColumn === 6;
+    const isCenter =
+      localRow >= 2 &&
+      localRow <= 4 &&
+      localColumn >= 2 &&
+      localColumn <= 4;
+
+    return isOuterRing || isCenter;
+  });
+}
+
+function isFinderReserve(row: number, column: number) {
+  return [
+    [0, 0],
+    [0, 14],
+    [14, 0],
+  ].some(
+    ([originRow, originColumn]) =>
+      row >= Math.max(0, originRow - 1) &&
+      row <= Math.min(qrSize - 1, originRow + 7) &&
+      column >= Math.max(0, originColumn - 1) &&
+      column <= Math.min(qrSize - 1, originColumn + 7),
+  );
+}
+
+function isTimingModule(row: number, column: number) {
+  return (
+    (row === 6 && column >= 8 && column <= 12 && column % 2 === 0) ||
+    (column === 6 && row >= 8 && row <= 12 && row % 2 === 0)
+  );
+}
+
+function isQrModuleDark(row: number, column: number) {
+  if (isFinderModule(row, column)) {
+    return true;
+  }
+
+  if (isFinderReserve(row, column)) {
+    return false;
+  }
+
+  if (isTimingModule(row, column)) {
+    return true;
+  }
+
+  return qrDataModules.has(`${row}-${column}`);
+}
 
 const cards = [
   {
@@ -179,13 +340,25 @@ function VerificationVisual() {
         </div>
 
         <div className="mt-4 grid grid-cols-[auto_1fr] gap-3">
-          <div className="grid size-14 grid-cols-7 gap-0.5 rounded-[4px] border border-slate-300 bg-white p-1">
-            {qrPattern.map((cell, index) => (
-              <span
-                className={cell ? "bg-[#101827]" : "bg-transparent"}
-                key={`${cell}-${index}`}
-              />
-            ))}
+          <div
+            aria-hidden="true"
+            className="grid size-16 grid-cols-[repeat(21,minmax(0,1fr))] rounded-[4px] border border-slate-300 bg-white p-1.5 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.04)]"
+          >
+            {Array.from({ length: qrSize * qrSize }, (_, index) => {
+              const row = Math.floor(index / qrSize);
+              const column = index % qrSize;
+
+              return (
+                <span
+                  className={
+                    isQrModuleDark(row, column)
+                      ? "bg-[#101827]"
+                      : "bg-transparent"
+                  }
+                  key={`${row}-${column}`}
+                />
+              );
+            })}
           </div>
           <div className="min-w-0 pt-1">
             <p className="text-[8px] font-bold uppercase tracking-[0.16em] text-slate-500">
@@ -267,4 +440,3 @@ function MembershipVisual() {
     </div>
   );
 }
-import type { ReactNode } from "react";
