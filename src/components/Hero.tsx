@@ -5,16 +5,15 @@ import StakeholderDial from "./StakeholderDial";
 export default function Hero() {
   return (
     <section className="relative overflow-hidden text-center py-24 px-6 bg-[#020817]">
-
       {/* Atmospheric background shield */}
       <div
         className="pointer-events-none absolute inset-0 z-0"
         style={{
           backgroundImage: "url('/paladincompliance-bg.png')",
           backgroundRepeat: "no-repeat",
-          backgroundPosition: "center -280px",
-          backgroundSize: "1700px",
-          opacity: 0.04,
+          backgroundPosition: "center -220px",
+          backgroundSize: "1250px",
+          opacity: 0.2,
           filter: "blur(2px)",
         }}
       />
