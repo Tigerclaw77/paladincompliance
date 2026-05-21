@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 const SITE_URL = "https://paladincompliance.com";
 
 const routes = [
-  { path: "/", changefreq: "monthly", priority: "1" },
+  { path: "/", changefreq: "monthly", priority: "1.0" },
   { path: "/pricing", changefreq: "monthly", priority: "0.9" },
   { path: "/whats-included", changefreq: "monthly", priority: "0.8" },
   { path: "/contact", changefreq: "monthly", priority: "0.7" },
@@ -23,7 +23,7 @@ export function GET() {
   const urls = routes
     .map(
       (route) => `  <url>
-    <loc>${SITE_URL}${route.path}</loc>
+    <loc>${route.path === "/" ? SITE_URL : `${SITE_URL}${route.path}`}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${route.changefreq}</changefreq>
     <priority>${route.priority}</priority>
