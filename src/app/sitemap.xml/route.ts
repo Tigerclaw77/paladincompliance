@@ -19,10 +19,12 @@ const routes = [
 export const dynamic = "force-static";
 
 export function GET() {
+  const lastmod = new Date().toISOString();
   const urls = routes
     .map(
       (route) => `  <url>
     <loc>${SITE_URL}${route.path}</loc>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>${route.changefreq}</changefreq>
     <priority>${route.priority}</priority>
   </url>`
@@ -37,7 +39,7 @@ ${urls}
 
   return new NextResponse(sitemap, {
     headers: {
-      "Content-Type": "application/xml",
+      "Content-Type": "application/xml; charset=utf-8",
     },
   });
 }
