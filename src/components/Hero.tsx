@@ -35,7 +35,10 @@ export default function Hero() {
 
         <h1 className="text-5xl md:text-6xl font-bold text-white leading-[1.15] tracking-tight max-w-5xl mx-auto">
           Show your{" "}
-          <span className="text-[#d7c08a] inline-flex items-center align-baseline">
+          <span
+            className="text-[#d7c08a] inline-flex items-center align-baseline whitespace-nowrap"
+            style={{ wordBreak: "keep-all" }}
+          >
             <StakeholderDial />
           </span>{" "}
           you use AI responsibly
