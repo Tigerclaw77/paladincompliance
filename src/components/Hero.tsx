@@ -11,10 +11,10 @@ export default function Hero() {
         style={{
           backgroundImage: "url('/paladincompliance-bg.png')",
           backgroundRepeat: "no-repeat",
-          backgroundPosition: "center -220px",
+          backgroundPosition: "center -180px",
           backgroundSize: "1250px",
           opacity: 0.2,
-          filter: "blur(2px)",
+          filter: "none",
         }}
       />
 
