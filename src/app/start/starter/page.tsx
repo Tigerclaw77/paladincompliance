@@ -30,7 +30,7 @@ export default async function StartStarterPage({
 
 function getErrorMessage(error: string | undefined) {
   if (error === "industry") {
-    return "Select an industry before continuing.";
+    return "Select a valid industry or leave it blank.";
   }
 
   return "";

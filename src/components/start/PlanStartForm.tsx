@@ -94,6 +94,7 @@ export default function PlanStartForm({
               inputStyle={inputStyle}
               labelStyle={labelStyle}
               onChange={handleIndustryChange}
+              required={false}
               value={industry}
             />
 

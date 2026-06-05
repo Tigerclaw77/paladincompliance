@@ -72,7 +72,7 @@ async function saveStartIntent(
 
   const industry = getString(formData, "industry");
 
-  if (!allowedIndustries.has(industry)) {
+  if (industry && !allowedIndustries.has(industry)) {
     redirect(`${callbackPath}?error=industry`);
   }
 
