@@ -10,9 +10,11 @@ type PortalSessionResponse = {
 export default function ManageBillingButton({
   disabled = false,
   disabledReason,
+  variant = "secondary",
 }: {
   disabled?: boolean;
   disabledReason?: string;
+  variant?: "primary" | "secondary";
 }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +48,11 @@ export default function ManageBillingButton({
     <div className="grid gap-2">
       <button
         aria-busy={isLoading}
-        className="h-12 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-sm font-black text-white transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50"
+        className={`h-12 rounded-lg px-5 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:opacity-50 ${
+          variant === "primary"
+            ? "border border-blue-300/20 bg-gradient-to-r from-blue-700 to-blue-500 shadow-[0_14px_32px_rgba(37,99,235,0.24)] hover:from-blue-600 hover:to-blue-400"
+            : "border border-white/10 bg-white/[0.04] hover:bg-white/[0.08]"
+        }`}
         disabled={disabled || isLoading}
         onClick={handleClick}
         type="button"

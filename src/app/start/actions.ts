@@ -3,12 +3,21 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logOperationalEvent } from "@/lib/paladin/logging";
 import {
   getCoveragePriceKey,
   getPaladinPlanName,
   getPaladinPriceItem,
 } from "@/lib/paladin/pricing";
-import { getStripePriceId } from "@/lib/stripe/catalog";
+import { assertStripeServerConfig } from "@/lib/stripe";
+import {
+  getStripeCatalogItem,
+  getStripePriceId,
+} from "@/lib/stripe/catalog";
+import {
+  createSubscriptionCheckoutSession,
+  getCheckoutUserContext,
+} from "@/lib/stripe/checkout";
 
 type StartPlan = "STARTER" | "GROWTH";
 const allowedIndustries = new Set([
@@ -79,11 +88,12 @@ async function saveStartIntent(
     redirect("/start/enterprise?reason=employee-count");
   }
 
-  const selectedPriceItem = getSelectedCoveragePriceItem({
+  const selectedPriceKey = getSelectedCoveragePriceKey({
     employeeCount,
     hipaaEnabled,
     plan,
   });
+  const selectedPriceItem = getPaladinPriceItem(selectedPriceKey);
 
   await prisma.$transaction([
     prisma.acquisitionIntent.upsert({
@@ -120,12 +130,46 @@ async function saveStartIntent(
       data: {
         billingInterval: selectedPriceItem.interval ?? "year",
         planName: getPaladinPlanName(selectedPriceItem),
-        stripePriceId: getStripePriceId(selectedPriceItem.key),
+        stripePriceId: getStripePriceId(selectedPriceKey),
       },
     }),
   ]);
 
-  redirect("/dashboard/billing?intent=saved");
+  const checkoutUserContext = await getCheckoutUserContext(session.user.email);
+
+  if (!checkoutUserContext?.organization) {
+    redirect("/dashboard/billing?checkout=not-started");
+  }
+
+  let checkoutUrl = "";
+
+  try {
+    assertStripeServerConfig();
+
+    const checkoutSession = await createSubscriptionCheckoutSession({
+      catalogItem: getStripeCatalogItem(selectedPriceKey),
+      userContext: checkoutUserContext,
+    });
+
+    checkoutUrl = checkoutSession.url ?? "";
+  } catch (error) {
+    logOperationalEvent("error", "stripe_start_checkout_failed", {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unable to create Stripe Checkout Session",
+      organizationId: membership.organizationId,
+      priceKey: selectedPriceKey,
+    });
+
+    redirect("/dashboard/billing?checkout=not-started");
+  }
+
+  if (!checkoutUrl) {
+    redirect("/dashboard/billing?checkout=not-started");
+  }
+
+  redirect(checkoutUrl);
 }
 
 function getString(formData: FormData, field: string) {
@@ -148,7 +192,7 @@ function getPositiveInteger(formData: FormData, field: string) {
   return Math.min(value, 100000);
 }
 
-function getSelectedCoveragePriceItem({
+function getSelectedCoveragePriceKey({
   employeeCount,
   hipaaEnabled,
   plan,
@@ -157,11 +201,9 @@ function getSelectedCoveragePriceItem({
   hipaaEnabled: boolean;
   plan: StartPlan;
 }) {
-  const priceKey = getCoveragePriceKey({
+  return getCoveragePriceKey({
     employeeCount,
     hipaaEnabled,
     plan,
   });
-
-  return getPaladinPriceItem(priceKey);
 }

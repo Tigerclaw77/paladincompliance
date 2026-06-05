@@ -128,8 +128,7 @@ export default function PlanStartForm({
             <p style={mutedStyle}>Billed annually</p>
             <div style={dividerStyle} />
             <p style={mutedStyle}>
-              After this is saved, the billing workspace will start the
-              verification package through hosted Stripe Checkout.
+              Continuing saves this package and opens hosted Stripe Checkout.
             </p>
           </aside>
         </section>
@@ -143,7 +142,7 @@ function SubmitButton({ plan }: { plan: PlanKey }) {
 
   return (
     <button disabled={pending} style={buttonStyle} type="submit">
-      {pending ? "Saving Package..." : `Continue with ${planLabel(plan)}`}
+      {pending ? "Opening Checkout..." : `Continue with ${planLabel(plan)}`}
     </button>
   );
 }

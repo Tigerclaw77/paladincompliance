@@ -1,19 +1,14 @@
 import Link from "next/link";
-import SubscribeActions from "@/components/billing/SubscribeActions";
 import ManageBillingButton from "@/components/billing/ManageBillingButton";
-import SubscriptionEntitlementBadge from "@/components/entitlements/SubscriptionEntitlementBadge";
-import VerificationStatusBadge from "@/components/verification/VerificationStatusBadge";
-import {
-  formatDisplayDate,
-  getStatusLabel,
-  resolveVerificationLifecycle,
-} from "@/lib/paladin/verification";
+import SubscribeActions from "@/components/billing/SubscribeActions";
 import {
   getAcquisitionIntentPlanLabel,
   resolveCoveragePlanSnapshot,
 } from "@/lib/paladin/billing/coveragePlan";
 import { getCurrentOrganization } from "@/lib/paladin/currentOrganization";
 import { resolveOrganizationEntitlements } from "@/lib/paladin/entitlements/service";
+import { formatDisplayDate } from "@/lib/paladin/verification";
+import { getStripeCatalogItemByPriceId } from "@/lib/stripe/catalog";
 import { isSubscriptionVerificationActive } from "@/lib/stripe/subscriptions";
 
 type BillingPageProps = {
@@ -37,31 +32,26 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
     acquisitionIntent,
     subscription,
   });
+  const hasActiveSubscription = entitlements.hasActiveSubscription;
+  const hasStripeCustomer = Boolean(subscription?.stripeCustomerId);
   const isEnterpriseIntent =
     acquisitionIntent?.plan === "ENTERPRISE" ||
     (acquisitionIntent?.plan === "GROWTH" &&
       (acquisitionIntent.employeeCount ?? 0) > 250);
-  const verificationStatus =
-    organization.verificationPage?.status ??
-    (isSubscriptionVerificationActive(subscription?.status)
-      ? "verified"
-      : "inactive");
-  const lifecycle = resolveVerificationLifecycle({
-    currentPeriodEnd: subscription?.currentPeriodEnd,
-    subscriptionStatus: subscription?.status,
-    verificationStatus,
+  const selectedPlan = getSelectedPlanLabel({
+    acquisitionIntent,
+    planLabel: planSnapshot.label,
   });
-  const checkoutMessage = getCheckoutMessage(params.checkout);
+  const subscriptionStatus = getSubscriptionStatusLabel(subscription?.status);
+  const renewalDate = hasActiveSubscription
+    ? formatDisplayDate(subscription?.currentPeriodEnd)
+    : "";
+  const checkoutMessage = getCheckoutMessage(params.checkout, params.intent);
   const portalMessage = getPortalMessage(params.portal);
-  const hasActiveCoverage = entitlements.hasActiveSubscription;
-  const hasStripeCustomer = Boolean(subscription?.stripeCustomerId);
   const verificationSlug =
     organization.verificationPage?.slug ?? organization.slug;
   const certificateHref = `/api/verification-certificate/${verificationSlug}`;
-  const intentMessage =
-    params.intent === "saved"
-      ? "Plan intent saved. Review billing below to continue with hosted Stripe Checkout."
-      : "";
+  const upgradeAvailable = hasUpgradeAvailable(subscription?.stripePriceId);
 
   return (
     <div className="grid gap-6">
@@ -69,24 +59,14 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
         <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-200">
           Billing
         </p>
-        <div className="mt-4 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-          <div>
-            <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
-              Coverage and verification status
-            </h1>
-            <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
-              Billing records determine coverage state for verification and
-              module access. Active and trialing coverage publish verified
-              status; unresolved billing moves the record into renewal review.
-            </p>
-          </div>
-          <div className="grid gap-3 sm:justify-items-end">
-            <SubscriptionEntitlementBadge entitlements={entitlements} />
-            <VerificationStatusBadge
-              lifecycle={lifecycle}
-              status={verificationStatus}
-            />
-          </div>
+        <div className="mt-4 max-w-3xl">
+          <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
+            Subscription billing
+          </h1>
+          <p className="mt-4 text-sm leading-6 text-slate-300">
+            Manage checkout, renewal, and Stripe billing records for{" "}
+            {organization.name}.
+          </p>
         </div>
       </header>
 
@@ -96,181 +76,70 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
         </section>
       )}
 
-      {intentMessage && (
-        <section className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-4 text-sm font-semibold leading-6 text-emerald-100">
-          {intentMessage}
-        </section>
-      )}
-
       {portalMessage && (
         <section className="rounded-xl border border-blue-300/20 bg-blue-300/10 px-5 py-4 text-sm font-semibold leading-6 text-blue-100">
           {portalMessage}
         </section>
       )}
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <BillingCard
-          label="Coverage"
-          value={subscription ? getStatusLabel(subscription.status) : "Not Recorded"}
-        />
-        <BillingCard
-          label="Plan"
-          value={planSnapshot.label}
-        />
-        <BillingCard
-          label="Coverage Term"
-          value="Annual coverage"
-        />
-        <BillingCard
-          label="Active Through"
-          value={formatDisplayDate(subscription?.currentPeriodEnd)}
-        />
-      </section>
-
       <section className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/90 shadow-[0_22px_70px_rgba(2,6,23,0.34)]">
         <div className="h-1 bg-gradient-to-r from-transparent via-blue-300 to-amber-200" />
-        <div className="grid gap-6 p-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="grid gap-6 p-6 lg:grid-cols-[1fr_auto] lg:items-start">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
-              Coverage
+              Billing
             </p>
             <h2 className="mt-3 text-2xl font-black text-white">
-              {hasActiveCoverage ? "Manage coverage" : "Start or manage coverage"}
+              Subscription
             </h2>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              {hasActiveCoverage
-                ? "Your Paladin coverage is active. Use these actions to manage billing and open the records included with your current standing."
-                : "Use hosted Stripe Checkout for new coverage. A Stripe customer record enables billing portal access for future account management."}
-            </p>
+            {!hasActiveSubscription && acquisitionIntent && (
+              <p className="mt-3 text-sm font-semibold leading-6 text-slate-300">
+                Checkout not completed.
+              </p>
+            )}
           </div>
 
-          {hasActiveCoverage ? (
-            <ManageCoveragePanel
-              certificateHref={certificateHref}
-              hasStripeCustomer={hasStripeCustomer}
-              verificationSlug={verificationSlug}
-            />
-          ) : isEnterpriseIntent ? (
-            <EnterpriseBillingContact />
-          ) : !acquisitionIntent ? (
-            <PlanSelectionNotice
-              hasStripeCustomer={hasStripeCustomer}
-            />
-          ) : (
-            <SubscribeActions
-              employeeCount={acquisitionIntent?.employeeCount}
-              hasStripeCustomer={hasStripeCustomer}
-              hipaaEnabled={Boolean(acquisitionIntent?.hipaaEnabled)}
-              plan={getCheckoutPlan(acquisitionIntent?.plan)}
-            />
-          )}
+          <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
+            {hasActiveSubscription ? (
+              <>
+                <ManageBillingButton
+                  disabled={!hasStripeCustomer}
+                  disabledReason="Billing portal access appears after Stripe creates the customer record."
+                  variant="primary"
+                />
+                {upgradeAvailable && (
+                  <SecondaryActionLink href="/pricing" label="Upgrade Plan" />
+                )}
+              </>
+            ) : isEnterpriseIntent ? (
+              <SecondaryActionLink href="/start/enterprise" label="Contact Sales" />
+            ) : acquisitionIntent ? (
+              <SubscribeActions
+                checkoutLabel="Complete Checkout"
+                employeeCount={acquisitionIntent.employeeCount}
+                hipaaEnabled={Boolean(acquisitionIntent.hipaaEnabled)}
+                plan={getCheckoutPlan(acquisitionIntent.plan)}
+                showManageBilling={false}
+              />
+            ) : (
+              <PrimaryActionLink href="/pricing" label="Select Plan" />
+            )}
+          </div>
+
+          <dl className="grid gap-4 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-3">
+            <BillingLine label="Subscription Status" value={subscriptionStatus} />
+            <BillingLine label="Selected Plan" value={selectedPlan} />
+            {hasActiveSubscription && (
+              <BillingLine label="Renews On" value={renewalDate} />
+            )}
+          </dl>
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-        <section className="rounded-2xl border border-white/10 bg-slate-900/90 p-6 xl:col-span-2">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
-            Coverage Access
-          </p>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            <EntitlementLine
-              allowed={entitlements.features.binderPdfGeneration.allowed}
-              label="Binder PDF generation"
-              href="/dashboard/assets"
-              actionLabel="Open assets"
-            />
-            <EntitlementLine
-              allowed={entitlements.features.downloadableAssets.allowed}
-              label="Downloadable assets"
-              href="/dashboard/assets"
-              actionLabel="Open files"
-            />
-            <EntitlementLine
-              allowed={entitlements.features.hipaaAddOn.allowed}
-              label={
-                entitlements.features.hipaaAddOn.allowed
-                  ? "HIPAA materials available"
-                  : "HIPAA add-on not enabled"
-              }
-              href={entitlements.features.hipaaAddOn.allowed ? "/dashboard/assets" : "/pricing"}
-              actionLabel={
-                entitlements.features.hipaaAddOn.allowed
-                  ? "Open materials"
-                  : "Add HIPAA coverage"
-              }
-              unavailableLabel="HIPAA add-on not enabled"
-            />
-            <EntitlementLine
-              allowed={entitlements.features.verificationModules.allowed}
-              label="Public verification tools"
-              href={`/verify/${verificationSlug}`}
-              actionLabel="View page"
-            />
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-white/10 bg-slate-900/90 p-6 xl:col-span-2">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
-            Optional Upgrades
-          </p>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            <UpgradeAction
-              description={
-                entitlements.features.hipaaAddOn.allowed
-                  ? "HIPAA-oriented materials are already enabled."
-                  : "Add healthcare-oriented materials when your organization needs them."
-              }
-              href={entitlements.features.hipaaAddOn.allowed ? "/dashboard/assets" : "/pricing"}
-              label={
-                entitlements.features.hipaaAddOn.allowed
-                  ? "HIPAA Materials Available"
-                  : "Add HIPAA Coverage"
-              }
-            />
-            <UpgradeAction
-              description="Review higher organization ranges before changing coverage."
-              href="/pricing"
-              label="Upgrade Organization Tier"
-            />
-            <UpgradeAction
-              description="For 250+ staff, multi-location rollout, or custom needs."
-              href="/start/enterprise"
-              label="Contact Enterprise"
-            />
-          </div>
-        </section>
-
+      <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <section className="rounded-2xl border border-white/10 bg-slate-900/90 p-6">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-slate-500">
-            Plan Selection
-          </p>
-          <dl className="mt-5 grid gap-4">
-            <BillingDetail
-              label="Plan"
-              value={
-                acquisitionIntent
-                  ? getAcquisitionIntentPlanLabel(acquisitionIntent)
-                  : "Not selected"
-              }
-            />
-            <BillingDetail
-              label="Plan Source"
-              value={getPlanSourceLabel(planSnapshot.source)}
-            />
-            <BillingDetail
-              label="Industry"
-              value={acquisitionIntent?.industry ?? "Not selected"}
-            />
-            <BillingDetail
-              label="HIPAA Add-on"
-              value={acquisitionIntent?.hipaaEnabled ? "Requested" : "No"}
-            />
-          </dl>
-        </section>
-
-        <section className="rounded-2xl border border-white/10 bg-slate-900/90 p-6">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-slate-500">
-            Billing Record
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
+            Stripe Record
           </p>
           <dl className="mt-5 grid gap-4">
             <BillingDetail
@@ -286,30 +155,54 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
               value={subscription?.stripePriceId ?? "Pending"}
             />
             <BillingDetail
-              label="Webhook Status"
-              value={subscription?.status ?? "No subscription event received"}
+              label="Billing Term"
+              value={getBillingTermLabel(subscription?.billingInterval)}
+            />
+            <BillingDetail
+              label="Cancel at Period End"
+              value={subscription?.cancelAtPeriodEnd ? "Yes" : "No"}
             />
           </dl>
         </section>
 
-        <section className="rounded-2xl border border-amber-200/20 bg-amber-200/[0.06] p-6 xl:col-span-2">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-100">
-            Verification Status Policy
+        <section className="rounded-2xl border border-white/10 bg-slate-900/90 p-6">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
+            Subscription Access
           </p>
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            Organizations without completed coverage appear as NOT YET ACTIVE.
-            Active coverage appears as ACTIVE until renewal timing or billing
-            state requires review. Records inside the renewal window appear as
-            RENEWAL DUE. Coverage no longer maintained after prior activation
-            appears as LAPSED.
-          </p>
-          <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/60 p-4">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-              Cancel at period end
-            </p>
-            <p className="mt-2 text-xl font-black text-white">
-              {subscription?.cancelAtPeriodEnd ? "Yes" : "No"}
-            </p>
+          <div className="mt-5 grid gap-3">
+            <AccessLine
+              allowed={entitlements.features.binderPdfGeneration.allowed}
+              href="/dashboard/assets"
+              label="Binder PDF generation"
+            />
+            <AccessLine
+              allowed={entitlements.features.downloadableAssets.allowed}
+              href="/dashboard/assets"
+              label="Downloadable assets"
+            />
+            <AccessLine
+              allowed={entitlements.features.hipaaAddOn.allowed}
+              href={
+                entitlements.features.hipaaAddOn.allowed
+                  ? "/dashboard/assets"
+                  : "/pricing"
+              }
+              label={
+                entitlements.features.hipaaAddOn.allowed
+                  ? "HIPAA materials"
+                  : "HIPAA add-on"
+              }
+            />
+            <AccessLine
+              allowed={entitlements.features.verificationModules.allowed}
+              href={`/verify/${verificationSlug}`}
+              label="Public verification tools"
+            />
+            <AccessLine
+              allowed={entitlements.features.downloadableAssets.allowed}
+              href={certificateHref}
+              label="Verification certificate"
+            />
           </div>
         </section>
       </section>
@@ -317,170 +210,13 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
   );
 }
 
-function PlanSelectionNotice({
-  hasStripeCustomer,
-}: {
-  hasStripeCustomer: boolean;
-}) {
+function BillingLine({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <a
-        className="inline-flex justify-center rounded-lg border border-blue-300/20 bg-gradient-to-r from-blue-700 to-blue-500 px-4 py-3 text-sm font-black text-white shadow-[0_14px_32px_rgba(37,99,235,0.24)] transition hover:from-blue-600 hover:to-blue-400"
-        href="/pricing"
-      >
-        Select Annual Coverage
-      </a>
-      <ManageBillingButton
-        disabled={!hasStripeCustomer}
-        disabledReason="Billing portal access appears after Stripe creates the customer record."
-      />
-    </div>
-  );
-}
-
-function EnterpriseBillingContact() {
-  return (
-    <div className="rounded-xl border border-amber-200/20 bg-amber-200/[0.07] p-5">
-      <p className="text-sm font-black text-amber-100">
-        Custom Enterprise Coverage
-      </p>
-      <p className="mt-2 text-sm leading-6 text-slate-300">
-        Enterprise organizations receive tailored operational coverage based on
-        organization size, industry requirements, and deployment scope.
-      </p>
-      <a
-        className="mt-5 inline-flex rounded-lg border border-amber-200/25 bg-amber-200/10 px-4 py-3 text-sm font-black text-amber-100 transition hover:bg-amber-200/15"
-        href="/start/enterprise"
-      >
-        Contact Sales
-      </a>
-    </div>
-  );
-}
-
-function ManageCoveragePanel({
-  certificateHref,
-  hasStripeCustomer,
-  verificationSlug,
-}: {
-  certificateHref: string;
-  hasStripeCustomer: boolean;
-  verificationSlug: string;
-}) {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <ManageBillingButton
-        disabled={!hasStripeCustomer}
-        disabledReason="Billing portal access appears after Stripe creates the customer record."
-      />
-      <DashboardActionLink
-        href={`/verify/${verificationSlug}`}
-        label="View Public Verification"
-      />
-      <DashboardActionLink href={certificateHref} label="Download Certificate" />
-      <DashboardActionLink href="/dashboard/assets" label="Open Binder Assets" />
-    </div>
-  );
-}
-
-function EntitlementLine({
-  actionLabel,
-  allowed,
-  href,
-  label,
-  unavailableLabel = "Pending Activation",
-}: {
-  actionLabel?: string;
-  allowed: boolean;
-  href?: string;
-  label: string;
-  unavailableLabel?: string;
-}) {
-  const content = (
-    <>
-      <span className="text-sm font-semibold text-slate-200">{label}</span>
-      <span className="flex shrink-0 items-center gap-2">
-        <span
-          className={`rounded-full border px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] ${
-            allowed
-              ? "border-emerald-300/30 bg-emerald-300/10 text-emerald-100"
-              : "border-slate-400/25 bg-slate-400/10 text-slate-300"
-          }`}
-        >
-          {allowed ? "Available" : unavailableLabel}
-        </span>
-        {allowed && actionLabel && (
-          <span className="rounded-lg border border-blue-300/20 bg-blue-300/10 px-3 py-1.5 text-xs font-black text-blue-100">
-            {actionLabel}
-          </span>
-        )}
-        {!allowed && actionLabel && href && (
-          <span className="rounded-lg border border-amber-200/25 bg-amber-200/10 px-3 py-1.5 text-xs font-black text-amber-100">
-            {actionLabel}
-          </span>
-        )}
-      </span>
-    </>
-  );
-
-  if (href && (allowed || actionLabel)) {
-    return (
-      <Link
-        className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 transition hover:bg-white/[0.08]"
-        href={href}
-      >
-        {content}
-      </Link>
-    );
-  }
-
-  return (
-    <div className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
-      {content}
-    </div>
-  );
-}
-
-function DashboardActionLink({ href, label }: { href: string; label: string }) {
-  return (
-    <Link
-      className="inline-flex h-12 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-4 text-center text-sm font-black text-white transition hover:bg-white/[0.08]"
-      href={href}
-    >
-      {label}
-    </Link>
-  );
-}
-
-function UpgradeAction({
-  description,
-  href,
-  label,
-}: {
-  description: string;
-  href: string;
-  label: string;
-}) {
-  return (
-    <Link
-      className="rounded-xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.08]"
-      href={href}
-    >
-      <span className="text-sm font-black text-white">{label}</span>
-      <span className="mt-2 block text-xs font-semibold leading-5 text-slate-400">
-        {description}
-      </span>
-    </Link>
-  );
-}
-
-function BillingCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-white/10 bg-slate-900/90 p-5 shadow-[0_18px_50px_rgba(2,6,23,0.28)]">
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+    <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+      <dt className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
         {label}
-      </p>
-      <p className="mt-3 text-xl font-black capitalize text-white">{value}</p>
+      </dt>
+      <dd className="mt-2 text-xl font-black text-white">{value}</dd>
     </div>
   );
 }
@@ -498,13 +234,66 @@ function BillingDetail({ label, value }: { label: string; value: string }) {
   );
 }
 
-function getCheckoutMessage(checkout: string | undefined) {
+function AccessLine({
+  allowed,
+  href,
+  label,
+}: {
+  allowed: boolean;
+  href: string;
+  label: string;
+}) {
+  return (
+    <Link
+      className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 transition hover:bg-white/[0.08]"
+      href={href}
+    >
+      <span className="text-sm font-semibold text-slate-200">{label}</span>
+      <span
+        className={`rounded-full border px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] ${
+          allowed
+            ? "border-emerald-300/30 bg-emerald-300/10 text-emerald-100"
+            : "border-slate-400/25 bg-slate-400/10 text-slate-300"
+        }`}
+      >
+        {allowed ? "Available" : "Pending"}
+      </span>
+    </Link>
+  );
+}
+
+function PrimaryActionLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      className="inline-flex h-12 items-center justify-center rounded-lg border border-blue-300/20 bg-gradient-to-r from-blue-700 to-blue-500 px-5 text-sm font-black text-white shadow-[0_14px_32px_rgba(37,99,235,0.24)] transition hover:from-blue-600 hover:to-blue-400"
+      href={href}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function SecondaryActionLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      className="inline-flex h-12 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-5 text-sm font-black text-white transition hover:bg-white/[0.08]"
+      href={href}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function getCheckoutMessage(
+  checkout: string | undefined,
+  intent: string | undefined
+) {
   if (checkout === "success") {
-    return "Checkout completed. Paladin will update coverage after Stripe confirms the subscription event.";
+    return "Checkout completed. Subscription status will update after Stripe confirms the subscription.";
   }
 
-  if (checkout === "cancel") {
-    return "Checkout was canceled. No billing record was changed.";
+  if (checkout === "cancel" || checkout === "not-started" || intent === "saved") {
+    return "Checkout not completed.";
   }
 
   return "";
@@ -512,7 +301,7 @@ function getCheckoutMessage(checkout: string | undefined) {
 
 function getPortalMessage(portal: string | undefined) {
   if (portal === "return") {
-    return "Returned from Stripe Billing Portal. Paladin will reflect any subscription changes after Stripe sends the related webhook event.";
+    return "Returned from Stripe Billing Portal.";
   }
 
   return "";
@@ -524,14 +313,52 @@ function getCheckoutPlan(
   return plan === "GROWTH" ? "operational" : "starter";
 }
 
-function getPlanSourceLabel(source: "active_subscription" | "none" | "pending_intent") {
-  if (source === "active_subscription") {
-    return "Active Stripe subscription";
+function getSelectedPlanLabel({
+  acquisitionIntent,
+  planLabel,
+}: {
+  acquisitionIntent: Parameters<typeof getAcquisitionIntentPlanLabel>[0] | null;
+  planLabel: string;
+}) {
+  if (planLabel && planLabel !== "Coverage not selected") {
+    return planLabel;
   }
 
-  if (source === "pending_intent") {
-    return "Latest saved plan intent";
+  return acquisitionIntent
+    ? getAcquisitionIntentPlanLabel(acquisitionIntent)
+    : "Not selected";
+}
+
+function getSubscriptionStatusLabel(status: string | null | undefined) {
+  if (isSubscriptionVerificationActive(status)) {
+    return "Active";
   }
 
-  return "No plan selected";
+  if (status === "past_due" || status === "unpaid") {
+    return "Payment Review";
+  }
+
+  return "Not Active";
+}
+
+function getBillingTermLabel(interval: string | null | undefined) {
+  if (interval === "year") {
+    return "Annual";
+  }
+
+  if (interval === "month") {
+    return "Monthly";
+  }
+
+  return "Not recorded";
+}
+
+function hasUpgradeAvailable(priceId: string | null | undefined) {
+  const catalogItem = getStripeCatalogItemByPriceId(priceId);
+
+  if (!catalogItem || catalogItem.family !== "coverage") {
+    return false;
+  }
+
+  return catalogItem.key !== "operational101To250Hipaa";
 }
