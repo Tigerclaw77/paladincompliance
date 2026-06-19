@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com",
               "font-src 'self'",
-              "connect-src 'self' https://api.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com",
+              "connect-src 'self' https://api.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com",
               "frame-src https://js.stripe.com https://hooks.stripe.com https://www.googletagmanager.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
