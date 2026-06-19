@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const SITE_URL = "https://paladincompliance.com";
+const SITE_URL = "https://www.paladincompliance.com";
 
 const routes = [
   { path: "/", changefreq: "monthly", priority: "1.0" },

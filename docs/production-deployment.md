@@ -37,6 +37,27 @@ Recommended optional variables:
 - `EMAIL_REPLY_TO`
 - `PALADIN_SUPPORT_EMAIL`
 - `STRIPE_BILLING_PORTAL_CONFIGURATION_ID`
+- `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`
+- `NEXT_PUBLIC_POSTHOG_KEY`
+- `NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com`
+- `NEXT_PUBLIC_CLARITY_PROJECT_ID`
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+
+## Measurement And Search
+
+The app emits baseline canonical, Open Graph, Twitter/X, and JSON-LD metadata
+from `src/app/layout.tsx`. Production also supports optional analytics scripts
+through public Vercel environment variables:
+
+- `NEXT_PUBLIC_POSTHOG_KEY`: PostHog project key.
+- `NEXT_PUBLIC_POSTHOG_HOST`: PostHog ingestion host, normally `https://us.i.posthog.com`.
+- `NEXT_PUBLIC_CLARITY_PROJECT_ID`: Microsoft Clarity project ID.
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`: GA4 measurement ID, for example `G-XXXXXXXXXX`.
+- `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`: Google Search Console meta verification token.
+
+Configure these in Vercel at Project Settings > Environment Variables, then
+redeploy production so Next.js can include the public values in the client
+bundle.
 
 Catalog maintenance is dry-run first. See
 `docs/stripe-catalog-maintenance.md` for details:
