@@ -414,7 +414,7 @@ function formatOneTimePrice(amountCents: number) {
 function formatCurrency(amountCents: number) {
   return new Intl.NumberFormat("en-US", {
     currency: "USD",
-    maximumFractionDigits: 0,
+    maximumFractionDigits: amountCents % 100 === 0 ? 0 : 2,
     style: "currency",
   }).format(amountCents / 100);
 }

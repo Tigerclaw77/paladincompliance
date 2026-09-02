@@ -24,6 +24,10 @@ test("public order route reuses binder Checkout and pricing links to it", async 
   assert.match(orderSource, /BinderCheckoutControls/);
   assert.match(orderSource, /priceKey="complianceBinder"/);
   assert.match(pricingSource, /href="\/order"/);
+  assert.match(
+    pricingSource,
+    /maximumFractionDigits:\s*amountCents % 100 === 0 \? 0 : 2/
+  );
 });
 
 test("binder Checkout requires shipping and returns canceled guests to order", async () => {
