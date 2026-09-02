@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import {
+  formatPaladinPrice,
   getCoveragePriceKey,
   getPaladinPriceItem,
 } from "@/lib/paladin/pricing";
@@ -239,7 +240,7 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
           </p>
           <a href="/order" style={binderOrderLinkStyle}>
             Order a standalone binder —{" "}
-            {formatOneTimePrice(publicBinderItem.amountCents)}
+            {formatPaladinPrice(publicBinderItem)}
           </a>
         </section>
 
@@ -414,7 +415,7 @@ function formatOneTimePrice(amountCents: number) {
 function formatCurrency(amountCents: number) {
   return new Intl.NumberFormat("en-US", {
     currency: "USD",
-    maximumFractionDigits: amountCents % 100 === 0 ? 0 : 2,
+    maximumFractionDigits: 0,
     style: "currency",
   }).format(amountCents / 100);
 }
