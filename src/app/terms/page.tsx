@@ -2,9 +2,12 @@ import Link from "next/link";
 import { getSupportEmail } from "@/lib/paladin/env";
 
 export const metadata = {
-  title: "Terms | Paladin Compliance",
+  title: "Terms",
   description:
     "Baseline terms for Paladin Compliance operational governance materials, verification services, subscriptions, and updates.",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 const serviceScope = [

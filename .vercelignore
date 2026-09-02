@@ -1,0 +1,12 @@
+/.agents
+/binder_source_ordered
+/docs
+/docx_render_*
+/lo_profile_*
+/stripe-snapshots
+/toc_field_render
+/*.docx
+/*.pdf
+/*.png
+/binder_*.md
+/core_binder_production_audit.md

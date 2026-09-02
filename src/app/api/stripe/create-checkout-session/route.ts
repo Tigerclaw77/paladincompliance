@@ -290,12 +290,15 @@ async function createPaymentCheckoutSession({
     payment_intent_data: {
       metadata,
     },
+    shipping_address_collection: {
+      allowed_countries: ["US"],
+    },
     success_url: organization
       ? `${appUrl}/dashboard/assets?checkout=binder-success`
       : `${appUrl}/success?checkout=binder-success`,
     cancel_url: organization
       ? `${appUrl}/dashboard/assets?checkout=binder-cancel`
-      : `${appUrl}/pricing?checkout=binder-cancel`,
+      : `${appUrl}/order?checkout=binder-cancel`,
   });
 
   logOperationalEvent("info", "stripe_checkout_session_created", {

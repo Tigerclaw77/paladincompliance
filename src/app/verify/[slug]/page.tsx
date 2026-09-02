@@ -17,6 +17,8 @@ import { getAbsoluteVerificationUrl } from "@/lib/paladin/siteUrl";
 import { normalizeOrganizationSlug } from "@/lib/paladin/slugs";
 import { prisma } from "@/lib/prisma";
 
+const SITE_URL = "https://www.paladincompliance.com";
+
 type VerifyPageProps = {
   params: Promise<{
     slug: string;
@@ -32,6 +34,10 @@ export async function generateMetadata({
   if (!normalizedSlug) {
     return {
       title: "Paladin Verification",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
@@ -49,11 +55,26 @@ export async function generateMetadata({
   });
 
   const organizationName = verificationPage?.organization.name;
+  const title = organizationName
+    ? organizationName === "Paladin Compliance"
+      ? "Paladin Verification"
+      : `${organizationName} Verification`
+    : "Paladin Verification";
+  const description = organizationName
+    ? `Paladin Compliance verification and governance coverage for ${organizationName}.`
+    : "Paladin Compliance verification and governance coverage.";
+  const verificationUrl = `${SITE_URL}/verify/${encodeURIComponent(
+    normalizedSlug
+  )}`;
 
   return {
-    description: organizationName
-      ? `Paladin Compliance verification and governance coverage for ${organizationName}.`
-      : "Paladin Compliance verification and governance coverage.",
+    title,
+    description,
+    alternates: verificationPage
+      ? {
+          canonical: verificationUrl,
+        }
+      : undefined,
     openGraph: {
       description: organizationName
         ? `Review Paladin Compliance coverage and governance verification for ${organizationName}.`
@@ -62,11 +83,18 @@ export async function generateMetadata({
         ? `${organizationName} | Paladin Verification`
         : "Paladin Verification",
       type: "website",
-      url: getAbsoluteVerificationUrl(normalizedSlug),
+      url: verificationUrl,
     },
-    title: organizationName
-      ? `${organizationName} | Paladin Verification`
-      : "Paladin Verification",
+    robots: verificationPage
+      ? undefined
+      : {
+          index: false,
+          follow: false,
+        },
+    twitter: {
+      title: `${title} | Paladin Compliance`,
+      description,
+    },
   };
 }
 

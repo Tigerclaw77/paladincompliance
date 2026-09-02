@@ -144,6 +144,9 @@ async function handleCheckoutSessionCompleted(
   checkoutSession: Stripe.Checkout.Session,
   event: Stripe.Event
 ) {
+  const shippingDetails =
+    checkoutSession.collected_information?.shipping_details ?? null;
+
   logOperationalEvent("info", "stripe_checkout_session_completed_received", {
     binderQuantity: checkoutSession.metadata?.binder_quantity,
     catalogKey: checkoutSession.metadata?.catalog_key,
@@ -161,6 +164,8 @@ async function handleCheckoutSessionCompleted(
         checkoutSessionId: checkoutSession.id,
         eventId: event.id,
         organizationId: checkoutSession.client_reference_id ?? undefined,
+        shippingAddressCollected: Boolean(shippingDetails?.address),
+        shippingCountry: shippingDetails?.address?.country ?? undefined,
       });
     }
 

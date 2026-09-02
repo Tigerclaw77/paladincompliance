@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import {
+  formatPaladinPrice,
   getCoveragePriceKey,
   getPaladinPriceItem,
 } from "@/lib/paladin/pricing";
@@ -94,6 +95,7 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
   const additionalBinderItem = getPaladinPriceItem(
     hipaaEnabled ? "additionalBinderHipaa" : "additionalBinder"
   );
+  const publicBinderItem = getPaladinPriceItem("complianceBinder");
 
   const operationalIsEnterpriseFit = !operationalAmountCents;
 
@@ -125,7 +127,7 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
             ))}
           </div>
           <a href="/whats-included" style={includedLinkStyle}>
-            What's included and how the binder works
+            What&apos;s included and how the binder works
           </a>
         </section>
 
@@ -236,6 +238,10 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
             initial binder package price. Current add-on reference:{" "}
             <strong>{formatOneTimePrice(additionalBinderItem.amountCents)}</strong>.
           </p>
+          <a href="/order" style={binderOrderLinkStyle}>
+            Order a standalone binder —{" "}
+            {formatPaladinPrice(publicBinderItem)}
+          </a>
         </section>
 
         <section style={foundingStyle}>
@@ -307,7 +313,7 @@ function EnterprisePricingCard({ hipaaEnabled }: { hipaaEnabled: boolean }) {
             Contact Sales
           </a>
           <a href="/whats-included" style={enterpriseIncludedLinkStyle}>
-            What's included
+            What&apos;s included
           </a>
         </div>
       </div>
@@ -367,7 +373,7 @@ function PricingCard({
           {ctaLabel}
         </a>
         <a href="/whats-included" style={cardIncludedLinkStyle}>
-          What's included
+          What&apos;s included
         </a>
       </div>
     </div>
@@ -897,6 +903,18 @@ const binderNoteStyle: CSSProperties = {
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
   marginTop: 22,
   padding: 22,
+};
+
+const binderOrderLinkStyle: CSSProperties = {
+  background: "linear-gradient(145deg, #1e3a8a, #2563eb)",
+  border: "1px solid rgba(198, 168, 91, 0.46)",
+  borderRadius: 8,
+  color: "#ffffff",
+  fontSize: 14,
+  fontWeight: 900,
+  justifySelf: "start",
+  padding: "12px 14px",
+  textDecoration: "none",
 };
 
 const smallLabelStyle: CSSProperties = {

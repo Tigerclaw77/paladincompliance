@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { sendMagicLink } from "./actions";
 
 type LoginFormProps = {
@@ -16,7 +16,7 @@ export default function LoginForm({
     message: "",
     status: "idle" as const,
   });
-  const [email, setEmail] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
   const successMessage =
     state.status === "success"
       ? state.message
@@ -27,12 +27,12 @@ export default function LoginForm({
 
   useEffect(() => {
     if (state.status === "success") {
-      setEmail("");
+      formRef.current?.reset();
     }
   }, [state.status]);
 
   return (
-    <form action={formAction} className="mt-8 grid gap-5">
+    <form action={formAction} className="mt-8 grid gap-5" ref={formRef}>
       <input name="callbackUrl" type="hidden" value={callbackUrl} />
       <label className="grid gap-2 text-sm font-semibold text-slate-200">
         Work email
@@ -42,11 +42,9 @@ export default function LoginForm({
           disabled={isPending}
           inputMode="email"
           name="email"
-          onChange={(event) => setEmail(event.target.value)}
           placeholder="you@organization.com"
           required
           type="email"
-          value={email}
         />
       </label>
 

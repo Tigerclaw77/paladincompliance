@@ -18,9 +18,6 @@ export const metadata: Metadata = {
     template: "%s | Paladin Compliance",
   },
   description: SITE_DESCRIPTION,
-  alternates: {
-    canonical: "/",
-  },
   manifest: "/site.webmanifest",
   openGraph: {
     type: "website",

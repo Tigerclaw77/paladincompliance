@@ -2,9 +2,12 @@ import Link from "next/link";
 import { getSupportEmail } from "@/lib/paladin/env";
 
 export const metadata = {
-  title: "Contact | Paladin Compliance",
+  title: "Contact",
   description:
     "Contact Paladin Compliance for support, sales questions, binder questions, and verification assistance.",
+  alternates: {
+    canonical: "/contact",
+  },
 };
 
 const contactReasons = [

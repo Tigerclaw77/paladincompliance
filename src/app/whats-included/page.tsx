@@ -1,9 +1,12 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "What's Included | Paladin Compliance",
+  title: "What's Included",
   description:
     "Physical binder, digital resources, public verification assets, and update materials included with Paladin Compliance coverage.",
+  alternates: {
+    canonical: "/whats-included",
+  },
 };
 
 const physicalItems = [
@@ -64,7 +67,7 @@ export default function WhatsIncludedPage() {
               Paladin Coverage
             </p>
             <h1 className="mt-5 max-w-4xl break-words text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl">
-              What's included with Paladin Compliance
+              What&apos;s included with Paladin Compliance
             </h1>
             <p className="mt-5 max-w-3xl break-words text-base leading-7 text-slate-300 sm:text-lg">
               Paladin coverage pairs a tangible binder with digital resources,

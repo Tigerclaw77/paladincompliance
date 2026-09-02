@@ -11,6 +11,7 @@
     "db:validate": "prisma validate",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --test tests/*.test.mjs",
     "stripe:audit": "node scripts/audit-stripe-catalog.mjs",
     "stripe:create-missing": "node scripts/create-missing-stripe-products.mjs",
     "stripe:export": "node scripts/export-stripe-catalog.mjs",

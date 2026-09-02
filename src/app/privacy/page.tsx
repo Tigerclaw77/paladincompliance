@@ -2,9 +2,12 @@ import Link from "next/link";
 import { getSupportEmail } from "@/lib/paladin/env";
 
 export const metadata = {
-  title: "Privacy | Paladin Compliance",
+  title: "Privacy",
   description:
     "How Paladin Compliance uses organization, billing, verification, and support information for active services.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 const informationTypes = [

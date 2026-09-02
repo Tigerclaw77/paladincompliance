@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Hero from "@/components/Hero";
 import PaladinSystem from "@/components/PaladinSystem";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function Home() {
   return (
