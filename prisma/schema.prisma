@@ -1,0 +1,185 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  memberships         Membership[]
+  trainingCompletions TrainingCompletion[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships        Membership[]
+  verificationPage   VerificationPage?
+  subscription       Subscription?
+  acquisitionIntent  AcquisitionIntent?
+  downloadableAssets DownloadableAsset[]
+  trainingModules    TrainingModule[]
+}
+
+model Membership {
+  id             String         @id @default(cuid())
+  role           MembershipRole @default(MEMBER)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  userId         String
+  organizationId String
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+}
+
+model VerificationPage {
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  status         String    @default("draft")
+  publicTitle    String?
+  publishedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  organizationId String    @unique
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  status               String    @default("inactive")
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  stripePriceId        String?
+  planName             String?
+  billingInterval      String?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  trialEndsAt          DateTime?
+  canceledAt           DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  organizationId       String    @unique
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model StripeWebhookEvent {
+  id          String   @id
+  type        String
+  processedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
+
+model DownloadableAsset {
+  id             String   @id @default(cuid())
+  title          String
+  description    String?
+  assetType      String
+  fileKey        String
+  filename       String   @default("")
+  mimeType       String   @default("application/octet-stream")
+  sizeBytes      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  organizationId String
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}
+
+model TrainingModule {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String
+  description      String
+  estimatedMinutes Int
+  isPublished      Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  organizationId   String
+
+  organization Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  completions  TrainingCompletion[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+}
+
+model TrainingCompletion {
+  id                 String   @id @default(cuid())
+  completedAt        DateTime @default(now())
+  certificateAssetId String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  moduleId           String
+  userId             String
+
+  module TrainingModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@index([moduleId])
+  @@index([userId])
+}
+
+model AcquisitionIntent {
+  id                   String          @id @default(cuid())
+  plan                 PlanTier
+  billingInterval      BillingInterval @default(YEAR)
+  industry             String
+  hipaaEnabled         Boolean         @default(false)
+  teamSize             String?
+  employeeCount        Int?
+  locationCount        Int?
+  estimatedAnnualCents Int?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  organizationId       String          @unique
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum PlanTier {
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+enum BillingInterval {
+  MONTH
+  YEAR
+}

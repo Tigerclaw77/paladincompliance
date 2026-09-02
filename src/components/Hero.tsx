@@ -1,57 +1,69 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-const stakeholders = [
-  "patients",
-  "customers",
-  "insurers",
-  "regulators",
-  "auditors",
-  "investors",
-  "team"
-];
+import StakeholderDial from "./StakeholderDial";
 
 export default function Hero() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % stakeholders.length);
-    }, 1500);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <section className="text-center py-24 px-6">
-      <h1 className="text-4xl md:text-5xl font-semibold leading-tight">
-        Let your{" "}
-        <span className="text-blue-600 transition-all">
-          {stakeholders[index]}
-        </span>{" "}
-        know you take AI compliance seriously
-      </h1>
+    <section className="relative overflow-hidden text-center py-24 px-6 bg-[#020817]">
+      {/* Atmospheric background shield */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage: "url('/paladincompliance-bg.png')",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center -180px",
+          backgroundSize: "1250px",
+          opacity: 0.2,
+          filter: "none",
+        }}
+      />
 
-      <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto">
-        A simple system to organize your policies, track training, and show your
-        organization is prepared.
-      </p>
+      {/* subtle ambient radial lighting */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(circle at center top, rgba(184,155,94,0.06), transparent 55%)",
+        }}
+      />
 
-      <div className="mt-10 flex justify-center gap-4">
-        <a
-          href="/pricing"
-          className="px-6 py-3 rounded-md bg-black text-white hover:opacity-90"
-        >
-          Get Started
-        </a>
+      {/* Hero content */}
+      <div className="relative z-10">
+        <p className="text-[#b89b5e] tracking-[0.35em] text-sm font-semibold uppercase mb-8">
+          Paladin Compliance
+        </p>
 
-        <a
-          href="/pricing"
-          className="px-6 py-3 rounded-md border hover:bg-gray-50"
-        >
-          View Pricing
-        </a>
+        <h1 className="text-5xl md:text-6xl font-bold text-white leading-[1.15] tracking-tight max-w-5xl mx-auto">
+          Show your{" "}
+          <span
+            className="text-[#d7c08a] inline-flex items-center align-baseline whitespace-nowrap"
+            style={{ wordBreak: "keep-all" }}
+          >
+            <StakeholderDial />
+          </span>{" "}
+          you use AI responsibly
+        </h1>
+
+        <p className="mt-8 text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
+          A simple system to organize your policies, maintain records, and show
+          your organization is prepared.
+        </p>
+
+        <div className="mt-12 flex justify-center gap-4 flex-wrap">
+          <a
+            href="/pricing"
+            className="px-8 py-4 rounded-lg bg-[#d7c08a] text-black font-semibold hover:opacity-90 transition"
+          >
+            Get Started
+          </a>
+
+          <a
+            href="/pricing"
+            className="px-8 py-4 rounded-lg border border-white/15 text-white hover:bg-white/5 transition"
+          >
+            View Pricing
+          </a>
+        </div>
       </div>
     </section>
   );

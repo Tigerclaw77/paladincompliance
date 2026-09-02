@@ -1,0 +1,13 @@
+Price ID,Product ID,Product Name,Product Statement Descriptor,Product Tax Code,Description,Created (UTC),Amount,Currency,Interval,Interval Count,Usage Type,Aggregate Usage,Billing Scheme,Trial Period Days,Tax Behavior
+price_1TYtA7Qp2qjjaF5tshVyoAnm,prod_UTtnMAWvKS6chl,Paladin Additional Binder + HIPAA,,,,2026-05-19 19:18,174.99,usd,,,,,per_unit,,unspecified
+price_1TYtALQp2qjjaF5trwYIV8bU,prod_UTtnsWBZgxRpmH,Paladin Additional Binder,,,,2026-05-19 19:18,124.99,usd,,,,,per_unit,,unspecified
+price_1TYtAHQp2qjjaF5tCIrHsIms,prod_UTtl77jPUWvIXw,Paladin Compliance Binder + HIPAA,,,,2026-05-19 19:18,349.99,usd,,,,,per_unit,,unspecified
+price_1TYtABQp2qjjaF5tj0wtKD6F,prod_UTtkfp4tyuAzWE,Paladin Compliance Binder,,,,2026-05-19 19:18,249.99,usd,,,,,per_unit,,unspecified
+price_1TYtAQQp2qjjaF5tY9R8ZWVH,prod_UXxH0gQaUIi5yE,Paladin Operational 101-250,,,,2026-05-19 19:19,4999.00,usd,year,1,licensed,,per_unit,,unspecified
+price_1TYtALQp2qjjaF5tPSbhRJB6,prod_UXxH4z5o8qUcS0,Paladin Operational 101-250 + HIPAA,,,,2026-05-19 19:18,6999.00,usd,year,1,licensed,,per_unit,,unspecified
+price_1TYtAAQp2qjjaF5tlVMEDVpC,prod_UXIoaNbKXQztbj,Paladin Operational 26-50,,,,2026-05-19 19:18,1499.00,usd,year,1,licensed,,per_unit,,unspecified
+price_1TYtAKQp2qjjaF5tc8np0ONd,prod_UXIoUDXkgnEOiS,Paladin Operational 26-50 + HIPAA,,,,2026-05-19 19:18,2099.00,usd,year,1,licensed,,per_unit,,unspecified
+price_1TYtACQp2qjjaF5tOJBU4WwF,prod_UXxHw814UOiXX4,Paladin Operational 51-100,,,,2026-05-19 19:18,2499.00,usd,year,1,licensed,,per_unit,,unspecified
+price_1TYtALQp2qjjaF5tRXuJ4SgQ,prod_UXxHnokxPOvmsb,Paladin Operational 51-100 + HIPAA,,,,2026-05-19 19:18,3499.00,usd,year,1,licensed,,per_unit,,unspecified
+price_1TYtALQp2qjjaF5tDh6EN7uQ,prod_UTtbLO7yjhJXr1,Paladin Starter + HIPAA,,,,2026-05-19 19:18,699.00,usd,year,1,licensed,,per_unit,,unspecified
+price_1TYtAPQp2qjjaF5tkd2fNiEI,prod_UTtNC0tCOgtnbH,Paladin Starter,,,,2026-05-19 19:19,499.00,usd,year,1,licensed,,per_unit,,unspecified
