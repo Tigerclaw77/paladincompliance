@@ -23,7 +23,7 @@ const digitalItems = [
   "Quick-reference record (13-page PDF), a short digital companion; the full binder is the printed copy and is not offered as a download",
   "Registry record (PDF), QR files, and AI spend record templates (spreadsheet and CSV)",
   "AI spend record you can save to your account, with annual summary (CSV and printable)",
-  "Short AI usage training modules with completion records",
+  "Operational plans only: short AI usage training modules with completion records",
 ];
 
 const verificationItems = [

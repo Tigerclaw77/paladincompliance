@@ -38,7 +38,8 @@ const starterFeatures = [
 const operationalFeatures = [
   "Sized by organization range",
   "For organizations with broader coordination needs",
-  "Same included benefits as Starter, sized by organization range",
+  "Everything in Starter, sized by organization range",
+  "Short AI usage training modules with completion records",
 ];
 
 const enterpriseFeatures = [
