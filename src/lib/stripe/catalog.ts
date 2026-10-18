@@ -20,7 +20,9 @@ import {
   type PaladinPriceKey,
   type PublicBinderPriceKey,
 } from "@/lib/paladin/pricing";
-import { STRIPE_PRICE_IDS } from "@/lib/stripe/priceIds";
+import { getConfiguredStripeMode } from "@/lib/paladin/env";
+import { STRIPE_PRICE_IDS as TEST_PRICE_IDS } from "@/lib/stripe/priceIds";
+import { resolvePriceMappings } from "@/lib/stripe/priceConfig";
 import type { StripeCatalogItem } from "@/lib/stripe/catalogTypes";
 
 export type StripeCatalogKey = PaladinPriceKey;
@@ -30,23 +32,31 @@ export type PublicBinderCatalogKey = PublicBinderPriceKey;
 export type AdditionalBinderCatalogKey = AdditionalBinderPriceKey;
 export type CheckoutCatalogKey = CheckoutPriceKey;
 
-const catalogKeys = Object.keys(STRIPE_PRICE_IDS) as StripeCatalogKey[];
+const catalogKeys = Object.keys(TEST_PRICE_IDS) as StripeCatalogKey[];
+
+/**
+ * Price ids for the configured Stripe mode: the committed TEST ids unless live
+ * keys are configured, in which case ids come only from
+ * STRIPE_LIVE_PRICE_IDS_JSON (blank, so fail-closed, when absent).
+ */
+function getPriceMappings() {
+  return resolvePriceMappings({
+    liveJson: process.env.STRIPE_LIVE_PRICE_IDS_JSON,
+    mode: getConfiguredStripeMode(),
+    testMappings: TEST_PRICE_IDS,
+  });
+}
 
 export const publicBinderCatalogKeys = publicBinderPriceKeys;
 export const additionalBinderCatalogKeys = additionalBinderPriceKeys;
 
-const allowedStripePriceIds = new Set<string>(
-  checkoutPriceKeys
-    .map((catalogKey) => STRIPE_PRICE_IDS[catalogKey].priceId)
-    .filter(isConfiguredStripePriceId)
-);
 
 export function getStripeCatalogItem(
   catalogKey: StripeCatalogKey
 ): StripeCatalogItem {
   return {
     ...getPaladinPriceItem(catalogKey),
-    ...STRIPE_PRICE_IDS[catalogKey],
+    ...getPriceMappings()[catalogKey],
   };
 }
 
@@ -85,11 +95,16 @@ export function normalizeCheckoutCatalogKey(
 }
 
 export function getStripePriceId(catalogKey: StripeCatalogKey) {
-  return STRIPE_PRICE_IDS[catalogKey].priceId;
+  return getPriceMappings()[catalogKey].priceId;
 }
 
 export function isAllowedStripePriceId(priceId: string) {
-  return allowedStripePriceIds.has(priceId) && isConfiguredStripePriceId(priceId);
+  const mappings = getPriceMappings();
+
+  return (
+    isConfiguredStripePriceId(priceId) &&
+    checkoutPriceKeys.some((catalogKey) => mappings[catalogKey].priceId === priceId)
+  );
 }
 
 export function isConfiguredStripePriceId(priceId: string) {

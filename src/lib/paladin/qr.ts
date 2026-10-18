@@ -34,7 +34,7 @@ export async function generateVerificationQrAssetSvg({
   const urlLines = splitSvgText(verificationUrl, 54);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="900" viewBox="0 0 720 900" role="img" aria-label="Paladin verification QR code for ${escapeXml(
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="900" viewBox="0 0 720 900" role="img" aria-label="Paladin registry record QR code for ${escapeXml(
     organizationName
   )}">
   <rect width="720" height="900" fill="#ffffff"/>
@@ -43,7 +43,7 @@ export async function generateVerificationQrAssetSvg({
   <rect x="44" y="110" width="632" height="24" fill="#0f172a"/>
   <text x="360" y="88" text-anchor="middle" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800">Paladin Compliance</text>
   <image href="data:image/svg+xml;base64,${encodedQrSvg}" x="136" y="178" width="448" height="448"/>
-  <text x="360" y="684" text-anchor="middle" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800">Organization verified by Paladin Compliance</text>
+  <text x="360" y="684" text-anchor="middle" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800">Registry record issued by Paladin Compliance</text>
   <text x="360" y="724" text-anchor="middle" fill="#1e3a8a" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">${escapeXml(
     organizationName
   )}</text>

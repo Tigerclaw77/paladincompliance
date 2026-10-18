@@ -24,7 +24,7 @@
 |---:|---|---|---|
 | 1 | FM-1 Cover Page and Controlled Governance Artifact Identity | Print full | Front Matter / FM-1 |
 | 2 | FM-2 Controlled Document and Governance Notice | Print full | Front Matter / FM-2 |
-| 3 | FM-3 Verification, Assurance, and Institutional Trust Statement | Print full | Front Matter / FM-3 |
+| 3 | FM-3 Documented Record, Reliance Boundaries, and Institutional Trust Statement | Print full | Front Matter / FM-3 |
 | 4 | FM-4 Document Control, Revision History, and Governance Maintenance | Print full | Front Matter / FM-4 |
 | 5 | FM-6 Executive Governance Overview | Print full | Front Matter / FM-6 |
 | 6 | 1.1 Governance Overview | Print full | Section I / 1.1 |
@@ -39,7 +39,7 @@
 | 15 | 2.9 High-Risk Workflow Governance, Restricted Automation, and Decision Sensitivity | Print full | Section II / 2.9 |
 | 16 | 2.15 Governance Containment, Exposure Minimization, and Operational Boundary Preservation | Print full | Section II / 2.15 |
 | 17 | 3.1 Governance Safeguards, Control Architecture, and Operational Enforcement Foundations | Print full | Section III / 3.1 |
-| 18 | 3.2 Governance Monitoring, Operational Review, Assurance Validation, and Control Observability | Print full | Section III / 3.2 |
+| 18 | 3.2 Governance Monitoring, Operational Review, Representation Validation, and Control Observability | Print full | Section III / 3.2 |
 | 19 | 3.9 Governance Adoption, Operational Maturity Progression, and Implementation Roadmap | Print full | Section III / 3.9 |
 
 ## Proposed Digital Reference Library Structure
@@ -59,7 +59,7 @@
 |---|---|---|
 | 1.6 Governance Maturity Reference | Summary plus library reference | Maturity language is important but better consumed as a reference model outside the portable binder. |
 | 1.7 Governance Failure Modes | Summary plus library reference | Failure-mode detail is high-value but repetitively doctrinal for print. |
-| 1.8 Public Trust and Verification Concepts | Summary plus library reference | Trust and verification are represented in FM-3 and Section 1.18; long-form concepts remain in the library. |
+| 1.8 Public Trust and Registry Record Concepts | Summary plus library reference | Trust and verification are represented in FM-3 and Section 1.18; long-form concepts remain in the library. |
 | 1.9 Governance Drift and Stagnation | Summary plus library reference | Drift is carried into core through escalation, evidence, review, and safeguards; full doctrine stays digital. |
 | 2.2 Confidentiality Risk, Exposure Pathways, and Information Handling Boundaries | Summary plus library reference | Confidentiality concepts are represented in 2.1, 2.3, 2.9, and 2.15; detailed propagation remains digital. |
 | 2.4 Third-Party Processing, Vendor Dependencies, and AI Service Exposure | Summary plus library reference | Vendor treatment is important but detailed tiering is preserved digitally in 2.12. |
@@ -79,13 +79,13 @@
 | 1.13 Governance Decision Integrity and Accountability Preservation | Decision-integrity doctrine is preserved digitally; core carries accountable authority concepts. |
 | 1.14 Governance Dependency, Coordination, and Institutional Fragility | Dependency doctrine is critical for reference and vendor/AI modules but too extensive for core print. |
 | 1.15 Governance Change Management, Adaptation, and Institutional Evolution | Change doctrine supports later implementation but is reference-heavy. |
-| 1.16 Governance Assurance, Institutional Trust, and External Reliance | Assurance detail is carried through FM-3 and 3.4; full model remains digital. |
+| 1.16 Governance Representations, Institutional Trust, and External Reliance | Assurance detail is carried through FM-3 and 3.4; full model remains digital. |
 | 1.17 Governance Monitoring, Validation, and Institutional Self-Assessment | Core includes Section 3.2 monitoring; the conceptual foundation remains in library. |
 | 2.5 Operational Retention, Record Persistence, and Governance Reconstruction | Retention doctrine remains a digital reference tied to evidence and reconstruction. |
 | 2.11 Data Exposure Pathways, Propagation Chains, and Cross-System Governance Risk | Detailed propagation-chain analysis is reference-library material. |
 | 2.12 Vendor Governance Tiering, Dependency Classification, and Reliance Scaling | Detailed vendor tiering should support digital modules and update cadence. |
 | 2.14 Confidentiality Classification, Restricted Information Handling, and Governance Sensitivity Scaling | Classification detail is operationally important but belongs in digital reference and forms. |
-| 3.4 Governance Verification, Evidence Substantiation, Assurance Defense, and Operational Proof Structures | Long-form assurance defense is library material tied to future forms and attestations. |
+| 3.4 Governance Evidence Review, Evidence Substantiation, Representation Defense, and Operational Documentation Structures | Long-form assurance defense is library material tied to future forms and attestations. |
 | 3.5 Governance Training, Operational Competency, Institutional Awareness, and Human Oversight Enablement | Training structures should live in digital implementation modules and role-based materials. |
 | 3.7 Governance Integration, Institutional Alignment, Operational Coherence, and Long-Horizon Governance Stewardship | Integration doctrine is important for maturity work and digital knowledge architecture. |
 | 3.8 Governance Operationalization, Document Stewardship, Implementation Administration, and Institutional Governance Continuity | Administrative operationalization supports future templates and implementation records. |

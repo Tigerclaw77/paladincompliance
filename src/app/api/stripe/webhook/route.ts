@@ -6,7 +6,12 @@ import {
   stripe,
 } from "@/lib/stripe";
 import { logOperationalEvent } from "@/lib/paladin/logging";
+import { notifyOwnerOfOrder } from "@/lib/paladin/orders/notify";
 import { prisma } from "@/lib/prisma";
+import {
+  isGuestStarterCheckoutSession,
+  provisionGuestStarterOrganization,
+} from "@/lib/stripe/guestProvisioning";
 import {
   markSubscriptionInactive,
   syncStripeSubscription,
@@ -167,8 +172,26 @@ async function handleCheckoutSessionCompleted(
         shippingAddressCollected: Boolean(shippingDetails?.address),
         shippingCountry: shippingDetails?.address?.country ?? undefined,
       });
+      await notifyOwnerOfOrder(checkoutSession);
     }
 
+    return;
+  }
+
+  if (isGuestStarterCheckoutSession(checkoutSession)) {
+    if (checkoutSession.payment_status === "unpaid") {
+      logOperationalEvent("warn", "stripe_guest_starter_unpaid_ignored", {
+        checkoutSessionId: checkoutSession.id,
+        eventId: event.id,
+      });
+      return;
+    }
+
+    await provisionGuestStarterOrganization(checkoutSession, {
+      eventId: event.id,
+      eventType: event.type,
+    });
+    await notifyOwnerOfOrder(checkoutSession);
     return;
   }
 

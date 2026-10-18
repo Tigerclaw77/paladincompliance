@@ -67,7 +67,7 @@ export async function POST() {
       return NextResponse.json(
         {
           error:
-            "No billing record is connected to this organization yet. Start coverage before managing billing.",
+            "No billing record is connected to this organization yet. Start a subscription before managing billing.",
         },
         { status: 409 }
       );

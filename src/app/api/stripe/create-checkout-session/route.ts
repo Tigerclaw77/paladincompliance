@@ -27,6 +27,12 @@ import {
   type CheckoutUserContext,
 } from "@/lib/stripe/checkout";
 import { isSubscriptionVerificationActive } from "@/lib/stripe/subscriptions";
+import {
+  isGuestStarterCatalogKey,
+  parseGuestStarterInput,
+} from "@/lib/paladin/guestStarter";
+import { isCheckoutKeyEnabled } from "@/lib/paladin/pricing";
+import { createGuestStarterCheckoutSession } from "@/lib/stripe/guestCheckout";
 
 export const runtime = "nodejs";
 
@@ -34,8 +40,12 @@ const MIN_BINDER_QUANTITY = 1;
 const MAX_BINDER_QUANTITY = 25;
 
 type CreateCheckoutSessionBody = {
+  email?: unknown;
+  industry?: unknown;
+  organizationName?: unknown;
   priceKey?: string;
   quantity?: unknown;
+  staffAttestation?: unknown;
 };
 
 export async function POST(request: NextRequest) {
@@ -100,6 +110,25 @@ export async function POST(request: NextRequest) {
     });
 
     if (catalogItem.mode === "subscription") {
+      if (!userContext?.organization && isGuestStarterCatalogKey(catalogItem.key)) {
+        // Guest Starter: no account yet. The organization is created by the
+        // Stripe webhook after payment.
+        const guestInput = parseGuestStarterInput(
+          body as Record<string, unknown>
+        );
+
+        if (!guestInput.ok) {
+          return NextResponse.json({ error: guestInput.error }, { status: 400 });
+        }
+
+        const checkoutSession = await createGuestStarterCheckoutSession({
+          catalogKey: "starter",
+          input: guestInput.value,
+        });
+
+        return getCheckoutResponse(checkoutSession);
+      }
+
       if (!userContext?.organization) {
         logOperationalEvent("warn", "stripe_checkout_organization_required", {
           catalogKey: catalogItem.key,
@@ -107,7 +136,7 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json(
-          { error: "Create an organization before starting coverage." },
+          { error: "Create an organization before starting a subscription." },
           { status: session?.user?.email ? 409 : 401 }
         );
       }
@@ -144,7 +173,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Additional binders are available after organizational coverage is active.",
+            "Additional binders are available after an active subscription is in place.",
         },
         { status: 403 }
       );
@@ -185,7 +214,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "Coverage checkout is unavailable right now. Please try again or contact Paladin support.",
+          "Checkout is unavailable right now. Please try again or contact Paladin support.",
       },
       { status: 500 }
     );
@@ -198,7 +227,9 @@ function getAllowedCatalogItem(body: CreateCheckoutSessionBody) {
       ? normalizeCheckoutCatalogKey(body.priceKey)
       : null;
 
-  return priceKey ? getStripeCatalogItem(priceKey) : null;
+  return priceKey && isCheckoutKeyEnabled(priceKey)
+    ? getStripeCatalogItem(priceKey)
+    : null;
 }
 
 function getCheckoutQuantity(

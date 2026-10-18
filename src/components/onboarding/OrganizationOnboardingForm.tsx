@@ -50,7 +50,7 @@ export default function OrganizationOnboardingForm({
           Organization profile
         </h2>
         <p className="mt-2 text-sm leading-6 text-slate-400">
-          Add your organization name and confirm the public verification URL.
+          Add your organization name and confirm the public registry record URL.
         </p>
       </div>
 
@@ -68,7 +68,7 @@ export default function OrganizationOnboardingForm({
       </label>
 
       <label className="grid gap-2 text-sm font-semibold text-slate-200">
-        Verification slug
+        Registry record slug
         <input
           className="h-12 rounded-lg border border-white/10 bg-slate-950/70 px-4 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/25"
           maxLength={64}
@@ -80,13 +80,13 @@ export default function OrganizationOnboardingForm({
           value={slug}
         />
         <span className="text-xs font-medium leading-5 text-slate-500">
-          This becomes your public verification URL.
+          This becomes your public registry record URL.
         </span>
       </label>
 
       <div className="rounded-lg border border-blue-300/15 bg-blue-500/10 px-4 py-3">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-200">
-          Public verification preview
+          Public registry record preview
         </p>
         <p className="mt-2 break-all text-sm font-semibold text-white">
           {siteOrigin}/verify/{previewSlug}

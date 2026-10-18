@@ -117,7 +117,6 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
               <SubscribeActions
                 checkoutLabel="Complete Checkout"
                 employeeCount={acquisitionIntent.employeeCount}
-                hipaaEnabled={Boolean(acquisitionIntent.hipaaEnabled)}
                 plan={getCheckoutPlan(acquisitionIntent.plan)}
                 showManageBilling={false}
               />
@@ -181,27 +180,14 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
               label="Downloadable assets"
             />
             <AccessLine
-              allowed={entitlements.features.hipaaAddOn.allowed}
-              href={
-                entitlements.features.hipaaAddOn.allowed
-                  ? "/dashboard/assets"
-                  : "/pricing"
-              }
-              label={
-                entitlements.features.hipaaAddOn.allowed
-                  ? "HIPAA materials"
-                  : "HIPAA add-on"
-              }
-            />
-            <AccessLine
               allowed={entitlements.features.verificationModules.allowed}
               href={`/verify/${verificationSlug}`}
-              label="Public verification tools"
+              label="Registry record tools"
             />
             <AccessLine
               allowed={entitlements.features.downloadableAssets.allowed}
               href={certificateHref}
-              label="Verification certificate"
+              label="Registry record"
             />
           </div>
         </section>
@@ -320,7 +306,7 @@ function getSelectedPlanLabel({
   acquisitionIntent: Parameters<typeof getAcquisitionIntentPlanLabel>[0] | null;
   planLabel: string;
 }) {
-  if (planLabel && planLabel !== "Coverage not selected") {
+  if (planLabel && planLabel !== "No plan selected") {
     return planLabel;
   }
 
@@ -360,5 +346,5 @@ function hasUpgradeAvailable(priceId: string | null | undefined) {
     return false;
   }
 
-  return catalogItem.key !== "operational101To250Hipaa";
+  return catalogItem.key !== "operational101To250";
 }

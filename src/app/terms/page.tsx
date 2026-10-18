@@ -4,30 +4,32 @@ import { getSupportEmail } from "@/lib/paladin/env";
 export const metadata = {
   title: "Terms",
   description:
-    "Baseline terms for Paladin Compliance operational governance materials, verification services, subscriptions, and updates.",
+    "Baseline terms for Paladin AI Policy & Evidence Binders, registry records, subscriptions, and updates. Documentation only; not legal advice or certification.",
   alternates: {
     canonical: "/terms",
   },
 };
 
 const serviceScope = [
-  "Operational governance and reference materials for organizational use.",
-  "Public verification pages, certificates, QR assets, and related downloadable materials.",
-  "Physical binder materials and maintained digital resources available during active coverage.",
-  "Optional HIPAA-oriented operational reference materials when selected by the organization.",
+  "An AI Policy & Evidence Binder and related reference materials for organizational use. Documentation only.",
+  "A public registry record showing the binder was issued to the organization, QR assets, and related downloadable materials. Paladin issues and maintains the record; it is not a third-party review.",
+  "An initial printed binder shipped by mail to a U.S. address, and a digital quick-reference record (a short PDF summary, not the full binder) in the member workspace during an active plan.",
+  "Email notice of binder revisions that Paladin releases, a revision log, and a renewal reminder email. No fixed revision schedule or delivery date is promised.",
+  "A compliance calendar with emailed reminders (which you can unsubscribe from), three short AI use training modules with acknowledgment records that your organization completes and keeps, and two recurring review checklists with dated records. These are record-keeping tools: acknowledgments and reviews are your organization's own entries, not certifications or audits.",
+  "Email support at the contact address below, without a guaranteed response time.",
 ];
 
 const organizationResponsibilities = [
   "Reviewing materials for fit with the organization's own workflows, obligations, and risk posture.",
   "Maintaining appropriate internal policies, procedures, training, oversight, and professional review.",
-  "Using Paladin materials as operational references rather than legal advice or external certification.",
-  "Keeping billing, organization profile, and verification information reasonably current.",
+  "Using Paladin materials as documentation rather than legal advice or certification, and following their own AI policies.",
+  "Keeping billing, organization profile, and registry information reasonably current.",
 ];
 
 const subscriptionEffects = [
-  "Active subscriptions support maintained verification status and ongoing update access.",
-  "Cancellation, failed renewal, or nonpayment may move verification into renewal due or lapsed status.",
-  "Lapsed verification means Paladin is no longer presenting the public record as actively maintained.",
+  "Active subscriptions support a maintained registry record and ongoing update access.",
+  "Cancellation, failed renewal, or nonpayment may move the registry record into renewal due or lapsed status.",
+  "A lapsed record means Paladin is no longer presenting the public registry record as actively maintained.",
   "Binder and digital materials may evolve over time as operational reference materials are maintained.",
 ];
 
@@ -46,7 +48,7 @@ export default function TermsPage() {
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300">
             These terms describe the baseline operating relationship for
-            Paladin Compliance coverage, verification services, binder
+            Paladin Compliance plans, registry records, binder
             materials, and maintained digital resources.
           </p>
         </header>
@@ -72,9 +74,12 @@ export default function TermsPage() {
             Organization Responsibility
           </h2>
           <p className="mt-3 text-sm leading-7 text-slate-300">
-            Paladin provides operational governance and reference materials.
-            Paladin does not provide legal advice, and verification does not
-            guarantee regulatory compliance or approval by a government agency.
+            Paladin provides documentation and reference materials. Paladin
+            does not provide legal advice. Nothing Paladin provides is a
+            certification, audit, or guarantee, and a registry record does not
+            show that an organization complies with any law, regulation
+            (including HIPAA or TRAIGA), insurance policy, or contract, or that
+            a government agency or independent third party has approved it.
             Organizations remain responsible for their own legal, regulatory,
             professional, and operational obligations.
           </p>
@@ -92,7 +97,7 @@ export default function TermsPage() {
 
         <section className="rounded-2xl border border-white/10 bg-slate-900/88 p-6 shadow-[0_22px_70px_rgba(2,6,23,0.28)] sm:p-8">
           <h2 className="text-2xl font-black text-white">
-            Subscription And Verification Status
+            Subscription And Registry Status
           </h2>
           <ul className="mt-5 grid gap-3">
             {subscriptionEffects.map((item) => (
@@ -109,7 +114,7 @@ export default function TermsPage() {
         <section className="grid gap-6 md:grid-cols-2">
           <PolicyNote
             title="Updates"
-            body="Paladin may revise, replace, or expand binder sections, verification assets, and digital resources as the service evolves. Updated materials are part of the maintained service, not a promise that prior versions were defective."
+            body="Paladin may revise, replace, or expand binder sections, registry assets, and digital resources as the service evolves. Updated materials are part of the maintained service, not a promise that prior versions were defective."
           />
           <PolicyNote
             title="Reasonable Limits"

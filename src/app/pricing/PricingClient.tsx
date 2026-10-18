@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { type CSSProperties, type ReactNode } from "react";
+import { DISCLAIMER_SHORT, SUPPORTS_NOT_REPLACES } from "@/lib/paladin/copy";
 import {
   formatPaladinPrice,
   getCoveragePriceKey,
@@ -9,105 +10,66 @@ import {
 
 type PricingClientProps = {
   checkoutCanceled: boolean;
-};
-
-type OperationalRange = {
-  employeeCount: number | null;
-  id: string;
-  label: string;
+  supportEmail: string;
 };
 
 const sharedIncludes = [
-  "Initial physical compliance binder",
-  "Public verification page",
-  "QR verification",
-  "Digital update access",
-  "Email support",
+  "Initial physical AI Policy & Evidence Binder",
+  "Public registry record page",
+  "QR registry lookup",
+  "Annual binder revision with email notice and revision log",
+  "Compliance calendar in your dashboard, with a downloadable .ics file and reminder emails (unsubscribe any time)",
+  "Renewal reminder email about 30 days before renewal",
+  "Three short AI use training modules with dated acknowledgment records (CSV export)",
+  "Quarterly AI tool inventory and semiannual vendor review checklists with dated records",
+  "Annual AI spend summary (CSV and printable)",
+  "Email support, answered on business days on a best-effort basis (no guaranteed response time)",
 ];
 
 const starterFeatures = [
   "Single operating footprint",
   "Standard binder presentation",
-  "Annual verification and policy update cycle",
+  "Digital quick-reference record (13-page PDF) in your workspace",
 ];
 
 const operationalFeatures = [
   "Sized by organization range",
   "For organizations with broader coordination needs",
-  "Update inserts when materials change",
+  "Everything in Starter, sized by organization range",
+  "Scope and price confirmed in writing before purchase",
 ];
 
 const enterpriseFeatures = [
   "Multi-location coordination",
-  "Premium binder presentation",
-  "Priority setup and update handling",
+  "Scope, deliverables and pricing confirmed in writing before purchase",
 ];
 
-const operationalRanges: OperationalRange[] = [
-  {
-    employeeCount: 50,
-    id: "26-50",
-    label: "26-50 staff",
-  },
-  {
-    employeeCount: 100,
-    id: "51-100",
-    label: "51-100 staff",
-  },
-  {
-    employeeCount: 250,
-    id: "101-250",
-    label: "101-250 staff",
-  },
-  {
-    employeeCount: null,
-    id: "250-plus",
-    label: "250+",
-  },
-];
-
-export default function PricingClient({ checkoutCanceled }: PricingClientProps) {
-  const [hipaaEnabled, setHipaaEnabled] = useState(false);
-  const [operationalRangeId, setOperationalRangeId] = useState("26-50");
-
-  const selectedOperationalRange = useMemo(
-    () =>
-      operationalRanges.find((range) => range.id === operationalRangeId) ??
-      operationalRanges[0],
-    [operationalRangeId]
-  );
-
+export default function PricingClient({
+  checkoutCanceled,
+  supportEmail,
+}: PricingClientProps) {
   const starterItem = getPaladinPriceItem(
     getCoveragePriceKey({
-      hipaaEnabled,
       plan: "starter",
     })
   );
-  const operationalAmountCents = selectedOperationalRange.employeeCount
-    ? getPaladinPriceItem(
-        getCoveragePriceKey({
-          employeeCount: selectedOperationalRange.employeeCount,
-          hipaaEnabled,
-          plan: "operational",
-        })
-      ).amountCents
-    : null;
-  const additionalBinderItem = getPaladinPriceItem(
-    hipaaEnabled ? "additionalBinderHipaa" : "additionalBinder"
-  );
   const publicBinderItem = getPaladinPriceItem("complianceBinder");
-
-  const operationalIsEnterpriseFit = !operationalAmountCents;
+  const additionalBinderItem = getPaladinPriceItem("additionalBinder");
 
   return (
     <main style={pageStyle}>
       <div style={containerStyle}>
         <header style={headerStyle}>
-          <p style={eyebrowStyle}>Responsible AI Verification</p>
-          <h1 style={titleStyle}>Show customers you use AI responsibly.</h1>
+          <p style={eyebrowStyle}>AI Policy &amp; Evidence Binder</p>
+          <h1 style={titleStyle}>Keep your AI policy and records in one binder.</h1>
           <p style={subheadStyle}>
-            Public verification, a professional binder, and clear AI use
-            policies for organizations that want trust to be visible.
+            For insurance renewals, client security questionnaires, and board or
+            budget records. Includes a documented record of what your
+            organization spends on AI compliance resources each year, so you
+            can say &ldquo;we spent $X on AI compliance this year.&rdquo;
+          </p>
+          <p style={disclaimerStyle}>
+            {DISCLAIMER_SHORT} {SUPPORTS_NOT_REPLACES}
           </p>
         </header>
 
@@ -116,6 +78,35 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
             Checkout was canceled. No billing record was changed.
           </section>
         )}
+
+        <section style={proofStyle} aria-label="What the binder is used for">
+          <div>
+            <p style={smallLabelStyle}>Where it gets used</p>
+            <h2 style={sectionTitleStyle}>
+              Documentation you can hand to the people who ask
+            </h2>
+          </div>
+          <ul style={proofListStyle}>
+            <li>
+              Insurance renewals and client security questionnaires: one
+              organized set of your AI use policy sections and annual spend
+              record to attach or reference.
+            </li>
+            <li>
+              Board and budget records: a documented record of what the
+              organization spends on AI compliance resources each year. It is
+              a documented gesture that supports, and does not replace,
+              responsible AI use.
+            </li>
+            <li>
+              A public registry record showing this binder was issued to your
+              organization, with a QR code on the binder. Paladin issues the
+              record; it is not a third-party review.
+              {" "}
+              <a href="/sample">See sample contents</a>.
+            </li>
+          </ul>
+        </section>
 
         <section style={includedStyle} aria-label="Included with every plan">
           <p style={includedIntroStyle}>Every membership includes</p>
@@ -131,30 +122,6 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
           </a>
         </section>
 
-        <section style={controlBarStyle} aria-label="Pricing options">
-          <div>
-            <p style={controlLabelStyle}>Optional HIPAA Add-On</p>
-            <p style={controlCopyStyle}>
-              Available on every tier for healthcare organizations that need
-              HIPAA-oriented policy materials.
-            </p>
-          </div>
-          <button
-            aria-checked={hipaaEnabled}
-            onClick={() => setHipaaEnabled((current) => !current)}
-            role="switch"
-            style={hipaaEnabled ? toggleOnStyle : toggleOffStyle}
-            type="button"
-          >
-            <span
-              style={hipaaEnabled ? toggleKnobOnStyle : toggleKnobOffStyle}
-            />
-            <span style={hipaaEnabled ? toggleTextOnStyle : toggleTextOffStyle}>
-              {hipaaEnabled ? "On" : "Off"}
-            </span>
-          </button>
-        </section>
-
         <section style={tierGridStyle}>
           <PricingCard
             controls={
@@ -165,81 +132,49 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
             }
             ctaHref={createStartHref({
               basePath: "/start/starter",
-              hipaaEnabled,
-            })}
-            ctaLabel="Start Starter"
+                    })}
+            ctaLabel={`Buy Starter — ${formatAnnualPrice(starterItem.amountCents).replace("/year", "/yr")}`}
             description="For independent practices, small offices, and teams up to 25 staff."
             features={starterFeatures}
-            footnote="Initial physical compliance binder included with new memberships."
+            footnote="Initial physical binder included with new memberships. Secure Stripe checkout. No account needed to purchase; you create your account after payment."
             price={formatAnnualPrice(starterItem.amountCents)}
             title="Starter"
           />
 
           <PricingCard
-            ctaHref={
-              operationalIsEnterpriseFit
-                ? "/start/enterprise?reason=employee-count"
-                : createStartHref({
-                    basePath: "/start/operational",
-                    employeeCount: selectedOperationalRange.employeeCount,
-                    hipaaEnabled,
-                  })
-            }
-            ctaLabel={
-              operationalIsEnterpriseFit
-                ? "Contact Sales"
-                : "Start Operational"
-            }
-            controls={
-              <label style={rangeLabelStyle}>
-                Organization size
-                <select
-                  onChange={(event) => setOperationalRangeId(event.target.value)}
-                  style={selectStyle}
-                  value={operationalRangeId}
-                >
-                  {operationalRanges.map((range) => (
-                    <option key={range.id} value={range.id}>
-                      {range.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            }
+            ctaHref="/start/enterprise?reason=operational"
+            ctaLabel="Contact Us"
             description="For organizations with 26-250 staff where coordination, public exposure, and internal consistency carry more weight."
             features={operationalFeatures}
-            footnote={
-              operationalIsEnterpriseFit
-                ? "250+ organizations are handled through Enterprise so coordination and rollout scope can be reviewed."
-                : "*Pricing scales by organization size and coordination scope."
-            }
-            price={
-              operationalIsEnterpriseFit
-                ? "Contact sales"
-                : `Starting at ${formatAnnualPrice(
-                    operationalAmountCents
-                  )}*`
-            }
+            footnote="Operational is arranged by email for now: we confirm scope and price in writing before you pay."
+            price="Contact us"
             title="Operational"
             variant="operational"
           />
 
-          <EnterprisePricingCard hipaaEnabled={hipaaEnabled} />
+          <EnterprisePricingCard />
         </section>
 
-        <section style={binderNoteStyle}>
+        <section id="binder" style={binderNoteStyle}>
           <div>
             <p style={smallLabelStyle}>Physical records</p>
-            <h2 style={sectionTitleStyle}>Additional binders</h2>
+            <h2 style={sectionTitleStyle}>
+              AI Policy &amp; Evidence Binder — {formatOneTimePrice(publicBinderItem.amountCents)}
+            </h2>
+            <p style={binderPriceStyle}>One-time purchase</p>
           </div>
           <p style={sectionCopyStyle}>
-            Additional or replacement binders are available to active members
-            across all tiers, priced separately at approximately half the
-            initial binder package price. Current add-on reference:{" "}
-            <strong>{formatOneTimePrice(additionalBinderItem.amountCents)}</strong>.
+            {formatOneTimePrice(publicBinderItem.amountCents)} for organizations
+            without a subscription: no membership or account required. Ships to
+            U.S. addresses. The initial binder is included with new
+            memberships. Subscribers can order additional binders for{" "}
+            {formatOneTimePrice(additionalBinderItem.amountCents)} each, useful
+            when more than one office, partner, or board member needs a copy.
+            Order from your dashboard or contact{" "}
+            <a href={`mailto:${supportEmail}`}>{supportEmail}</a>.
           </p>
           <a href="/order" style={binderOrderLinkStyle}>
-            Order a standalone binder —{" "}
+            Order the binder —{" "}
             {formatPaladinPrice(publicBinderItem)}
           </a>
         </section>
@@ -247,18 +182,15 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
         <section style={foundingStyle}>
           <div>
             <p style={foundingEyebrowStyle}>Founding Member Program</p>
-            <h2 style={foundingTitleStyle}>Charter Organization Recognition</h2>
+            <h2 style={foundingTitleStyle}>Charter Organization Program</h2>
             <p style={foundingCopyStyle}>
-              A limited early program for organizations that want a more
-              prominent Paladin presentation during launch-stage adoption.
+              A custom, case-by-case arrangement for organizations with
+              requirements beyond the standard plans. Not self-serve.
             </p>
           </div>
           <ul style={foundingListStyle}>
-            <li>Executive onboarding</li>
-            <li>Premium display materials</li>
-            <li>Recognition placement</li>
-            <li>Enhanced verification presentation</li>
-            <li>Multi-location coordination</li>
+            <li>Custom engagement: nothing is included by default</li>
+            <li>Scope and deliverables are agreed in writing before purchase</li>
           </ul>
           <div style={foundingActionStyle}>
             <span style={foundingMetaStyle}>Custom engagement</span>
@@ -269,14 +201,15 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
         </section>
 
         <p style={noteStyle}>
-          Active status remains available while the annual membership is current.
+          The registry record stays active while the annual membership is current.
+          Questions? <a href={`mailto:${supportEmail}`}>{supportEmail}</a>
         </p>
       </div>
     </main>
   );
 }
 
-function EnterprisePricingCard({ hipaaEnabled }: { hipaaEnabled: boolean }) {
+function EnterprisePricingCard() {
   return (
     <div style={enterpriseCardStyle}>
       <div style={noiseLayerStyle} />
@@ -296,9 +229,7 @@ function EnterprisePricingCard({ hipaaEnabled }: { hipaaEnabled: boolean }) {
         <div style={priceBlockStyle}>
           <p style={enterprisePriceStyle}>Custom Pricing</p>
           <p style={enterpriseBillingStyle}>
-            {hipaaEnabled
-              ? "Optional HIPAA Add-On reflected in proposal."
-              : "Priced by organizational scope."}
+            Priced by organizational scope.
           </p>
         </div>
 
@@ -383,20 +314,14 @@ function PricingCard({
 function createStartHref({
   basePath,
   employeeCount,
-  hipaaEnabled,
 }: {
   basePath: string;
   employeeCount?: number | null;
-  hipaaEnabled: boolean;
 }) {
   const params = new URLSearchParams();
 
   if (employeeCount) {
     params.set("employees", String(employeeCount));
-  }
-
-  if (hipaaEnabled) {
-    params.set("hipaa", "1");
   }
 
   const query = params.toString();
@@ -415,7 +340,8 @@ function formatOneTimePrice(amountCents: number) {
 function formatCurrency(amountCents: number) {
   return new Intl.NumberFormat("en-US", {
     currency: "USD",
-    maximumFractionDigits: 0,
+    maximumFractionDigits: amountCents % 100 === 0 ? 0 : 2,
+    minimumFractionDigits: amountCents % 100 === 0 ? 0 : 2,
     style: "currency",
   }).format(amountCents / 100);
 }
@@ -512,101 +438,6 @@ const includedLinkStyle: CSSProperties = {
   textDecoration: "none",
 };
 
-const controlBarStyle: CSSProperties = {
-  alignItems: "center",
-  background: "#0f172a",
-  border: "1px solid rgba(198, 168, 91, 0.28)",
-  borderRadius: 12,
-  boxShadow: "0 16px 36px rgba(15, 23, 42, 0.16)",
-  color: "#ffffff",
-  display: "flex",
-  gap: 18,
-  justifyContent: "space-between",
-  marginBottom: 20,
-  padding: "18px 20px",
-};
-
-const controlLabelStyle: CSSProperties = {
-  color: "#f8fafc",
-  fontSize: 17,
-  fontWeight: 900,
-  margin: 0,
-};
-
-const controlCopyStyle: CSSProperties = {
-  color: "#cbd5e1",
-  fontSize: 14,
-  lineHeight: 1.45,
-  marginTop: 4,
-};
-
-const toggleBaseStyle: CSSProperties = {
-  alignItems: "center",
-  borderColor: "rgba(255, 255, 255, 0.2)",
-  borderRadius: 999,
-  borderStyle: "solid",
-  borderWidth: 1,
-  cursor: "pointer",
-  display: "inline-flex",
-  flexShrink: 0,
-  gap: 10,
-  height: 42,
-  justifyContent: "space-between",
-  padding: "4px 12px 4px 4px",
-  position: "relative",
-  transition: "background 180ms ease, border-color 180ms ease",
-  width: 106,
-};
-
-const toggleOffStyle: CSSProperties = {
-  ...toggleBaseStyle,
-  background: "#334155",
-};
-
-const toggleOnStyle: CSSProperties = {
-  ...toggleBaseStyle,
-  background: "#15803d",
-  borderColor: "rgba(187, 247, 208, 0.58)",
-};
-
-const toggleKnobBaseStyle: CSSProperties = {
-  background: "#ffffff",
-  borderRadius: "50%",
-  boxShadow: "0 6px 14px rgba(0,0,0,0.22)",
-  height: 32,
-  left: 4,
-  position: "absolute",
-  transition: "transform 180ms ease",
-  width: 32,
-};
-
-const toggleKnobOffStyle: CSSProperties = {
-  ...toggleKnobBaseStyle,
-  transform: "translateX(0)",
-};
-
-const toggleKnobOnStyle: CSSProperties = {
-  ...toggleKnobBaseStyle,
-  transform: "translateX(66px)",
-};
-
-const toggleTextBaseStyle: CSSProperties = {
-  color: "#ffffff",
-  fontSize: 13,
-  fontWeight: 900,
-  position: "absolute",
-};
-
-const toggleTextOffStyle: CSSProperties = {
-  ...toggleTextBaseStyle,
-  right: 18,
-};
-
-const toggleTextOnStyle: CSSProperties = {
-  ...toggleTextBaseStyle,
-  left: 18,
-};
-
 const tierGridStyle: CSSProperties = {
   alignItems: "stretch",
   display: "grid",
@@ -671,14 +502,6 @@ const controlSlotStyle: CSSProperties = {
   minHeight: 78,
 };
 
-const rangeLabelStyle: CSSProperties = {
-  color: "#102033",
-  display: "grid",
-  fontSize: 13,
-  fontWeight: 900,
-  gap: 8,
-};
-
 const scopeStaticStyle: CSSProperties = {
   background: "#f8fafc",
   border: "1px solid #dbe3ef",
@@ -694,16 +517,6 @@ const scopeStaticLabelStyle: CSSProperties = {
   fontSize: 12,
   fontWeight: 900,
   textTransform: "uppercase",
-};
-
-const selectStyle: CSSProperties = {
-  background: "#f8fafc",
-  border: "1px solid #cbd5e1",
-  borderRadius: 8,
-  color: "#102033",
-  fontSize: 15,
-  fontWeight: 800,
-  padding: "12px 14px",
 };
 
 const listStyle: CSSProperties = {
@@ -891,6 +704,40 @@ const enterpriseIncludedLinkStyle: CSSProperties = {
   fontWeight: 900,
   textAlign: "center",
   textDecoration: "none",
+};
+
+const disclaimerStyle: CSSProperties = {
+  color: "#5b7087",
+  fontSize: 13,
+  lineHeight: 1.5,
+  marginTop: 10,
+  maxWidth: 620,
+};
+
+const proofStyle: CSSProperties = {
+  background: "#ffffff",
+  border: "1px solid #d8e1ec",
+  borderRadius: 12,
+  display: "grid",
+  gap: 14,
+  marginBottom: 22,
+  padding: 22,
+};
+
+const proofListStyle: CSSProperties = {
+  color: "#334a63",
+  display: "grid",
+  fontSize: 15,
+  gap: 8,
+  lineHeight: 1.5,
+  paddingLeft: 20,
+};
+
+const binderPriceStyle: CSSProperties = {
+  color: "#5b7087",
+  fontSize: 14,
+  fontWeight: 700,
+  marginTop: 6,
 };
 
 const binderNoteStyle: CSSProperties = {

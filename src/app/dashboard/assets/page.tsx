@@ -1,22 +1,14 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import BinderCheckoutControls from "@/components/billing/BinderCheckoutControls";
 import DownloadableAssetsSection from "@/components/dashboard/DownloadableAssetsSection";
 import LockedFeature from "@/components/entitlements/LockedFeature";
 import SubscriptionEntitlementBadge from "@/components/entitlements/SubscriptionEntitlementBadge";
-import {
-  AssetStorageError,
-  createBinderPdfAsset,
-  createVerificationQrPackManifestAsset,
-  listOrganizationAssets,
-} from "@/lib/paladin/assets";
+import { listOrganizationAssets } from "@/lib/paladin/assets";
 import { getCurrentOrganization } from "@/lib/paladin/currentOrganization";
-import { resolveCoveragePlanSnapshot } from "@/lib/paladin/billing/coveragePlan";
 import {
   canAccessFeature,
   resolveOrganizationEntitlements,
 } from "@/lib/paladin/entitlements/service";
-import { getStatusLabel } from "@/lib/paladin/verification";
 import {
   additionalBinderPriceKeys,
   formatPaladinPrice,
@@ -25,7 +17,6 @@ import {
 
 type AssetsPageProps = {
   searchParams: Promise<{
-    created?: string;
     error?: string;
     checkout?: string;
     locked?: string;
@@ -62,30 +53,29 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
               Downloadable compliance records
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
-              Protected files scoped to {organization.name}, including binder
-              PDFs, verification certificate downloads, QR assets, and archived
-              governance records.
+              Protected files scoped to {organization.name}: the 13-page
+              quick-reference record (PDF), registry record downloads, and QR
+              assets. The full AI Policy &amp; Evidence Binder is the printed
+              copy shipped to you; it is not available as a download here.
             </p>
           </div>
           <div className="grid gap-3">
             <SubscriptionEntitlementBadge entitlements={entitlements} />
             <div className="flex flex-col gap-3 sm:flex-row">
               {canCreateBinder ? (
-                <form action={createBinderPdf}>
-                  <button
-                    className="h-12 rounded-lg border border-blue-300/20 bg-gradient-to-r from-blue-700 to-blue-500 px-5 text-sm font-black text-white shadow-[0_14px_32px_rgba(37,99,235,0.24)] transition hover:from-blue-600 hover:to-blue-400"
-                    type="submit"
-                  >
-                    Generate Binder PDF
-                  </button>
-                </form>
+                <a
+                  className="inline-flex h-12 items-center rounded-lg border border-blue-300/20 bg-gradient-to-r from-blue-700 to-blue-500 px-5 text-sm font-black text-white shadow-[0_14px_32px_rgba(37,99,235,0.24)] transition hover:from-blue-600 hover:to-blue-400"
+                  href="/api/assets/quick-reference"
+                >
+                  Download Quick-Reference Record (PDF)
+                </a>
               ) : (
                 <button
                   className="h-12 cursor-not-allowed rounded-lg border border-slate-400/20 bg-slate-400/10 px-5 text-sm font-black text-slate-300"
                   disabled
                   type="button"
                 >
-                  Generate Binder PDF
+                  Download Quick-Reference Record (PDF)
                 </button>
               )}
               {canUseDownloads && certificateHref ? (
@@ -93,7 +83,7 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
                   className="inline-flex h-12 items-center rounded-lg border border-amber-200/25 bg-amber-200/10 px-5 text-sm font-black text-amber-100 transition hover:bg-amber-200/15"
                   href={certificateHref}
                 >
-                  Verification Certificate
+                  Registry Record
                 </Link>
               ) : (
                 <button
@@ -101,25 +91,7 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
                   disabled
                   type="button"
                 >
-                  Verification Certificate
-                </button>
-              )}
-              {canUseDownloads ? (
-                <form action={createQrManifest}>
-                  <button
-                    className="h-12 rounded-lg border border-white/10 bg-white/[0.04] px-5 text-sm font-black text-slate-200 transition hover:bg-white/[0.08]"
-                    type="submit"
-                  >
-                    Generate QR Manifest
-                  </button>
-                </form>
-              ) : (
-                <button
-                  className="h-12 cursor-not-allowed rounded-lg border border-slate-400/20 bg-slate-400/10 px-5 text-sm font-black text-slate-300"
-                  disabled
-                  type="button"
-                >
-                  Generate QR Manifest
+                  Registry Record
                 </button>
               )}
             </div>
@@ -130,12 +102,6 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
       {params.locked && (
         <section className="rounded-xl border border-amber-200/20 bg-amber-200/[0.08] px-5 py-4 text-sm font-semibold leading-6 text-amber-100">
           {getLockedMessage(params.locked)}
-        </section>
-      )}
-
-      {params.created && (
-        <section className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-4 text-sm font-semibold leading-6 text-emerald-100">
-          {getCreatedMessage(params.created)}
         </section>
       )}
 
@@ -154,107 +120,29 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
       {!canCreateBinder && (
         <LockedFeature
           entitlement={entitlements.features.binderPdfGeneration}
-          title="Binder PDF generation becomes available after activation"
+          title="Quick-reference record generation becomes available after activation"
         />
       )}
 
       {!canUseDownloads && (
         <LockedFeature
           entitlement={entitlements.features.downloadableAssets}
-          title="Verification assets become available after activation"
+          title="Registry record assets become available after activation"
         />
       )}
 
       {entitlements.hasActiveSubscription && <AdditionalBinderCheckoutSection />}
 
-      <DownloadableAssetsSection
-        assets={assets}
-        downloadsEnabled={canUseDownloads}
-      />
+      {assets.length > 0 && (
+        <DownloadableAssetsSection
+          assets={assets}
+          downloadsEnabled={canUseDownloads}
+        />
+      )}
     </div>
   );
 }
 
-async function createQrManifest() {
-  "use server";
-
-  const { organization } = await getCurrentOrganization();
-  const entitlements = resolveOrganizationEntitlements({
-    acquisitionIntent: organization.acquisitionIntent,
-    subscription: organization.subscription,
-  });
-
-  if (!canAccessFeature(entitlements, "downloadableAssets")) {
-    redirect("/dashboard/assets?locked=assets");
-  }
-
-  const verificationSlug = organization.verificationPage?.slug ?? organization.slug;
-
-  try {
-    await createVerificationQrPackManifestAsset({
-      organizationId: organization.id,
-      organizationName: organization.name,
-      verificationSlug,
-    });
-  } catch (error) {
-    if (error instanceof AssetStorageError) {
-      redirect("/dashboard/assets?error=storage");
-    }
-
-    throw error;
-  }
-
-  redirect("/dashboard/assets?created=qr-manifest");
-}
-
-async function createBinderPdf() {
-  "use server";
-
-  const { organization } = await getCurrentOrganization();
-  const entitlements = resolveOrganizationEntitlements({
-    acquisitionIntent: organization.acquisitionIntent,
-    subscription: organization.subscription,
-  });
-
-  if (!canAccessFeature(entitlements, "binderPdfGeneration")) {
-    redirect("/dashboard/assets?locked=binder");
-  }
-
-  const verificationSlug = organization.verificationPage?.slug ?? organization.slug;
-  const subscriptionTier = resolveCoveragePlanSnapshot({
-    acquisitionIntent: organization.acquisitionIntent,
-    subscription: organization.subscription,
-  }).label;
-  const verificationStatus = getStatusLabel(
-    organization.verificationPage?.status ?? "draft"
-  );
-
-  try {
-    await createBinderPdfAsset({
-      organizationId: organization.id,
-      organizationName: organization.name,
-      subscriptionTier,
-      verificationSlug,
-      verificationStatus,
-    });
-  } catch (error) {
-    if (error instanceof AssetStorageError) {
-      redirect("/dashboard/assets?error=storage");
-    }
-
-    throw error;
-  }
-
-  redirect("/dashboard/assets?created=binder");
-}
-
-function getCreatedMessage(created: string) {
-  if (created === "binder") {
-    return "Binder PDF generated and archived for this organization.";
-  }
-
-  return "Verification QR manifest created and archived for this organization.";
-}
 
 function getErrorMessage(error: string) {
   if (error === "storage") {
@@ -266,15 +154,15 @@ function getErrorMessage(error: string) {
 
 function getLockedMessage(locked: string) {
   if (locked === "binder") {
-    return "Binder PDF generation becomes available after verification activation.";
+    return "Quick-reference record generation becomes available once the registry record is active.";
   }
 
-  return "Verification assets become available after organizational coverage becomes active.";
+  return "Registry record assets become available after an active subscription is in place.";
 }
 
 function getCheckoutMessage(checkout: string) {
   if (checkout === "binder-success") {
-    return "Binder checkout completed. Paladin will use the Stripe record for fulfillment and support follow-up.";
+    return "Binder checkout completed. Paladin will use the Stripe record to fulfill the order by mail; no delivery date is guaranteed.";
   }
 
   if (checkout === "binder-cancel") {
@@ -321,7 +209,7 @@ function AdditionalBinderCheckoutSection() {
                 {formatPaladinPrice(item)}
               </p>
               <p className="mt-3 text-sm leading-6 text-slate-300">
-                For organizations with active Paladin coverage that need an
+                For organizations with an active Paladin subscription that need an
                 additional binder copy.
               </p>
               <div className="mt-5">

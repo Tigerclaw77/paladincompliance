@@ -38,16 +38,15 @@ export default async function VerificationQrCard({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-100">
-            {isPublic ? "Verification QR" : "Verification QR"}
+            Registry QR
           </p>
           <h2 className="mt-3 text-2xl font-black text-white">
-            {isPublic ? "Official QR verification" : "Binder-ready validation"}
+            {isPublic ? "QR registry lookup" : "Binder-ready registry link"}
           </h2>
           {isPublic && (
             <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300 print-muted">
-              The QR code opens this Paladin-hosted verification page for quick
-              confirmation during vendor review, procurement, or printed packet
-              review.
+              The QR code opens this Paladin-hosted registry record so a
+              reviewer can confirm this binder was issued to this organization.
             </p>
           )}
         </div>
@@ -67,7 +66,7 @@ export default async function VerificationQrCard({
         }`}
       >
         <div
-          aria-label={`QR code for ${organizationName} Paladin verification page`}
+          aria-label={`QR code for ${organizationName} Paladin registry record`}
           className="[&>svg]:h-full [&>svg]:w-full"
           dangerouslySetInnerHTML={{ __html: qrSvg }}
         />
@@ -76,8 +75,8 @@ export default async function VerificationQrCard({
       <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950/45 p-4">
         <p className="text-sm font-black text-white">
           {isPublic
-            ? "Trusted verification link"
-            : "Organization verified by Paladin Compliance"}
+            ? "Registry record link"
+            : "Binder issued by Paladin Compliance"}
         </p>
         <p className="mt-2 break-all font-mono text-xs leading-5 text-blue-100">
           {visibleVerificationUrl}
@@ -87,7 +86,7 @@ export default async function VerificationQrCard({
         </p>
         {isPublic && (
           <p className="mt-3 text-xs leading-5 text-slate-400 print-muted">
-            Verification check: printed or forwarded copies should match this
+            Registry check: printed or forwarded copies should match this
             Paladin-hosted URL.
           </p>
         )}

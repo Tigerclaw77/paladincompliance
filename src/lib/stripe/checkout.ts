@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/prisma";
+import { isCheckoutKeyEnabled } from "@/lib/paladin/pricing";
 import { logOperationalEvent } from "@/lib/paladin/logging";
 import {
   assertStripeCatalogPriceMode,
@@ -259,6 +260,13 @@ function validateCoverageCatalogSelection({
   catalogItem: StripeCatalogItem;
   organization: NonNullable<NonNullable<CheckoutUserContext>["organization"]>;
 }) {
+  if (!isCheckoutKeyEnabled(catalogItem.key)) {
+    throw new CheckoutFlowError(
+      "This plan is not available for self-serve checkout. Please contact Paladin support.",
+      403
+    );
+  }
+
   const acquisitionIntent = organization.acquisitionIntent;
   const currentSubscriptionStatus = organization.subscription?.status;
 

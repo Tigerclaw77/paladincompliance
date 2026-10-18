@@ -1,59 +1,63 @@
 import Link from "next/link";
+import { DISCLAIMER_SHORT } from "@/lib/paladin/copy";
 
 export const metadata = {
   title: "What's Included",
   description:
-    "Physical binder, digital resources, public verification assets, and update materials included with Paladin Compliance coverage.",
+    "What is in the Paladin AI Policy & Evidence Binder: physical binder, digital resources, public registry record, and annual updates. Documentation only; not certification.",
   alternates: {
     canonical: "/whats-included",
   },
 };
 
 const physicalItems = [
-  "Initial physical binder included with new memberships",
+  "Initial physical AI Policy & Evidence Binder included with new memberships",
   "Tabbed structure for fast executive and administrative review",
   "Document-control presentation suitable for leadership files",
-  "Professional artifact for office, board, or review settings",
+  "Organized artifact for insurance, client, and board files",
   "Core printed reference set for day-to-day administrative use",
 ];
 
 const digitalItems = [
-  "Member workspace access during active coverage",
-  "Downloadable member files and support materials",
-  "Current digital versions for materials that change more often",
-  "HIPAA-oriented resources when the add-on is selected",
+  "Member workspace access during an active subscription",
+  "Quick-reference record (13-page PDF), generated on demand as a short digital companion; the full binder is the printed copy and is not offered as a download",
+  "Registry record (PDF) and QR code downloads for your public registry page",
+  "AI spend record you can save to your account, with annual summary (CSV and printable)",
+  "Compliance calendar with a downloadable .ics file and emailed reminders you can unsubscribe from",
+  "Three short AI use training modules with dated acknowledgment records (CSV export)",
+  "AI tool inventory and vendor review checklists with dated records (CSV export)",
+  "Annual binder revision log with email notice of updates",
 ];
 
 const verificationItems = [
-  "Public verification page showing current standing",
-  "QR-linked validation from binder or shared assets",
-  "Verification ID and active-through details",
-  "Certificate and QR downloads for stakeholder review",
+  "Public registry record showing this binder was issued to this organization",
+  "QR code on the binder that opens the registry record",
+  "Registry ID and active-through dates",
+  "Registry record (PDF) and QR downloads to share with a broker or client",
 ];
 
 const updateItems = [
-  "Updates included during active subscription periods",
-  "Focused replacement sections when needed",
-  "Verification tied to active standing",
-  "Versioned record over time",
-  "HIPAA updates when selected",
+  "Binder revisions released by Paladin are announced by email and listed in a revision log in your workspace",
+  "Renewal reminder email about 30 days before renewal",
+  "Registry record stays active while the plan is current",
+  "No fixed revision schedule is promised; physical replacement pages are not included",
 ];
 
 const controlItems = [
   {
-    label: "Visible seriousness",
+    label: "Insurance renewals",
     value:
-      "A clear record gives stakeholders a quiet signal that AI use is being handled deliberately.",
+      "One organized place for the AI use policy sections and annual AI governance spend record a broker or underwriter may ask about. It does not change coverage or cure any policy exclusion.",
   },
   {
-    label: "Review readiness",
+    label: "Client questionnaires",
     value:
-      "A structured reference point for leadership, vendor, and customer review conversations.",
+      "A reference point when a client's security questionnaire asks what your organization has written down about AI use.",
   },
   {
-    label: "Trust continuity",
+    label: "Board and budget records",
     value:
-      "Active standing keeps verification, QR assets, and update access aligned over time.",
+      "A documented record of what the organization spends on AI compliance resources each year: \u201Cwe spent $X on AI compliance this year.\u201D It is a documented gesture that supports, and does not replace, responsible AI use.",
   },
 ];
 
@@ -64,15 +68,16 @@ export default function WhatsIncludedPage() {
         <div className="mx-auto grid min-w-0 max-w-7xl gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.72fr)] lg:items-end">
           <div className="min-w-0">
             <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-200">
-              Paladin Coverage
+              AI Policy &amp; Evidence Binder
             </p>
             <h1 className="mt-5 max-w-4xl break-words text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl">
               What&apos;s included with Paladin Compliance
             </h1>
             <p className="mt-5 max-w-3xl break-words text-base leading-7 text-slate-300 sm:text-lg">
-              Paladin coverage pairs a tangible binder with digital resources,
-              QR-linked public verification, and update materials during active
-              subscription periods.
+              A tangible binder for insurance renewals, client security
+              questionnaires, and board or budget records, with digital
+              resources, a QR-linked public registry record, and annual
+              updates during active subscription periods.
             </p>
           </div>
 
@@ -85,9 +90,9 @@ export default function WhatsIncludedPage() {
             </Link>
             <Link
               className="inline-flex justify-center rounded-lg border border-amber-200/25 bg-amber-200/10 px-4 py-3 text-sm font-black text-amber-100 transition hover:bg-amber-200/15"
-              href="/dashboard"
+              href="/sample"
             >
-              Preview Public Verification
+              See Sample Contents
             </Link>
           </div>
         </div>
@@ -100,7 +105,7 @@ export default function WhatsIncludedPage() {
               What Arrives Physically
             </p>
             <h2 className="mt-3 break-words text-2xl font-black text-white">
-              A tangible professional record
+              A tangible, organized record
             </h2>
             <p className="mt-4 break-words text-sm leading-7 text-slate-300">
               New memberships include an initial physical Paladin Compliance
@@ -123,10 +128,10 @@ export default function WhatsIncludedPage() {
           <section className="grid min-w-0 gap-6">
             <section className="min-w-0 rounded-2xl border border-white/10 bg-slate-900/88 p-6 shadow-[0_22px_70px_rgba(2,6,23,0.28)] sm:p-8">
               <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
-                Public Verification
+                Public Registry Record
               </p>
               <h2 className="mt-3 break-words text-2xl font-black text-white">
-                Externally reviewable standing
+                Publicly viewable record of issuance
               </h2>
               <ul className="mt-5 grid gap-3 sm:grid-cols-2">
                 {verificationItems.map((item) => (
@@ -158,10 +163,10 @@ export default function WhatsIncludedPage() {
                 ))}
               </ul>
               <p className="mt-5 break-words text-sm leading-7 text-slate-300">
-                Digital materials keep current files available without turning
-                every resource into a printed packet. HIPAA-oriented
-                resources are included when selected, without representing
-                legal certification or a regulatory guarantee.
+                The digital quick-reference record summarizes the binder&apos;s policy
+                sections; it does not contain the full binder. Nothing
+                here is legal certification or a regulatory guarantee, and no
+                HIPAA-specific materials are offered.
               </p>
             </section>
           </section>
@@ -178,7 +183,7 @@ export default function WhatsIncludedPage() {
               Updates that stay current
             </h2>
             <p className="mt-4 max-w-3xl break-words text-sm leading-7 text-slate-300">
-              Active coverage includes updates over time, with focused section
+              An active subscription includes updates over time, with focused section
               replacements when the record changes.
             </p>
           </section>
@@ -204,7 +209,7 @@ export default function WhatsIncludedPage() {
               key={item.label}
             >
               <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
-                Operational Value
+                Used for
               </p>
               <h3 className="mt-3 break-words text-xl font-black text-white">
                 {item.label}
@@ -218,10 +223,11 @@ export default function WhatsIncludedPage() {
 
         <div className="mx-auto mt-8 max-w-7xl rounded-2xl border border-slate-400/20 bg-slate-400/10 p-6">
           <p className="break-words text-sm font-semibold leading-7 text-slate-300">
-            Paladin Compliance materials are operational governance references.
-            They support consistency, visibility, and maintainability. They do
-            not represent legal advice, government approval, external
-            accreditation, or a guarantee of regulatory compliance.
+            {DISCLAIMER_SHORT} The registry record is issued by Paladin
+            Compliance itself: it shows a binder was issued to an
+            organization and says nothing about how that organization uses AI.
+            Organizations remain responsible for following their own policies
+            and the law.
           </p>
         </div>
       </section>

@@ -37,17 +37,15 @@ export const entitlementMatrix: Record<
     minimumPlan: "STARTER",
   },
   trainingCertificates: {
-    label: "Training attestations",
-    minimumPlan: "GROWTH",
-    upgradePlan: "GROWTH",
+    label: "Training acknowledgment records",
+    minimumPlan: "STARTER",
   },
   trainingModules: {
     label: "Training modules",
-    minimumPlan: "GROWTH",
-    upgradePlan: "GROWTH",
+    minimumPlan: "STARTER",
   },
   verificationModules: {
-    label: "Verification modules",
+    label: "Registry record modules",
     minimumPlan: "STARTER",
   },
 };

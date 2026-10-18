@@ -207,13 +207,13 @@ export async function createVerificationQrPackManifestAsset({
   const generatedAt = new Date();
   const verificationUrl = getAbsoluteVerificationUrl(verificationSlug);
   const body = [
-    "Paladin Compliance Verification QR Pack",
+    "Paladin Compliance Registry Record QR Pack",
     "",
     `Organization: ${organizationName}`,
-    `Verification URL: ${verificationUrl}`,
+    `Registry Record URL: ${verificationUrl}`,
     `Generated: ${generatedAt.toISOString()}`,
     "",
-    "This manifest records the current verification QR asset context for binder and vendor review packets.",
+    "This manifest records the current registry record QR asset context for binder and vendor review packets.",
     "Additional QR exports can be generated from this record when needed for printed materials.",
   ].join("\n");
 
@@ -221,11 +221,11 @@ export async function createVerificationQrPackManifestAsset({
     assetType: "QR_PACK",
     body,
     description:
-      "Verification QR pack manifest for binder and vendor review packets.",
+      "Registry record QR pack manifest for binder and vendor review packets.",
     filename: `${verificationSlug}-verification-qr-pack.txt`,
     mimeType: "text/plain; charset=utf-8",
     organizationId,
-    title: "Verification QR Pack Manifest",
+    title: "Registry Record QR Pack Manifest",
   });
 }
 
@@ -254,11 +254,11 @@ export async function createBinderPdfAsset({
     assetType: "BINDER_PDF",
     body: pdfBytes,
     description:
-      "AI governance binder generated from organization and verification records.",
-    filename: `${verificationSlug}-paladin-binder.pdf`,
+      "13-page quick-reference record (PDF) generated from organization and registry records. This is a digital companion, not the full printed binder.",
+    filename: `${verificationSlug}-paladin-quick-reference-record.pdf`,
     mimeType: "application/pdf",
     organizationId,
-    title: "Paladin Compliance Binder PDF",
+    title: "Quick-reference record (13 pages, PDF)",
   });
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import StakeholderDial from "./StakeholderDial";
+import { SUPPORTS_NOT_REPLACES } from "@/lib/paladin/copy";
 
 export default function Hero() {
   return (
@@ -34,19 +35,27 @@ export default function Hero() {
         </p>
 
         <h1 className="text-5xl md:text-6xl font-bold text-white leading-[1.15] tracking-tight max-w-5xl mx-auto">
-          Show your{" "}
-          <span
-            className="text-[#d7c08a] inline-flex items-center align-baseline whitespace-nowrap"
-            style={{ wordBreak: "keep-all" }}
-          >
-            <StakeholderDial />
-          </span>{" "}
-          you use AI responsibly
+          AI Policy &amp; Evidence Binder
+          <span className="mt-4 block text-3xl md:text-4xl font-semibold text-gray-300">
+            documentation your{" "}
+            <span
+              className="text-[#d7c08a] inline-flex items-center align-baseline whitespace-nowrap"
+              style={{ wordBreak: "keep-all" }}
+            >
+              <StakeholderDial />
+            </span>{" "}
+            can review
+          </span>
         </h1>
 
         <p className="mt-8 text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
-          A simple system to organize your policies, maintain records, and show
-          your organization is prepared.
+          One organized binder of your AI policy and records for insurance
+          renewals, client security questionnaires, and board or budget
+          files, plus a documented record of what you spend on AI compliance
+          resources each year.
+        </p>
+        <p className="mt-4 text-sm text-gray-500 max-w-2xl mx-auto leading-relaxed">
+          {SUPPORTS_NOT_REPLACES}
         </p>
 
         <div className="mt-12 flex justify-center gap-4 flex-wrap">
@@ -55,6 +64,13 @@ export default function Hero() {
             className="px-8 py-4 rounded-lg bg-[#d7c08a] text-black font-semibold hover:opacity-90 transition"
           >
             Get Started
+          </a>
+
+          <a
+            href="/sample"
+            className="px-8 py-4 rounded-lg border border-white/15 text-white hover:bg-white/5 transition"
+          >
+            See Sample Contents
           </a>
 
           <a

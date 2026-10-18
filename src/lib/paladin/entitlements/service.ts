@@ -168,12 +168,14 @@ function resolveFeatureEntitlement({
     };
   }
 
-  if (feature === "hipaaAddOn" && !hipaaRequested) {
+  if (feature === "hipaaAddOn") {
+    // Not offered: no HIPAA deliverable exists. Kept as a feature key only for
+    // database/enum and type compatibility.
+    void hipaaRequested;
     return {
       ...baseEntitlement,
       allowed: false,
-      message:
-        "HIPAA coverage is available as an add-on for organizations that need PHI-focused policy documentation and public verification labeling.",
+      message: "This add-on is not currently offered.",
     };
   }
 

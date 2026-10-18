@@ -52,7 +52,7 @@ export function resolveCoveragePlanSnapshot({
   }
 
   return {
-    label: "Coverage not selected",
+    label: "No plan selected",
     source: "none",
   };
 }
@@ -84,5 +84,5 @@ function getSubscriptionPlanLabel(subscription: CoveragePlanSubscription | null)
     return getCatalogPlanName(catalogItem);
   }
 
-  return normalizePaladinPlanName(subscription?.planName) || "Active Coverage";
+  return normalizePaladinPlanName(subscription?.planName) || "Active Subscriptions";
 }

@@ -14,7 +14,7 @@ export default function SubscribeCancelPage() {
     <main style={pageStyle}>
       <section style={cardStyle}>
         <p style={eyebrowStyle}>Checkout Canceled</p>
-        <h1 style={titleStyle}>Coverage Not Started</h1>
+        <h1 style={titleStyle}>Subscription Not Started</h1>
         <p style={bodyStyle}>
           No billing record was created. You can return to pricing or continue
           setting up your Paladin account.

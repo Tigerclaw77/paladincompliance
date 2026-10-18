@@ -76,11 +76,11 @@ export default async function AdminOrganizationDetailPage({
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <AdminDetailCard label="Plan" value={entitlements.planLabel} />
         <AdminDetailCard
-          label="Coverage"
+          label="Subscription"
           value={getStatusLabel(organization.subscription?.status)}
         />
         <AdminDetailCard
-          label="Verification"
+          label="Registry Record"
           value={getStatusLabel(organization.verificationPage?.status)}
         />
         <AdminDetailCard
@@ -99,12 +99,12 @@ export default async function AdminOrganizationDetailPage({
         <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <AdminActionForm
             action={markVerificationActive}
-            label="Mark Verification Active"
+            label="Mark Registry Record Active"
             organizationId={organization.id}
           />
           <AdminActionForm
             action={markVerificationInactive}
-            label="Mark Verification Inactive"
+            label="Mark Registry Record Inactive"
             organizationId={organization.id}
             variant="muted"
           />
@@ -227,8 +227,8 @@ export default async function AdminOrganizationDetailPage({
               ))
             ) : (
               <EmptyState
-                message="Verification assets will appear here once organizational coverage becomes active."
-                title="Verification assets pending"
+                message="Registry record assets will appear here once an active subscription is in place."
+                title="Registry record assets pending"
               />
             )}
           </div>
@@ -411,15 +411,15 @@ function getOrganizationId(formData: FormData) {
 
 function getUpdatedMessage(updated: string) {
   if (updated === "verification-active") {
-    return "Verification status marked active.";
+    return "Registry record status marked active.";
   }
 
   if (updated === "verification-inactive") {
-    return "Verification status marked inactive.";
+    return "Registry record status marked inactive.";
   }
 
   if (updated === "assets") {
-    return "Verification assets refreshed.";
+    return "Registry record assets refreshed.";
   }
 
   if (updated === "binder") {

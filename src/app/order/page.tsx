@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import BinderCheckoutControls from "@/components/billing/BinderCheckoutControls";
+import { DISCLAIMER_SHORT } from "@/lib/paladin/copy";
 import {
   formatPaladinPrice,
   getPaladinPriceItem,
 } from "@/lib/paladin/pricing";
 
 export const metadata: Metadata = {
-  title: "Order a Compliance Binder",
+  title: "Order an AI Policy & Evidence Binder",
   description:
-    "Order the Paladin Compliance Binder as a one-time purchase without creating an account.",
+    "Order the Paladin AI Policy & Evidence Binder as a one-time purchase without creating an account. Documentation only; not legal advice or certification.",
   alternates: {
     canonical: "/order",
   },
@@ -33,14 +34,15 @@ export default async function OrderPage({ searchParams }: OrderPageProps) {
             One-Time Purchase
           </p>
           <h1 className="mt-4 text-3xl font-black tracking-tight text-white">
-            Paladin Compliance Binder
+            AI Policy &amp; Evidence Binder
           </h1>
           <p className="mt-3 text-2xl font-black text-amber-100">
             {formatPaladinPrice(binder)}
           </p>
           <p className="mt-4 text-sm leading-6 text-slate-300">
-            Order a physical Paladin Compliance Binder without starting a
-            membership or creating an account. Stripe securely collects payment
+            Order a physical AI Policy &amp; Evidence Binder for insurance
+            renewals, client security questionnaires, and board or budget
+            records, without starting a membership or creating an account. Stripe securely collects payment
             and the U.S. shipping address needed for fulfillment.
           </p>
         </div>
@@ -58,6 +60,16 @@ export default async function OrderPage({ searchParams }: OrderPageProps) {
           unitAmountCents={binder.amountCents}
           variant="dark"
         />
+
+        <p className="text-xs leading-5 text-slate-400">
+          {DISCLAIMER_SHORT}
+        </p>
+
+        <p className="text-xs leading-5 text-slate-400">
+          Already a subscriber? Additional binders are{" "}
+          {formatPaladinPrice(getPaladinPriceItem("additionalBinder"))} each
+          from your dashboard.
+        </p>
 
         <p className="text-xs leading-5 text-slate-400">
           Payment is processed by Stripe. You can review the quantity, total,

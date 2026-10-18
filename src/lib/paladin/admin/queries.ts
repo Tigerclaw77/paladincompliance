@@ -280,13 +280,13 @@ export async function getAdminRecentActivity(take = 16) {
     ),
     ...subscriptions.map(
       (subscription): AdminActivity => ({
-        description: `Coverage status is ${subscription.status}.`,
+        description: `Subscription status is ${subscription.status}.`,
         href: `/admin/organizations/${subscription.organizationId}`,
         id: `subscription-${subscription.id}`,
         occurredAt: subscription.updatedAt,
         organizationId: subscription.organizationId,
         organizationName: subscription.organization.name,
-        title: "Coverage updated",
+        title: "Subscription updated",
         type: "subscription_updated",
       })
     ),

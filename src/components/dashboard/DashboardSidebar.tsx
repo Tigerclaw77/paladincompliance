@@ -9,6 +9,10 @@ type DashboardSidebarProps = {
 const navItems = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/assets", label: "Assets" },
+  { href: "/dashboard/spend-record", label: "AI Spend Record" },
+  { href: "/dashboard/calendar", label: "Calendar" },
+  { href: "/dashboard/training", label: "Training" },
+  { href: "/dashboard/reviews", label: "Reviews" },
   { href: "/dashboard/settings", label: "Settings" },
   { href: "/dashboard/billing", label: "Billing" },
   { href: "/dashboard/updates", label: "Updates" },
@@ -49,7 +53,7 @@ export default function DashboardSidebar({
           className="block rounded-lg border border-blue-300/20 bg-blue-400/10 px-3 py-2.5 text-sm font-black text-blue-100 transition hover:bg-blue-400/15"
           href={`/verify/${verificationSlug}`}
         >
-          Public Verification
+          Registry Record
         </Link>
 
         <form action={signOutAction} className="mt-3">

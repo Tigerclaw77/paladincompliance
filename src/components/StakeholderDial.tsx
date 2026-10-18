@@ -3,12 +3,11 @@
 import { useEffect, useRef } from "react";
 
 const stakeholders = [
-  "patients",
-  "clients",
   "insurers",
-  "auditors",
-  "investors",
+  "clients",
+  "brokers",
   "partners",
+  "boards",
 ];
 
 export default function StakeholderDial() {

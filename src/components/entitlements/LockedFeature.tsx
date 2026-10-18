@@ -30,7 +30,7 @@ export default function LockedFeature({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-100">
-            Coverage Required
+            Subscription Required
           </p>
           <h2
             className={`mt-3 font-black text-white ${

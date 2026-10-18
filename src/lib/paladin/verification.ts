@@ -24,6 +24,7 @@ export type VerificationLifecycle = {
 export type ModuleBadge = {
   description: string;
   label: string;
+  stateLabel?: string;
   tone: StatusTone;
 };
 
@@ -111,7 +112,7 @@ export function resolveVerificationLifecycle({
     return {
       badgeLabel: "LAPSED",
       description:
-        "Verification coverage is no longer active and requires renewal before the record should be treated as active.",
+        "This registry record is no longer active and requires renewal before it should be treated as current.",
       state: "lapsed",
       tone: "inactive",
     };
@@ -121,7 +122,7 @@ export function resolveVerificationLifecycle({
     return {
       badgeLabel: "RENEWAL DUE",
       description:
-        "Verification remains visible while renewal timing or billing status requires review.",
+        "This registry record remains visible while renewal timing or billing status requires review.",
       state: "renewal_due",
       tone: "warning",
     };
@@ -131,7 +132,7 @@ export function resolveVerificationLifecycle({
     return {
       badgeLabel: "NOT YET ACTIVE",
       description:
-        "Verification is prepared but not yet active. Coverage must be activated before this record should be presented as active.",
+        "This registry record is not yet active. It should not be presented as current until activated.",
       state: "not_yet_active",
       tone: "draft",
     };
@@ -141,7 +142,7 @@ export function resolveVerificationLifecycle({
     return {
       badgeLabel: "ACTIVE",
       description:
-        "Verification is active and available for public stakeholder review.",
+        "This registry record is active and available for public review. It shows a binder was issued to this organization; it is not a certification.",
       state: "active",
       tone: "active",
     };
@@ -150,7 +151,7 @@ export function resolveVerificationLifecycle({
   return {
     badgeLabel: "LAPSED",
     description:
-      "Verification coverage was previously active but is not currently maintained as active.",
+      "This registry record was previously active but is not currently maintained as active.",
     state: "lapsed",
     tone: "inactive",
   };
@@ -179,57 +180,49 @@ export function getActiveModules(
     entitlements?.features?.verificationModules?.allowed ?? true;
   const downloadsAllowed =
     entitlements?.features?.downloadableAssets?.allowed ?? true;
-  const hipaaAllowed = entitlements?.features?.hipaaAddOn?.allowed ?? false;
-  const hipaaRequested = entitlements?.hipaaRequested ?? false;
   const tone = verificationAllowed ? getStatusTone(status) : "inactive";
   const subscriptionTone = getStatusTone(subscription?.status);
+  // The binder is a physical item issued with the plan; downloadable assets are
+  // optional extras. Previously the tone depended only on downloadable assets,
+  // so active organizations showed "Binder Readiness: Preparing".
+  const hasActivePlan = ["active", "trialing"].includes(
+    normalizeStatus(subscription?.status)
+  );
+  const binderIssued = downloadsAllowed && (hasActivePlan || assets.length > 0);
   const moduleMap = new Map<string, ModuleBadge>();
   const baseModules: ModuleBadge[] = [
     {
       description: verificationAllowed
-        ? "Public record for stakeholder review and verification continuity."
-        : "Archived public record retained while coverage is inactive.",
-      label: "Public Verification",
+        ? "Public registry record showing this binder was issued to this organization."
+        : "Archived public registry record retained while the plan is inactive.",
+      label: "Public Registry Record",
       tone,
     },
     {
-      description: "Documented AI use expectations and review controls.",
+      description: "Documented AI use expectations and review steps included in the binder.",
       label: "AI Usage Policy",
       tone,
     },
     {
-      description: "Printable governance binder and supporting compliance artifacts.",
-      label: "Binder Readiness",
-      tone: downloadsAllowed
-        ? assets.length > 0
-          ? "active"
-          : "draft"
-        : "inactive",
+      description: hasActivePlan
+        ? "AI Policy & Evidence Binder is included with the annual plan. Printed copies are shipped separately to the address given at checkout."
+        : "Binder inclusion is shown here once the plan is active.",
+      label: "Binder",
+      stateLabel: binderIssued
+        ? "Included with plan"
+        : downloadsAllowed
+          ? "Not yet issued"
+          : "Not active",
+      tone: binderIssued ? "active" : downloadsAllowed ? "draft" : "inactive",
     },
     {
-      description: "Coverage state reflected from billing records.",
-      label: "Coverage Status",
+      description: "Plan state reflected from billing records.",
+      label: "Plan Status",
       tone: subscription ? subscriptionTone : "draft",
     },
   ];
 
   baseModules.forEach((module) => moduleMap.set(module.label, module));
-
-  if (hipaaAllowed) {
-    moduleMap.set("HIPAA Module Active", {
-      description:
-        "HIPAA module coverage and public verification labeling are active.",
-      label: "HIPAA Module Active",
-      tone: "active",
-    });
-  } else if (hipaaRequested) {
-    moduleMap.set("HIPAA Coverage Pending", {
-      description:
-        "HIPAA module request is recorded and will display when coverage is active.",
-      label: "HIPAA Coverage Pending",
-      tone: "warning",
-    });
-  }
 
   if (downloadsAllowed) {
     assets.forEach((asset) => {

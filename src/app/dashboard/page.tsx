@@ -77,12 +77,8 @@ export default async function DashboardPage() {
     ? formatLifecycleDate(subscription.currentPeriodEnd)
     : "Pending";
   const tierLabel = getCoverageTierLabel({
-    hipaaEnabled: entitlements.features.hipaaAddOn.allowed,
     planLabel: planSnapshot.label,
   });
-  const hipaaCoverageLabel = entitlements.features.hipaaAddOn.allowed
-    ? "HIPAA materials available"
-    : "HIPAA add-on not enabled";
 
   return (
     <div className="grid gap-6">
@@ -96,7 +92,7 @@ export default async function DashboardPage() {
               {organization.name}
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
-              Maintain public verification, renewal status, binder records, and
+              Maintain the public registry record, renewal status, binder records, and
               organization identity from a restrained administrative workspace.
             </p>
           </div>
@@ -127,14 +123,14 @@ export default async function DashboardPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-200">
-                Subscription & Verification
+                Subscription & Registry Record
               </p>
               <h2 className="mt-3 text-2xl font-black text-white">
-                Coverage record and renewal state
+                Subscription record and renewal state
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-                Administrative view of the subscription, public verification,
-                and controlled records used across certificates, QR assets, and
+                Administrative view of the subscription, the public registry record,
+                and controlled records used across registry records, QR assets, and
                 physical binder references.
               </p>
             </div>
@@ -151,23 +147,19 @@ export default async function DashboardPage() {
               value={getStatusLabel(subscription?.status)}
             />
             <OperationsDatum
-              label="Coverage Active Through"
+              label="Subscription Active Through"
               value={formatLifecycleDate(activeThroughDate)}
             />
             <OperationsDatum
-              label="Verification Lifecycle"
+              label="Registry Record Lifecycle"
               value={lifecycle.badgeLabel}
             />
             <OperationsDatum
-              label="HIPAA Coverage"
-              value={hipaaCoverageLabel}
-            />
-            <OperationsDatum
-              label="Current Verification URL"
+              label="Current Registry Record URL"
               value={displayVerificationUrl}
             />
             <OperationsDatum
-              label="Verification ID"
+              label="Registry ID"
               value={verificationId}
             />
             <OperationsDatum label="Revision ID" value={revisionId} />
@@ -182,10 +174,10 @@ export default async function DashboardPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
-                Coverage Status
+                Subscription Status
               </p>
               <h2 className="mt-3 text-2xl font-black text-white">
-                Paladin Coverage
+                Paladin Subscription
               </h2>
             </div>
             <CoverageStatusPill status={coverageStatus} />
@@ -194,10 +186,10 @@ export default async function DashboardPage() {
           {!hasCoverageRecord && (
             <div className="mt-5 rounded-xl border border-amber-200/20 bg-amber-200/[0.07] p-4">
               <p className="text-sm font-black text-amber-100">
-                Coverage status unavailable
+                Subscription status unavailable
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-300">
-                Coverage appears here after checkout and Stripe webhook
+                Subscription status appears here after checkout and Stripe webhook
                 confirmation create the Paladin subscription record.
               </p>
             </div>
@@ -206,9 +198,9 @@ export default async function DashboardPage() {
           <dl className="mt-5 grid gap-3">
             <CoverageDatum label="Status" value={coverageStatus} />
             <CoverageDatum label="Tier" value={tierLabel} />
-            <CoverageDatum label="Coverage Through" value={coverageThrough} />
+            <CoverageDatum label="Active Through" value={coverageThrough} />
             <CoverageDatum
-              label="Verification Status"
+              label="Registry Record Status"
               value={lifecycle.badgeLabel}
             />
             <CoverageDatum label="Billing Cadence" value="Annual" />
@@ -222,7 +214,7 @@ export default async function DashboardPage() {
             {!hasActiveCoverage && (
               <AdminAction
                 href="/pricing"
-                label="Select Annual Coverage"
+                label="Select Annual Plan"
                 tone="primary"
               />
             )}
@@ -232,12 +224,12 @@ export default async function DashboardPage() {
             />
             <AdminAction
               href={`/verify/${verificationSlug}`}
-              label="View Public Verification"
+              label="View Registry Record"
             />
             <AdminAction
               disabled={!certificateHref}
               href={certificateHref || "#"}
-              label="Download Certificate"
+              label="Download Registry Record"
             />
             <AdminAction
               disabled={!downloadsEnabled}
@@ -246,7 +238,7 @@ export default async function DashboardPage() {
               description={
                 downloadsEnabled
                   ? undefined
-                  : "Files become available after verification activation."
+                  : "Files become available once the registry record is active."
               }
             />
           </div>
@@ -266,7 +258,7 @@ export default async function DashboardPage() {
               description={
                 downloadsEnabled
                   ? undefined
-                  : "Assets become available after verification activation."
+                  : "Assets become available once the registry record is active."
               }
             />
             <AdminAction href="/dashboard/settings" label="Edit Organization Metadata" />
@@ -274,7 +266,7 @@ export default async function DashboardPage() {
               description={
                 entitlements.hasActiveSubscription
                   ? undefined
-                  : "Available after organizational coverage is active."
+                  : "Available after an active subscription is in place."
               }
               disabled={!entitlements.hasActiveSubscription}
               href="/dashboard/assets#additional-binders"
@@ -286,14 +278,6 @@ export default async function DashboardPage() {
             <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
               Optional Upgrades
             </p>
-            <AdminAction
-              href={entitlements.features.hipaaAddOn.allowed ? "/dashboard/assets" : "/pricing"}
-              label={
-                entitlements.features.hipaaAddOn.allowed
-                  ? "HIPAA Materials Available"
-                  : "Add HIPAA Coverage"
-              }
-            />
             <AdminAction href="/pricing" label="Upgrade Organization Tier" />
             <AdminAction href="/start/enterprise" label="Contact Enterprise" />
           </div>
@@ -303,10 +287,10 @@ export default async function DashboardPage() {
       <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-2xl border border-white/10 bg-slate-900/90 p-6 shadow-[0_22px_70px_rgba(2,6,23,0.34)]">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
-            Verification Tools
+            Registry Record Tools
           </p>
           <h2 className="mt-3 text-2xl font-black text-white">
-            Public verification tools
+            Registry record tools
           </h2>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {activeModules.map((module) => (
@@ -330,18 +314,18 @@ export default async function DashboardPage() {
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <section className="rounded-2xl border border-amber-200/20 bg-amber-200/[0.06] p-6">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-100">
-            Coverage State
+            Subscription State
           </p>
           <h2 className="mt-3 text-2xl font-black text-white">
-            Account status and coverage boundary
+            Account status and subscription boundary
           </h2>
           <p className="mt-3 text-sm leading-6 text-slate-300">
             Billing status and renewal timing control whether public
-            verification is not yet active, active, renewal due, or lapsed.
+            the registry record is not yet active, active, renewal due, or lapsed.
           </p>
           <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/60 p-4">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-              Public Verification State
+              Registry Record State
             </p>
             <p className="mt-2 text-xl font-black capitalize text-white">
               {lifecycle.badgeLabel}
@@ -515,20 +499,8 @@ function getCoverageStatusLabel({
   return "Unknown";
 }
 
-function getCoverageTierLabel({
-  hipaaEnabled,
-  planLabel,
-}: {
-  hipaaEnabled: boolean;
-  planLabel: string;
-}) {
-  const normalizedPlanLabel = planLabel
+function getCoverageTierLabel({ planLabel }: { planLabel: string }) {
+  return planLabel
     .replace("Custom Enterprise Coverage", "Enterprise")
-    .replace(" + Optional HIPAA Add-On", " + HIPAA Add-On");
-
-  if (!hipaaEnabled || normalizedPlanLabel.toLowerCase().includes("hipaa")) {
-    return normalizedPlanLabel;
-  }
-
-  return `${normalizedPlanLabel} + HIPAA Add-On`;
+    .replace(" + Optional HIPAA Add-On", "");
 }
