@@ -21,6 +21,7 @@ const useCases = [
   "Managing billing, subscription lifecycle, renewal state, and customer support.",
   "Preparing registry record materials, operational updates, and controlled-document resources.",
   "Sending service-related email about an active subscription, binder revisions, renewal reminders, support, and account status.",
+  "Storing training acknowledgment records (a person's name, optional email and role, module, and date) and review records (reviewer name, items checked, notes) that an owner or admin enters. Enter only what your organization is comfortable storing; do not enter sensitive personal information. Reminder emails include an unsubscribe link; sign-in and billing emails are sent regardless.",
   "Storing AI spend record entries that an organization owner or admin chooses to save to the account, so members can view and export them. Entries kept only in the browser are not sent to Paladin.",
 ];
 

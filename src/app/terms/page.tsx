@@ -15,6 +15,7 @@ const serviceScope = [
   "A public registry record showing the binder was issued to the organization, QR assets, and related downloadable materials. Paladin issues and maintains the record; it is not a third-party review.",
   "An initial printed binder shipped by mail to a U.S. address, and a digital quick-reference record (a short PDF summary, not the full binder) in the member workspace during an active plan.",
   "Email notice of binder revisions that Paladin releases, a revision log, and a renewal reminder email. No fixed revision schedule or delivery date is promised.",
+  "A compliance calendar with emailed reminders (which you can unsubscribe from), three short AI use training modules with acknowledgment records that your organization completes and keeps, and two recurring review checklists with dated records. These are record-keeping tools: acknowledgments and reviews are your organization's own entries, not certifications or audits.",
   "Email support at the contact address below, without a guaranteed response time.",
 ];
 
