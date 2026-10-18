@@ -43,3 +43,11 @@ yarn-error.log*
 next-env.d.ts
 # Python bytecode (binder tooling)
 __pycache__/
+
+# Local binder rendering / browser scratch (never commit; stale renders carry old wording)
+/docx_render_*/
+/lo_profile_*/
+/toc_field_render/
+/tmp_chrome_*/
+/*.pdf
+/*.png
