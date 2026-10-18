@@ -4,24 +4,24 @@ import { getSupportEmail } from "@/lib/paladin/env";
 export const metadata = {
   title: "Privacy",
   description:
-    "How Paladin Compliance uses organization, billing, verification, and support information for active services.",
+    "How Paladin Compliance uses organization, billing, registry record, and support information for active services.",
   alternates: {
     canonical: "/privacy",
   },
 };
 
 const informationTypes = [
-  "Organization and account information used to set up the workspace and verification record.",
-  "Billing and subscription information needed to maintain coverage and account standing.",
-  "Verification-related operational information used for public records, certificates, QR assets, and controlled updates.",
+  "Organization and account information used to set up the workspace and registry record.",
+  "Billing and subscription information needed to maintain the subscription and account standing.",
+  "Registry-record-related operational information used for public registry records, QR assets, and controlled updates.",
   "Optional healthcare-related organizational information when HIPAA add-on services are selected.",
 ];
 
 const useCases = [
-  "Operating the Paladin workspace, public verification page, and downloadable asset features.",
+  "Operating the Paladin workspace, public registry record page, and downloadable asset features.",
   "Managing billing, subscription lifecycle, renewal state, and customer support.",
-  "Preparing verification materials, operational updates, and controlled-document resources.",
-  "Sending service-related email about active coverage, updates, support, and account status.",
+  "Preparing registry record materials, operational updates, and controlled-document resources.",
+  "Sending service-related email about an active subscription, updates, support, and account status.",
 ];
 
 export default function PrivacyPage() {
@@ -40,7 +40,7 @@ export default function PrivacyPage() {
           <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300">
             This page describes the practical information Paladin uses to run
             the service. It is written for organizations evaluating or using
-            Paladin coverage, not as a dense corporate privacy manual.
+            the Paladin service, not as a dense corporate privacy manual.
           </p>
         </header>
 
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
           />
           <PolicyNote
             title="Service Email"
-            body="Paladin may send email related to active services, support, account status, verification lifecycle, operational updates, and renewal activity."
+            body="Paladin may send email related to active services, support, account status, registry record lifecycle, operational updates, and renewal activity."
           />
         </section>
 

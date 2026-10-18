@@ -2,12 +2,12 @@ import { getCurrentOrganization } from "@/lib/paladin/currentOrganization";
 
 const updateItems = [
   {
-    label: "Verification profile",
-    status: "Public verification record is available for review.",
+    label: "Registry record profile",
+    status: "Public registry record is available for review.",
   },
   {
-    label: "Coverage sync",
-    status: "Stripe subscription events are reflected in billing and verification state.",
+    label: "Subscription sync",
+    status: "Stripe subscription events are reflected in billing and registry record state.",
   },
   {
     label: "Downloadable assets",

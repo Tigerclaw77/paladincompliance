@@ -66,13 +66,13 @@ export function getConfiguredPublicSiteUrl() {
   return configuredUrl ?? null;
 }
 
+// Public contact address shown on the site. Deliberately NOT overridable by
+// PALADIN_SUPPORT_EMAIL / EMAIL_FROM so a stale production env var cannot
+// re-introduce a legacy address on /contact, /terms, /privacy or /pricing.
+export const PUBLIC_CONTACT_EMAIL = "contact@passportinformatics.com";
+
 export function getSupportEmail() {
-  return (
-    process.env.PALADIN_SUPPORT_EMAIL ??
-    process.env.EMAIL_FROM?.match(/<([^>]+)>/)?.[1] ??
-    process.env.EMAIL_FROM ??
-    "support@paladincompliance.com"
-  );
+  return PUBLIC_CONTACT_EMAIL;
 }
 
 export function getEmailConfig() {

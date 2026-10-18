@@ -12,25 +12,25 @@ type HipaaUpsellCardProps = {
 const features = [
   "HIPAA policy module",
   "Workforce AI usage guidance",
-  "HIPAA verification badge",
+  "HIPAA label on the registry record",
   "Binder inserts + annual updates",
-  "Public verification labeling",
+  "HIPAA label on the registry record",
 ];
 
 export default function HipaaUpsellCard({
   checked,
   name = "hipaaEnabled",
   onChange,
-  priceLabel = "Catalog-priced coverage",
+  priceLabel = "Catalog-priced plan",
 }: HipaaUpsellCardProps) {
   const checkboxId = useId();
 
   return (
-    <section style={cardStyle} aria-label="HIPAA module coverage">
+    <section style={cardStyle} aria-label="HIPAA module">
       <div style={topRowStyle}>
         <div>
-          <p style={eyebrowStyle}>Healthcare coverage option</p>
-          <h2 style={titleStyle}>Add HIPAA Coverage</h2>
+          <p style={eyebrowStyle}>Healthcare module option</p>
+          <h2 style={titleStyle}>Add HIPAA Module</h2>
         </div>
         <p style={priceStyle}>{priceLabel}</p>
       </div>
@@ -65,7 +65,7 @@ export default function HipaaUpsellCard({
 
       <div style={verificationStyle}>
         <p style={verificationIntroStyle}>
-          Organizations with HIPAA coverage display:
+          Organizations with the HIPAA module display:
         </p>
         <div style={verificationBadgeStyle}>
           <span style={badgeCheckStyle} aria-hidden="true">
@@ -73,7 +73,7 @@ export default function HipaaUpsellCard({
           </span>
           HIPAA Module Active
         </div>
-        <p style={verificationNoteStyle}>on their public verification page.</p>
+        <p style={verificationNoteStyle}>on their public registry record page.</p>
       </div>
 
       {checked && (

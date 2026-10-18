@@ -8,6 +8,10 @@ import {
 import { logOperationalEvent } from "@/lib/paladin/logging";
 import { prisma } from "@/lib/prisma";
 import {
+  isGuestStarterCheckoutSession,
+  provisionGuestStarterOrganization,
+} from "@/lib/stripe/guestProvisioning";
+import {
   markSubscriptionInactive,
   syncStripeSubscription,
 } from "@/lib/stripe/subscriptions";
@@ -169,6 +173,22 @@ async function handleCheckoutSessionCompleted(
       });
     }
 
+    return;
+  }
+
+  if (isGuestStarterCheckoutSession(checkoutSession)) {
+    if (checkoutSession.payment_status === "unpaid") {
+      logOperationalEvent("warn", "stripe_guest_starter_unpaid_ignored", {
+        checkoutSessionId: checkoutSession.id,
+        eventId: event.id,
+      });
+      return;
+    }
+
+    await provisionGuestStarterOrganization(checkoutSession, {
+      eventId: event.id,
+      eventType: event.type,
+    });
     return;
   }
 

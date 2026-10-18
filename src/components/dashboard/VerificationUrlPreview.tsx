@@ -10,7 +10,7 @@ export default function VerificationUrlPreview({
   return (
     <section className="rounded-2xl border border-blue-300/20 bg-blue-300/10 p-6">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-100">
-        Verification URL
+        Registry Record URL
       </p>
       <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/70 p-4">
         <p className="break-all font-mono text-sm text-blue-100">

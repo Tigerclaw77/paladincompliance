@@ -37,7 +37,7 @@ export default function DownloadableAssetsSection({
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
             Protected organization files for QR packs, policy updates,
-            verification records, and binder artifacts.
+            registry records, and binder artifacts.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -71,8 +71,8 @@ export default function DownloadableAssetsSection({
           ))
         ) : (
           <EmptyState
-            message="Verification assets will appear here once organizational coverage becomes active."
-            title="Verification assets pending"
+            message="Registry record assets will appear here once an active subscription is in place."
+            title="Registry record assets pending"
           />
         )}
       </div>

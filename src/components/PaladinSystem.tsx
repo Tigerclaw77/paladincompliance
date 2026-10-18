@@ -175,21 +175,21 @@ const cards = [
     label: "Operational Record",
     headline: "Structured Physical Binder",
     subtext:
-      "A maintained operational reference system with policies, records, logs, and verification materials.",
+      "A binder with your AI use policy sections (oversight, data handling, disclosure, vendors, incident escalation) and an annual record of AI governance spend.",
   },
   {
     step: "02",
-    label: "External Signal",
-    headline: "Public Verification Presence",
+    label: "Registry Record",
+    headline: "Public Registry Record",
     subtext:
-      "Show customers, partners, and auditors that your organization maintains documented AI governance practices.",
+      "A public registry record showing this binder was issued to your organization. Paladin issues it; it is not a certification.",
   },
   {
     step: "03",
-    label: "Maintained Standing",
+    label: "Annual Updates",
     headline: "Ongoing Membership & Updates",
     subtext:
-      "Maintain active status, receive update eligibility, and keep your verification current as policies evolve.",
+      "Keep the binder and registry record current each year as your policies and AI tools change.",
   },
 ];
 
@@ -215,8 +215,9 @@ export default function PaladinSystem() {
             The Paladin System
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-            A guided membership ecosystem built around tangible records, visible
-            verification, and ongoing governance maintenance.
+            A paper binder, a public registry record, and an annual update cycle.
+            Documentation that supports, and does not replace, responsible AI
+            use.
           </p>
         </div>
 
@@ -302,7 +303,7 @@ function BinderVisual() {
       </div>
 
       <div className="absolute right-12 top-12 grid gap-2">
-        {["POLICY", "LOGS", "VERIFY"].map((tab) => (
+        {["POLICY", "SPEND", "RECORD"].map((tab) => (
           <span
             className="rounded-r-[4px] border border-[#d7c08a]/25 bg-[#d7c08a]/12 px-2 py-1 text-[8px] font-bold tracking-[0.1em] text-[#f0dca5]"
             key={tab}
@@ -329,7 +330,7 @@ function VerificationVisual() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-[8px] font-bold uppercase tracking-[0.24em] text-[#8b6f2e]">
-              Verification
+              Registry (sample)
             </p>
             <div className="mt-2 h-1.5 w-20 rounded-full bg-[#101827]" />
             <div className="mt-2 h-1 w-28 rounded-full bg-slate-300" />
@@ -362,7 +363,7 @@ function VerificationVisual() {
           </div>
           <div className="min-w-0 pt-1">
             <p className="text-[8px] font-bold uppercase tracking-[0.16em] text-slate-500">
-              Verification ID
+              Registry ID (sample)
             </p>
             <p className="mt-1 truncate text-[10px] font-black tracking-[0.12em] text-[#101827]">
               PAL-AI-0427

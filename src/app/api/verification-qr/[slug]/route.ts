@@ -34,7 +34,7 @@ export async function GET(
 
   if (!normalizedSlug) {
     return NextResponse.json(
-      { error: "Verification page not found." },
+      { error: "Registry record not found." },
       { status: 404 }
     );
   }
@@ -60,7 +60,7 @@ export async function GET(
 
   if (!verificationPage) {
     return NextResponse.json(
-      { error: "Verification page not found." },
+      { error: "Registry record not found." },
       { status: 404 }
     );
   }
@@ -111,7 +111,7 @@ export async function GET(
     });
 
     return NextResponse.json(
-      { error: "Verification QR could not be generated. Please try again." },
+      { error: "Registry record QR could not be generated. Please try again." },
       { status: 503 }
     );
   }

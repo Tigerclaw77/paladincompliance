@@ -30,8 +30,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               Internal operations overview
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
-              Support visibility for organizations, coverage state,
-              verification records, assets, and coverage activity.
+              Support visibility for organizations, subscription state,
+              registry records, assets, and subscription activity.
             </p>
           </div>
           <Link
@@ -46,7 +46,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <AdminMetric label="Organizations" value={overview.organizationCount} />
         <AdminMetric
-          label="Active Coverage"
+          label="Active Subscriptions"
           value={overview.activeSubscriptions}
         />
         <AdminMetric label="HIPAA Requested" value={overview.hipaaCount} />
@@ -129,7 +129,7 @@ function OrganizationTable({
               <dl className="grid gap-3 sm:grid-cols-3">
                 <MiniDetail label="Plan" value={organization.planLabel} />
                 <MiniDetail
-                  label="Verification"
+                  label="Registry Record"
                   value={getStatusLabel(organization.verificationStatus)}
                 />
                 <MiniDetail
@@ -179,7 +179,7 @@ function ActivityFeed({ activity }: { activity: AdminActivity[] }) {
           ))
         ) : (
           <EmptyState
-            message="Binder, asset, and coverage events will appear here as organizations use the platform."
+            message="Binder, asset, and subscription events will appear here as organizations use the platform."
             title="No activity yet"
           />
         )}

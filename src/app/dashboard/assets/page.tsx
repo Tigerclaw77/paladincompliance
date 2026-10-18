@@ -63,7 +63,7 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
               Protected files scoped to {organization.name}, including binder
-              PDFs, verification certificate downloads, QR assets, and archived
+              PDFs, registry record downloads, QR assets, and archived
               governance records.
             </p>
           </div>
@@ -93,7 +93,7 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
                   className="inline-flex h-12 items-center rounded-lg border border-amber-200/25 bg-amber-200/10 px-5 text-sm font-black text-amber-100 transition hover:bg-amber-200/15"
                   href={certificateHref}
                 >
-                  Verification Certificate
+                  Registry Record
                 </Link>
               ) : (
                 <button
@@ -101,7 +101,7 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
                   disabled
                   type="button"
                 >
-                  Verification Certificate
+                  Registry Record
                 </button>
               )}
               {canUseDownloads ? (
@@ -161,7 +161,7 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
       {!canUseDownloads && (
         <LockedFeature
           entitlement={entitlements.features.downloadableAssets}
-          title="Verification assets become available after activation"
+          title="Registry record assets become available after activation"
         />
       )}
 
@@ -266,10 +266,10 @@ function getErrorMessage(error: string) {
 
 function getLockedMessage(locked: string) {
   if (locked === "binder") {
-    return "Binder PDF generation becomes available after verification activation.";
+    return "Binder PDF generation becomes available once the registry record is active.";
   }
 
-  return "Verification assets become available after organizational coverage becomes active.";
+  return "Registry record assets become available after an active subscription is in place.";
 }
 
 function getCheckoutMessage(checkout: string) {
@@ -321,7 +321,7 @@ function AdditionalBinderCheckoutSection() {
                 {formatPaladinPrice(item)}
               </p>
               <p className="mt-3 text-sm leading-6 text-slate-300">
-                For organizations with active Paladin coverage that need an
+                For organizations with an active Paladin subscription that need an
                 additional binder copy.
               </p>
               <div className="mt-5">

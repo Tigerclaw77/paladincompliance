@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { DISCLAIMER_SHORT, SUPPORTS_NOT_REPLACES } from "@/lib/paladin/copy";
 import {
   formatPaladinPrice,
   getCoveragePriceKey,
@@ -9,6 +10,7 @@ import {
 
 type PricingClientProps = {
   checkoutCanceled: boolean;
+  supportEmail: string;
 };
 
 type OperationalRange = {
@@ -18,9 +20,9 @@ type OperationalRange = {
 };
 
 const sharedIncludes = [
-  "Initial physical compliance binder",
-  "Public verification page",
-  "QR verification",
+  "Initial physical AI Policy & Evidence Binder",
+  "Public registry record page",
+  "QR registry lookup",
   "Digital update access",
   "Email support",
 ];
@@ -28,7 +30,7 @@ const sharedIncludes = [
 const starterFeatures = [
   "Single operating footprint",
   "Standard binder presentation",
-  "Annual verification and policy update cycle",
+  "Annual registry record and policy update cycle",
 ];
 
 const operationalFeatures = [
@@ -66,7 +68,10 @@ const operationalRanges: OperationalRange[] = [
   },
 ];
 
-export default function PricingClient({ checkoutCanceled }: PricingClientProps) {
+export default function PricingClient({
+  checkoutCanceled,
+  supportEmail,
+}: PricingClientProps) {
   const [hipaaEnabled, setHipaaEnabled] = useState(false);
   const [operationalRangeId, setOperationalRangeId] = useState("26-50");
 
@@ -92,10 +97,8 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
         })
       ).amountCents
     : null;
-  const additionalBinderItem = getPaladinPriceItem(
-    hipaaEnabled ? "additionalBinderHipaa" : "additionalBinder"
-  );
   const publicBinderItem = getPaladinPriceItem("complianceBinder");
+  const additionalBinderItem = getPaladinPriceItem("additionalBinder");
 
   const operationalIsEnterpriseFit = !operationalAmountCents;
 
@@ -103,11 +106,16 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
     <main style={pageStyle}>
       <div style={containerStyle}>
         <header style={headerStyle}>
-          <p style={eyebrowStyle}>Responsible AI Verification</p>
-          <h1 style={titleStyle}>Show customers you use AI responsibly.</h1>
+          <p style={eyebrowStyle}>AI Policy &amp; Evidence Binder</p>
+          <h1 style={titleStyle}>Keep your AI policy and records in one binder.</h1>
           <p style={subheadStyle}>
-            Public verification, a professional binder, and clear AI use
-            policies for organizations that want trust to be visible.
+            For insurance renewals, client security questionnaires, and board or
+            budget records. Includes a documented record of what your
+            organization spends on AI compliance resources each year, so you
+            can say &ldquo;we spent $X on AI compliance this year.&rdquo;
+          </p>
+          <p style={disclaimerStyle}>
+            {DISCLAIMER_SHORT} {SUPPORTS_NOT_REPLACES}
           </p>
         </header>
 
@@ -116,6 +124,35 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
             Checkout was canceled. No billing record was changed.
           </section>
         )}
+
+        <section style={proofStyle} aria-label="What the binder is used for">
+          <div>
+            <p style={smallLabelStyle}>Where it gets used</p>
+            <h2 style={sectionTitleStyle}>
+              Documentation you can hand to the people who ask
+            </h2>
+          </div>
+          <ul style={proofListStyle}>
+            <li>
+              Insurance renewals and client security questionnaires: one
+              organized set of your AI use policy sections and annual spend
+              record to attach or reference.
+            </li>
+            <li>
+              Board and budget records: a documented record of what the
+              organization spends on AI compliance resources each year. It is
+              a documented gesture that supports, and does not replace,
+              responsible AI use.
+            </li>
+            <li>
+              A public registry record showing this binder was issued to your
+              organization, with a QR code on the binder. Paladin issues the
+              record; it is not a third-party review.
+              {" "}
+              <a href="/sample">See sample contents</a>.
+            </li>
+          </ul>
+        </section>
 
         <section style={includedStyle} aria-label="Included with every plan">
           <p style={includedIntroStyle}>Every membership includes</p>
@@ -167,10 +204,10 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
               basePath: "/start/starter",
               hipaaEnabled,
             })}
-            ctaLabel="Start Starter"
+            ctaLabel={`Buy Starter — ${formatAnnualPrice(starterItem.amountCents).replace("/year", "/yr")}`}
             description="For independent practices, small offices, and teams up to 25 staff."
             features={starterFeatures}
-            footnote="Initial physical compliance binder included with new memberships."
+            footnote="Initial physical binder included with new memberships. Secure Stripe checkout. No account needed to purchase; you create your account after payment."
             price={formatAnnualPrice(starterItem.amountCents)}
             title="Starter"
           />
@@ -227,19 +264,26 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
           <EnterprisePricingCard hipaaEnabled={hipaaEnabled} />
         </section>
 
-        <section style={binderNoteStyle}>
+        <section id="binder" style={binderNoteStyle}>
           <div>
             <p style={smallLabelStyle}>Physical records</p>
-            <h2 style={sectionTitleStyle}>Additional binders</h2>
+            <h2 style={sectionTitleStyle}>
+              AI Policy &amp; Evidence Binder — {formatOneTimePrice(publicBinderItem.amountCents)}
+            </h2>
+            <p style={binderPriceStyle}>One-time purchase</p>
           </div>
           <p style={sectionCopyStyle}>
-            Additional or replacement binders are available to active members
-            across all tiers, priced separately at approximately half the
-            initial binder package price. Current add-on reference:{" "}
-            <strong>{formatOneTimePrice(additionalBinderItem.amountCents)}</strong>.
+            {formatOneTimePrice(publicBinderItem.amountCents)} for organizations
+            without a subscription: no membership or account required. Ships to
+            U.S. addresses. The initial binder is included with new
+            memberships. Subscribers can order additional binders for{" "}
+            {formatOneTimePrice(additionalBinderItem.amountCents)} each, useful
+            when more than one office, partner, or board member needs a copy.
+            Order from your dashboard or contact{" "}
+            <a href={`mailto:${supportEmail}`}>{supportEmail}</a>.
           </p>
           <a href="/order" style={binderOrderLinkStyle}>
-            Order a standalone binder —{" "}
+            Order the binder —{" "}
             {formatPaladinPrice(publicBinderItem)}
           </a>
         </section>
@@ -247,7 +291,7 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
         <section style={foundingStyle}>
           <div>
             <p style={foundingEyebrowStyle}>Founding Member Program</p>
-            <h2 style={foundingTitleStyle}>Charter Organization Recognition</h2>
+            <h2 style={foundingTitleStyle}>Charter Organization Program</h2>
             <p style={foundingCopyStyle}>
               A limited early program for organizations that want a more
               prominent Paladin presentation during launch-stage adoption.
@@ -256,8 +300,8 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
           <ul style={foundingListStyle}>
             <li>Executive onboarding</li>
             <li>Premium display materials</li>
-            <li>Recognition placement</li>
-            <li>Enhanced verification presentation</li>
+            <li>Listing placement</li>
+            <li>Enhanced registry record presentation</li>
             <li>Multi-location coordination</li>
           </ul>
           <div style={foundingActionStyle}>
@@ -269,7 +313,8 @@ export default function PricingClient({ checkoutCanceled }: PricingClientProps) 
         </section>
 
         <p style={noteStyle}>
-          Active status remains available while the annual membership is current.
+          The registry record stays active while the annual membership is current.
+          Questions? <a href={`mailto:${supportEmail}`}>{supportEmail}</a>
         </p>
       </div>
     </main>
@@ -415,7 +460,8 @@ function formatOneTimePrice(amountCents: number) {
 function formatCurrency(amountCents: number) {
   return new Intl.NumberFormat("en-US", {
     currency: "USD",
-    maximumFractionDigits: 0,
+    maximumFractionDigits: amountCents % 100 === 0 ? 0 : 2,
+    minimumFractionDigits: amountCents % 100 === 0 ? 0 : 2,
     style: "currency",
   }).format(amountCents / 100);
 }
@@ -891,6 +937,40 @@ const enterpriseIncludedLinkStyle: CSSProperties = {
   fontWeight: 900,
   textAlign: "center",
   textDecoration: "none",
+};
+
+const disclaimerStyle: CSSProperties = {
+  color: "#5b7087",
+  fontSize: 13,
+  lineHeight: 1.5,
+  marginTop: 10,
+  maxWidth: 620,
+};
+
+const proofStyle: CSSProperties = {
+  background: "#ffffff",
+  border: "1px solid #d8e1ec",
+  borderRadius: 12,
+  display: "grid",
+  gap: 14,
+  marginBottom: 22,
+  padding: 22,
+};
+
+const proofListStyle: CSSProperties = {
+  color: "#334a63",
+  display: "grid",
+  fontSize: 15,
+  gap: 8,
+  lineHeight: 1.5,
+  paddingLeft: 20,
+};
+
+const binderPriceStyle: CSSProperties = {
+  color: "#5b7087",
+  fontSize: 14,
+  fontWeight: 700,
+  marginTop: 6,
 };
 
 const binderNoteStyle: CSSProperties = {

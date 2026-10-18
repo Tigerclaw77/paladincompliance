@@ -61,7 +61,7 @@ export default async function OnboardingPage({
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-slate-300">
             This workspace becomes the operational home for policy assets,
-            subscription status, and the public verification page.
+            subscription status, and the public registry record page.
           </p>
         </section>
 
@@ -204,7 +204,7 @@ function getErrorMessage(error: string | undefined) {
   }
 
   if (error === "invalid") {
-    return "Enter an organization name and a valid public verification slug.";
+    return "Enter an organization name and a valid public registry record slug.";
   }
 
   return "";

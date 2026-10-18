@@ -49,7 +49,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
               Workspace identity
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
-              Keep the organization name and public verification slug consistent
+              Keep the organization name and public registry record slug consistent
               across binders, customer packets, and stakeholder-facing
               references.
             </p>
@@ -74,7 +74,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
           </label>
 
           <label className="grid gap-2 text-sm font-semibold text-slate-200">
-            Verification slug
+            Registry record slug
             <input
               className="h-12 rounded-lg border border-white/10 bg-slate-950/70 px-4 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/25"
               defaultValue={verificationSlug}
@@ -84,7 +84,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
               required
             />
             <span className="text-xs font-medium leading-5 text-slate-500">
-              This becomes your public verification URL.
+              This becomes your public registry record URL.
             </span>
           </label>
 
@@ -236,7 +236,7 @@ function getErrorMessage(error: string | undefined) {
   }
 
   if (error === "invalid") {
-    return "Enter a valid organization name and public verification slug.";
+    return "Enter a valid organization name and public registry record slug.";
   }
 
   if (error === "unauthorized") {

@@ -3,11 +3,12 @@ import Script from "next/script";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import DisclaimerBanner from "@/components/DisclaimerBanner";
 
 const SITE_URL = "https://www.paladincompliance.com";
 const SITE_TITLE = "Paladin Compliance";
 const SITE_DESCRIPTION =
-  "Simple, defensible compliance systems for organizations that need documented AI governance practices.";
+  "An AI Policy & Evidence Binder for insurance renewals, client security questionnaires, and board or budget records. Documentation only; not legal advice or certification.";
 const SOCIAL_IMAGE = "/paladincompliance-bg.png";
 
 export const metadata: Metadata = {
@@ -169,6 +170,7 @@ export default function RootLayout({
           </Script>
         ) : null}
         <Header />
+        <DisclaimerBanner />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

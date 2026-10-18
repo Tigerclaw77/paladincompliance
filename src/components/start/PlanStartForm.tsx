@@ -71,7 +71,7 @@ export default function PlanStartForm({
           <p style={eyebrowStyle}>{planLabel(plan)}</p>
           <h1 style={titleStyle}>Confirm Your Package</h1>
           <p style={subheadStyle}>
-            This starts the public verification page, policy record, and update
+            This starts the public registry record page, policy record, and update
             cycle for your organization.
           </p>
         </header>
@@ -110,7 +110,7 @@ export default function PlanStartForm({
 
             <div style={staticFieldStyle}>
               <span style={staticLabelStyle}>Annual Package</span>
-              <strong>Public verification, policies, and updates</strong>
+              <strong>Public registry record, policies, and updates</strong>
             </div>
 
             {errorMessage && <div style={errorStyle}>{errorMessage}</div>}

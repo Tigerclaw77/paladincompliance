@@ -13,10 +13,10 @@ export default function SubscribeSuccessPage() {
   return (
     <main style={pageStyle}>
       <section style={cardStyle}>
-        <p style={eyebrowStyle}>Coverage Started</p>
+        <p style={eyebrowStyle}>Subscription Started</p>
         <h1 style={titleStyle}>Checkout Complete</h1>
         <p style={bodyStyle}>
-          Your Paladin checkout was completed. Coverage status will update in
+          Your Paladin checkout was completed. Subscription status will update in
           the dashboard after Stripe confirms the subscription event.
         </p>
         <Link href="/dashboard" style={linkStyle}>

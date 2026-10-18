@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const footerLinks = [
   { href: "/whats-included", label: "What's Included" },
+  { href: "/sample", label: "Sample Contents" },
   { href: "/contact", label: "Contact" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
@@ -14,7 +15,7 @@ export default function Footer() {
         <div className="grid gap-1">
           <span>&copy; {new Date().getFullYear()} Paladin Compliance</span>
           <span className="text-xs text-slate-500">
-            Operational governance reference materials. Not legal advice.
+            Documentation only. Not legal advice. Not a certification, audit, or guarantee, and not a HIPAA, TRAIGA, or other regulatory approval.
           </span>
         </div>
         <nav className="flex flex-wrap gap-x-5 gap-y-2">

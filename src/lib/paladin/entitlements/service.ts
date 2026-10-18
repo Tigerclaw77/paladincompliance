@@ -173,7 +173,7 @@ function resolveFeatureEntitlement({
       ...baseEntitlement,
       allowed: false,
       message:
-        "HIPAA coverage is available as an add-on for organizations that need PHI-focused policy documentation and public verification labeling.",
+        "The HIPAA module is available as an add-on for organizations that need PHI-focused policy documentation and a HIPAA label on the registry record.",
     };
   }
 

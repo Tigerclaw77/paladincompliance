@@ -22,7 +22,7 @@ export default function OrganizationStatusCards({
 }: OrganizationStatusCardsProps) {
   return (
     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <StatusCard label="Verification">
+      <StatusCard label="Registry Record">
         <VerificationStatusBadge lifecycle={lifecycle} status={verificationStatus} />
       </StatusCard>
       <StatusCard label="Subscription">

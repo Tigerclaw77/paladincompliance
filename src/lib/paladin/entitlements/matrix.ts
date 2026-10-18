@@ -47,7 +47,7 @@ export const entitlementMatrix: Record<
     upgradePlan: "GROWTH",
   },
   verificationModules: {
-    label: "Verification modules",
+    label: "Registry record modules",
     minimumPlan: "STARTER",
   },
 };

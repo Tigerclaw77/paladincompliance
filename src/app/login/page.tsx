@@ -58,7 +58,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
               {params.error && (
                 <p className="mt-4 rounded-lg border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">
-                  The sign-in link could not be verified. Please request a new
+                  The sign-in link is invalid or has expired. Please request a new
                   link.
                 </p>
               )}

@@ -195,11 +195,11 @@ export async function completeTrainingModule({
   const certificateAsset = await saveDownloadableAsset({
     assetType: "TRAINING_CERTIFICATE",
     body: certificatePdf,
-    description: `Training completion attestation for ${trainingModule.title}.`,
+    description: `Training completion record for ${trainingModule.title}.`,
     filename: `${trainingModule.slug}-${sanitizeCertificateName(userName)}-certificate.pdf`,
     mimeType: "application/pdf",
     organizationId,
-    title: `${trainingModule.title} Attestation`,
+    title: `${trainingModule.title} Completion Record`,
   });
 
   try {

@@ -1,9 +1,13 @@
+import { auth } from "@/auth";
+import GuestStarterForm from "@/components/start/GuestStarterForm";
 import PlanStartForm from "@/components/start/PlanStartForm";
-import { getStartFlowContext } from "@/lib/paladin/startFlow";
+import { getSupportEmail } from "@/lib/paladin/env";
 import { saveStarterIntent } from "@/app/start/actions";
+import { getCheckoutUserContext } from "@/lib/stripe/checkout";
 
 type StartStarterPageProps = {
   searchParams: Promise<{
+    checkout?: string;
     error?: string;
     hipaa?: string;
   }>;
@@ -12,18 +16,33 @@ type StartStarterPageProps = {
 export default async function StartStarterPage({
   searchParams,
 }: StartStarterPageProps) {
-  const { organization, user } = await getStartFlowContext("/start/starter");
   const params = await searchParams;
+  const session = await auth();
+  const userContext = session?.user?.email
+    ? await getCheckoutUserContext(session.user.email)
+    : null;
 
+  // Signed-in members with an organization keep the existing flow.
+  if (userContext?.organization) {
+    return (
+      <PlanStartForm
+        action={saveStarterIntent}
+        contactEmail={userContext.user.email}
+        errorMessage={getErrorMessage(params.error)}
+        initialHipaaEnabled={params.hipaa === "1"}
+        organizationName={userContext.organization.name}
+        plan="starter"
+        savedIntent={userContext.organization.acquisitionIntent}
+      />
+    );
+  }
+
+  // Everyone else buys as a guest; the account is created after payment.
   return (
-    <PlanStartForm
-      action={saveStarterIntent}
-      contactEmail={user.email}
-      errorMessage={getErrorMessage(params.error)}
+    <GuestStarterForm
+      canceled={params.checkout === "cancel"}
       initialHipaaEnabled={params.hipaa === "1"}
-      organizationName={organization.name}
-      plan="starter"
-      savedIntent={organization.acquisitionIntent}
+      supportEmail={getSupportEmail()}
     />
   );
 }

@@ -25,7 +25,7 @@ export async function GET(
 
   if (!normalizedSlug) {
     return NextResponse.json(
-      { error: "Verification page not found." },
+      { error: "Registry record not found." },
       { status: 404 }
     );
   }
@@ -46,7 +46,7 @@ export async function GET(
 
   if (!verificationPage) {
     return NextResponse.json(
-      { error: "Verification page not found." },
+      { error: "Registry record not found." },
       { status: 404 }
     );
   }
@@ -88,7 +88,7 @@ export async function GET(
       "Cache-Control": "private, no-store",
       "Content-Disposition": `attachment; filename="${sanitizeFilename(
         organization.name
-      )}-paladin-verification-certificate.pdf"`,
+      )}-paladin-registry-record.pdf"`,
       "Content-Length": String(pdf.byteLength),
       "Content-Type": "application/pdf",
     },

@@ -28,7 +28,7 @@ export default async function AdminOrganizationsPage({
               Organization records directory
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
-              Search organizations by name, public slug, verification slug, or
+              Search organizations by name, public slug, registry record slug, or
               member email.
             </p>
           </div>
@@ -101,7 +101,7 @@ export default async function AdminOrganizationsPage({
                   <dl className="grid gap-3 sm:grid-cols-3">
                     <MiniDetail label="Plan" value={organization.planLabel} />
                     <MiniDetail
-                      label="Verification"
+                      label="Registry Record"
                       value={getStatusLabel(organization.verificationStatus)}
                     />
                     <MiniDetail

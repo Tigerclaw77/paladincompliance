@@ -6,7 +6,6 @@ const protectedRoutes = [
   "/onboarding",
   "/start/growth",
   "/start/operational",
-  "/start/starter",
 ];
 
 const authSessionCookieNames = [
@@ -55,6 +54,5 @@ export const config = {
     "/onboarding/:path*",
     "/start/growth",
     "/start/operational",
-    "/start/starter",
   ],
 };

@@ -4,7 +4,7 @@ import { getSupportEmail } from "@/lib/paladin/env";
 export const metadata = {
   title: "Contact",
   description:
-    "Contact Paladin Compliance for support, sales questions, binder questions, and verification assistance.",
+    "Contact Paladin Compliance for support, sales questions, binder questions, and registry record assistance.",
   alternates: {
     canonical: "/contact",
   },
@@ -12,9 +12,9 @@ export const metadata = {
 
 const contactReasons = [
   "Subscription, billing, or renewal questions",
-  "Public verification, certificate, or QR asset support",
+  "Public registry record or QR asset support",
   "Binder fulfillment, replacement, or additional binder questions",
-  "Coverage fit, HIPAA add-on, or Enterprise review",
+  "Plan fit, HIPAA materials add-on, or Enterprise review",
 ];
 
 export default function ContactPage() {
@@ -28,11 +28,11 @@ export default function ContactPage() {
             Contact Paladin
           </p>
           <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">
-            Support and coverage questions
+            Support and binder questions
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300">
-            Use the configured Paladin support address for service questions,
-            sales conversations, binder coordination, and verification support.
+            Use the Paladin contact address for service questions, sales
+            conversations, binder coordination, and registry record support.
             A member of the Paladin team will review the request and respond as
             soon as reasonably possible, typically within one to two business
             days.
@@ -49,7 +49,7 @@ export default function ContactPage() {
               {supportEmail}
             </a>
             <p className="mt-3 text-sm leading-7 text-slate-300">
-              Include your organization name and the Paladin verification URL
+              Include your organization name and the Paladin registry URL
               when the question relates to an active or pending record.
             </p>
           </div>
