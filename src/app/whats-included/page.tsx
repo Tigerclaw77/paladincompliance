@@ -20,9 +20,10 @@ const physicalItems = [
 
 const digitalItems = [
   "Member workspace access during an active subscription",
-  "Downloadable member files and support materials",
-  "Current digital versions for materials that change more often",
-  "HIPAA-oriented resources when the add-on is selected",
+  "Quick-reference record (13-page PDF), a short digital companion; the full binder is the printed copy and is not offered as a download",
+  "Registry record (PDF), QR files, and AI spend record templates (spreadsheet and CSV)",
+  "AI spend record you can save to your account, with annual summary (CSV and printable)",
+  "Short AI usage training modules with completion records",
 ];
 
 const verificationItems = [
@@ -33,11 +34,10 @@ const verificationItems = [
 ];
 
 const updateItems = [
-  "Updates included during active subscription periods",
-  "Focused replacement sections when needed",
+  "Binder revisions released by Paladin are announced by email and listed in a revision log in your workspace",
+  "Renewal reminder email about 30 days before renewal",
   "Registry record stays active while the plan is current",
-  "Versioned record over time",
-  "HIPAA updates when selected",
+  "No fixed revision schedule is promised; physical replacement pages are not included",
 ];
 
 const controlItems = [
@@ -160,10 +160,11 @@ export default function WhatsIncludedPage() {
                 ))}
               </ul>
               <p className="mt-5 break-words text-sm leading-7 text-slate-300">
-                Digital materials keep current files available without turning
-                every resource into a printed packet. HIPAA-oriented
-                resources are included when selected, without representing
-                legal certification or a regulatory guarantee.
+                The digital quick-reference record summarizes the binder&apos;s policy
+                sections; it does not contain the full binder. The HIPAA
+                add-on currently adds a HIPAA label to the registry record only;
+                HIPAA-oriented policy content is not yet included, and nothing
+                here is legal certification or a regulatory guarantee.
               </p>
             </section>
           </section>

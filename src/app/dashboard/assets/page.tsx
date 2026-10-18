@@ -62,9 +62,10 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
               Downloadable compliance records
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
-              Protected files scoped to {organization.name}, including binder
-              PDFs, registry record downloads, QR assets, and archived
-              governance records.
+              Protected files scoped to {organization.name}: the 13-page
+              quick-reference record (PDF), registry record downloads, and QR
+              assets. The full AI Policy &amp; Evidence Binder is the printed
+              copy shipped to you; it is not available as a download here.
             </p>
           </div>
           <div className="grid gap-3">
@@ -76,7 +77,7 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
                     className="h-12 rounded-lg border border-blue-300/20 bg-gradient-to-r from-blue-700 to-blue-500 px-5 text-sm font-black text-white shadow-[0_14px_32px_rgba(37,99,235,0.24)] transition hover:from-blue-600 hover:to-blue-400"
                     type="submit"
                   >
-                    Generate Binder PDF
+                    Generate Quick-Reference Record (PDF)
                   </button>
                 </form>
               ) : (
@@ -85,7 +86,7 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
                   disabled
                   type="button"
                 >
-                  Generate Binder PDF
+                  Generate Quick-Reference Record (PDF)
                 </button>
               )}
               {canUseDownloads && certificateHref ? (
@@ -154,7 +155,7 @@ export default async function AssetsPage({ searchParams }: AssetsPageProps) {
       {!canCreateBinder && (
         <LockedFeature
           entitlement={entitlements.features.binderPdfGeneration}
-          title="Binder PDF generation becomes available after activation"
+          title="Quick-reference record generation becomes available after activation"
         />
       )}
 
@@ -250,7 +251,7 @@ async function createBinderPdf() {
 
 function getCreatedMessage(created: string) {
   if (created === "binder") {
-    return "Binder PDF generated and archived for this organization.";
+    return "Quick-reference record (13-page PDF) generated and archived for this organization.";
   }
 
   return "Verification QR manifest created and archived for this organization.";
@@ -266,7 +267,7 @@ function getErrorMessage(error: string) {
 
 function getLockedMessage(locked: string) {
   if (locked === "binder") {
-    return "Binder PDF generation becomes available once the registry record is active.";
+    return "Quick-reference record generation becomes available once the registry record is active.";
   }
 
   return "Registry record assets become available after an active subscription is in place.";
@@ -274,7 +275,7 @@ function getLockedMessage(locked: string) {
 
 function getCheckoutMessage(checkout: string) {
   if (checkout === "binder-success") {
-    return "Binder checkout completed. Paladin will use the Stripe record for fulfillment and support follow-up.";
+    return "Binder checkout completed. Paladin will use the Stripe record to fulfill the order by mail; no delivery date is guaranteed.";
   }
 
   if (checkout === "binder-cancel") {

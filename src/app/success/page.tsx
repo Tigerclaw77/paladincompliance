@@ -34,7 +34,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
         </h1>
         <p className="mt-4 text-sm leading-6 text-slate-300">
           {isBinderCheckout
-            ? "Your Paladin binder checkout was completed. Paladin will use the Stripe record for fulfillment and support follow-up."
+            ? "Your Paladin binder checkout was completed. Paladin will use the Stripe record to ship the printed binder to the address you provided; no delivery date is guaranteed."
             : isStarterCheckout
               ? "Thank you. Your organization workspace is being created now. Sign in with the same email address you used at checkout to finish setup; you'll receive a secure sign-in link. Your initial binder ships to the address you provided."
               : "Your Paladin checkout was completed."}

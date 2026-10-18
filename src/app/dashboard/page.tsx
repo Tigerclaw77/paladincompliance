@@ -81,7 +81,7 @@ export default async function DashboardPage() {
     planLabel: planSnapshot.label,
   });
   const hipaaCoverageLabel = entitlements.features.hipaaAddOn.allowed
-    ? "HIPAA materials available"
+    ? "HIPAA add-on enabled (registry label)"
     : "HIPAA add-on not enabled";
 
   return (
@@ -290,7 +290,7 @@ export default async function DashboardPage() {
               href={entitlements.features.hipaaAddOn.allowed ? "/dashboard/assets" : "/pricing"}
               label={
                 entitlements.features.hipaaAddOn.allowed
-                  ? "HIPAA Materials Available"
+                  ? "HIPAA Add-On Enabled"
                   : "Add HIPAA Module"
               }
             />

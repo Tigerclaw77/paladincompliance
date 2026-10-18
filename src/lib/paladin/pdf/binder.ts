@@ -202,7 +202,7 @@ function drawCoverPage({
     font: fonts.bold,
     color: pdfColors.white,
   });
-  page.drawText("AI Policy & Evidence Binder", {
+  page.drawText("Quick-Reference Record", {
     x: 54,
     y: height - 116,
     size: 30,
@@ -233,7 +233,7 @@ function drawCoverPage({
     page,
     fonts,
     label: "Document Type",
-    value: "AI Policy & Evidence Binder (documented record)",
+    value: "Quick-reference record, digital companion to the printed AI Policy & Evidence Binder",
     x: 54,
     y,
   });
@@ -267,7 +267,7 @@ function drawCoverPage({
   });
   drawWrappedText({
     page,
-    text: "This binder is a printable, documented record of the organization's AI policies and evidence, generated from its Paladin Compliance registry profile. It is for internal reference, client and insurer questionnaires, and file maintenance. It is not legal advice and is not an audit, certification, assurance, or verification of compliance.",
+    text: "This quick-reference record is a short (13-page) printable summary of the organization's AI policy sections and evidence, generated from its Paladin Compliance registry profile. It is a companion to, and does not replace, the full printed AI Policy & Evidence Binder. It is for internal reference, client and insurer questionnaires, and file maintenance. It is not legal advice and is not an audit, certification, assurance, or verification of compliance.",
     x: 76,
     y: 164,
     maxWidth: 460,

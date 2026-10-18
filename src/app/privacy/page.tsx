@@ -21,7 +21,8 @@ const useCases = [
   "Operating the Paladin workspace, public registry record page, and downloadable asset features.",
   "Managing billing, subscription lifecycle, renewal state, and customer support.",
   "Preparing registry record materials, operational updates, and controlled-document resources.",
-  "Sending service-related email about an active subscription, updates, support, and account status.",
+  "Sending service-related email about an active subscription, binder revisions, renewal reminders, support, and account status.",
+  "Storing AI spend record entries that an organization owner or admin chooses to save to the account, so members can view and export them. Entries kept only in the browser are not sent to Paladin.",
 ];
 
 export default function PrivacyPage() {

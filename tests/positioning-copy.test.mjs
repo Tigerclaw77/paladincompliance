@@ -150,3 +150,23 @@ test("lifecycle copy avoids coverage/verified wording", () => {
     assert.doesNotMatch(l.description, /coverage|assurance|verified/i);
   }
 });
+
+test("customer copy does not over-promise support SLAs, HIPAA content, or the full binder as a download", async () => {
+  const contact = await readFile("src/app/contact/page.tsx", "utf8");
+  assert.doesNotMatch(contact, /within one to two business days/i);
+  const pricing = await readFile("src/app/pricing/PricingClient.tsx", "utf8");
+  for (const phrase of [
+    "Priority setup and update handling",
+    "Executive onboarding",
+    "Listing placement",
+    "Update inserts when materials change",
+    "HIPAA policy module",
+  ]) {
+    assert.ok(!pricing.includes(phrase), phrase);
+  }
+  const assets = await readFile("src/lib/paladin/assets.ts", "utf8");
+  assert.match(assets, /Quick-reference record \(13 pages, PDF\)/);
+  assert.doesNotMatch(assets, /Paladin Compliance Binder PDF/);
+  const pdf = await readFile("src/lib/paladin/pdf/binder.ts", "utf8");
+  assert.match(pdf, /Quick-Reference Record/);
+});

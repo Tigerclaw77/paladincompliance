@@ -254,11 +254,11 @@ export async function createBinderPdfAsset({
     assetType: "BINDER_PDF",
     body: pdfBytes,
     description:
-      "AI governance binder generated from organization and registry records.",
-    filename: `${verificationSlug}-paladin-binder.pdf`,
+      "13-page quick-reference record (PDF) generated from organization and registry records. This is a digital companion, not the full printed binder.",
+    filename: `${verificationSlug}-paladin-quick-reference-record.pdf`,
     mimeType: "application/pdf",
     organizationId,
-    title: "Paladin Compliance Binder PDF",
+    title: "Quick-reference record (13 pages, PDF)",
   });
 }
 

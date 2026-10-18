@@ -13,8 +13,10 @@ export const metadata = {
 const serviceScope = [
   "An AI Policy & Evidence Binder and related reference materials for organizational use. Documentation only.",
   "A public registry record showing the binder was issued to the organization, QR assets, and related downloadable materials. Paladin issues and maintains the record; it is not a third-party review.",
-  "Physical binder materials and maintained digital resources available during an active plan.",
-  "Optional HIPAA-oriented operational reference materials when selected by the organization.",
+  "An initial printed binder shipped by mail to a U.S. address, and a digital quick-reference record (a short PDF summary, not the full binder) in the member workspace during an active plan.",
+  "Email notice of binder revisions that Paladin releases, a revision log, and a renewal reminder email. No fixed revision schedule or delivery date is promised.",
+  "Optional HIPAA add-on: currently a HIPAA label on the registry record. HIPAA-oriented policy content is not yet included.",
+  "Email support at the contact address below, without a guaranteed response time.",
 ];
 
 const organizationResponsibilities = [

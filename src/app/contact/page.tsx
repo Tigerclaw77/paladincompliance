@@ -33,9 +33,8 @@ export default function ContactPage() {
           <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300">
             Use the Paladin contact address for service questions, sales
             conversations, binder coordination, and registry record support.
-            A member of the Paladin team will review the request and respond as
-            soon as reasonably possible, typically within one to two business
-            days.
+            Requests are answered by email. Paladin does not guarantee a
+            response time.
           </p>
 
           <div className="mt-8 rounded-2xl border border-amber-200/20 bg-amber-200/[0.06] p-6">

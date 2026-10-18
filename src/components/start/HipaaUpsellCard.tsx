@@ -10,11 +10,8 @@ type HipaaUpsellCardProps = {
 };
 
 const features = [
-  "HIPAA policy module",
-  "Workforce AI usage guidance",
-  "HIPAA label on the registry record",
-  "Binder inserts + annual updates",
-  "HIPAA label on the registry record",
+  "HIPAA label on the registry record and registry PDF",
+  "HIPAA-oriented policy content is not yet part of the binder",
 ];
 
 export default function HipaaUpsellCard({

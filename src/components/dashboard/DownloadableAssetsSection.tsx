@@ -33,11 +33,11 @@ export default function DownloadableAssetsSection({
             Downloadable Assets
           </p>
           <h2 className="mt-3 text-2xl font-black text-white">
-            Binder and policy records
+            Quick-reference records and registry downloads
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-            Protected organization files for QR packs, policy updates,
-            registry records, and binder artifacts.
+            Protected organization files: the 13-page quick-reference record,
+            registry records, and QR packs. The full binder is the printed copy.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">

@@ -23,26 +23,27 @@ const sharedIncludes = [
   "Initial physical AI Policy & Evidence Binder",
   "Public registry record page",
   "QR registry lookup",
-  "Digital update access",
-  "Email support",
+  "Annual binder revision with email notice and revision log",
+  "Renewal reminder email about 30 days before renewal",
+  "Annual AI spend summary (CSV and printable)",
+  "Email support (no guaranteed response time)",
 ];
 
 const starterFeatures = [
   "Single operating footprint",
   "Standard binder presentation",
-  "Annual registry record and policy update cycle",
+  "Digital quick-reference record (13-page PDF) in your workspace",
 ];
 
 const operationalFeatures = [
   "Sized by organization range",
   "For organizations with broader coordination needs",
-  "Update inserts when materials change",
+  "Same included benefits as Starter, sized by organization range",
 ];
 
 const enterpriseFeatures = [
   "Multi-location coordination",
-  "Premium binder presentation",
-  "Priority setup and update handling",
+  "Scope, deliverables and pricing confirmed in writing before purchase",
 ];
 
 const operationalRanges: OperationalRange[] = [
@@ -172,8 +173,9 @@ export default function PricingClient({
           <div>
             <p style={controlLabelStyle}>Optional HIPAA Add-On</p>
             <p style={controlCopyStyle}>
-              Available on every tier for healthcare organizations that need
-              HIPAA-oriented policy materials.
+              Available on every tier for healthcare organizations. Adds a HIPAA
+              label to the registry record. HIPAA-oriented policy content is
+              not yet part of the binder.
             </p>
           </div>
           <button
@@ -293,16 +295,13 @@ export default function PricingClient({
             <p style={foundingEyebrowStyle}>Founding Member Program</p>
             <h2 style={foundingTitleStyle}>Charter Organization Program</h2>
             <p style={foundingCopyStyle}>
-              A limited early program for organizations that want a more
-              prominent Paladin presentation during launch-stage adoption.
+              A custom, case-by-case arrangement for organizations with
+              requirements beyond the standard plans. Not self-serve.
             </p>
           </div>
           <ul style={foundingListStyle}>
-            <li>Executive onboarding</li>
-            <li>Premium display materials</li>
-            <li>Listing placement</li>
-            <li>Enhanced registry record presentation</li>
-            <li>Multi-location coordination</li>
+            <li>Custom engagement: nothing is included by default</li>
+            <li>Scope and deliverables are agreed in writing before purchase</li>
           </ul>
           <div style={foundingActionStyle}>
             <span style={foundingMetaStyle}>Custom engagement</span>
