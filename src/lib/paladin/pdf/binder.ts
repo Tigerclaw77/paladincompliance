@@ -1,7 +1,11 @@
 import "server-only";
 
-import { PDFDocument, StandardFonts } from "pdf-lib";
+import { PDFDocument, StandardFonts, type PDFFont, type PDFPage } from "pdf-lib";
 import QRCode from "qrcode";
+import {
+  SPEND_CATEGORIES,
+  SPEND_RECORD_NOTICE,
+} from "@/lib/paladin/spendRecord";
 import {
   drawHeading,
   drawMetadataRow,
@@ -154,6 +158,8 @@ export async function generateBinderPdf({
     });
   });
 
+  drawSpendRecordPages({ fonts, organizationName, pdf });
+
   return pdf.save();
 }
 
@@ -196,7 +202,7 @@ function drawCoverPage({
     font: fonts.bold,
     color: pdfColors.white,
   });
-  page.drawText("AI Governance Binder", {
+  page.drawText("AI Policy & Evidence Binder", {
     x: 54,
     y: height - 116,
     size: 30,
@@ -227,7 +233,7 @@ function drawCoverPage({
     page,
     fonts,
     label: "Document Type",
-    value: "Governance Binder",
+    value: "AI Policy & Evidence Binder (documented record)",
     x: 54,
     y,
   });
@@ -235,7 +241,7 @@ function drawCoverPage({
   y = drawMetadataRow({
     page,
     fonts,
-    label: "Verification URL",
+    label: "Registry Record URL",
     value: verificationUrl,
     x: 54,
     y,
@@ -244,7 +250,7 @@ function drawCoverPage({
   drawMetadataRow({
     page,
     fonts,
-    label: "Coverage Tier",
+    label: "Plan Tier",
     value: subscriptionTier,
     x: 54,
     y,
@@ -261,7 +267,7 @@ function drawCoverPage({
   });
   drawWrappedText({
     page,
-    text: "This binder is a printable governance record generated from the organization's Paladin Compliance verification profile. It is intended for internal reference, vendor review, and compliance file maintenance.",
+    text: "This binder is a printable, documented record of the organization's AI policies and evidence, generated from its Paladin Compliance registry profile. It is for internal reference, client and insurer questionnaires, and file maintenance. It is not legal advice and is not an audit, certification, assurance, or verification of compliance.",
     x: 76,
     y: 164,
     maxWidth: 460,
@@ -292,12 +298,12 @@ function drawVerificationPage({
     fonts,
     page,
     pageNumber: 2,
-    title: "Verification Record",
+    title: "Registry Record",
   });
 
   drawHeading({
     page,
-    text: "Verification Record",
+    text: "Registry Record",
     x: 54,
     y: 690,
     font: fonts.bold,
@@ -324,7 +330,7 @@ function drawVerificationPage({
   y = drawMetadataRow({
     page,
     fonts,
-    label: "Verification Status",
+    label: "Registry Record Status",
     value: verificationStatus,
     x: 334,
     y,
@@ -333,7 +339,7 @@ function drawVerificationPage({
   drawMetadataRow({
     page,
     fonts,
-    label: "Verification URL",
+    label: "Registry Record URL",
     value: verificationUrl,
     x: 334,
     y,
@@ -341,7 +347,7 @@ function drawVerificationPage({
 
   drawHeading({
     page,
-    text: "Verification Statement",
+    text: "About This Registry Record",
     x: 54,
     y: 300,
     font: fonts.bold,
@@ -349,7 +355,7 @@ function drawVerificationPage({
   });
   drawWrappedText({
     page,
-    text: "This page records the organization's Paladin verification URL and current module standing at the time of generation. The QR code directs reviewers to the public verification record.",
+    text: "This page records the organization's Paladin registry record URL and the status of the record at the time of generation. The QR code opens the public registry record, which shows that this binder was issued to this organization. It is not an audit, certification, or verification of compliance, and it does not assess how the organization actually uses AI.",
     x: 54,
     y: 270,
     maxWidth: 500,
@@ -385,7 +391,7 @@ function drawTableOfContents({
 
   const entries = [
     ["1", "Cover Page"],
-    ["2", "Verification Record"],
+    ["2", "Registry Record"],
     ["3", "Table of Contents"],
     ["4", "AI Governance Overview"],
     ["5", "Acceptable AI Use"],
@@ -394,6 +400,9 @@ function drawTableOfContents({
     ["8", "AI Disclosure"],
     ["9", "Vendor Responsibility"],
     ["10", "Incident Escalation"],
+    ["11", "Annual AI Governance Expenditure Record"],
+    ["12", "Expenditure Log"],
+    ["13", "Annual Summary and Retention"],
   ];
   let y = 632;
 
@@ -590,5 +599,288 @@ function drawPolicyPage({
     size: 10,
     lineHeight: 14,
     color: pdfColors.muted,
+  });
+}
+
+type GridOptions = {
+  colWidths: number[];
+  fonts: PdfFonts;
+  headers: string[];
+  page: PDFPage;
+  rowHeight: number;
+  rows: string[][];
+  size?: number;
+  x: number;
+  yTop: number;
+};
+
+function fitText(font: PDFFont, text: string, size: number, maxWidth: number) {
+  let out = text;
+  while (out.length > 1 && font.widthOfTextAtSize(out, size) > maxWidth) {
+    out = out.slice(0, -1);
+  }
+  return out === text ? out : `${out.slice(0, -1)}.`;
+}
+
+function drawGrid({
+  colWidths,
+  fonts,
+  headers,
+  page,
+  rowHeight,
+  rows,
+  size = 8,
+  x,
+  yTop,
+}: GridOptions) {
+  const totalWidth = colWidths.reduce((a, b) => a + b, 0);
+  const all = [headers, ...rows];
+  all.forEach((row, rowIndex) => {
+    const top = yTop - rowIndex * rowHeight;
+    let cx = x;
+    if (rowIndex === 0) {
+      page.drawRectangle({
+        x,
+        y: top - rowHeight,
+        width: totalWidth,
+        height: rowHeight,
+        color: pdfColors.paleBlue,
+      });
+    }
+    row.forEach((cell, col) => {
+      page.drawRectangle({
+        x: cx,
+        y: top - rowHeight,
+        width: colWidths[col],
+        height: rowHeight,
+        borderColor: pdfColors.border,
+        borderWidth: 0.75,
+      });
+      if (cell) {
+        const font = rowIndex === 0 ? fonts.bold : fonts.regular;
+        page.drawText(fitText(font, cell, size, colWidths[col] - 8), {
+          x: cx + 4,
+          y: top - rowHeight / 2 - size / 2 + 1,
+          size,
+          font,
+          color: rowIndex === 0 ? pdfColors.blue : pdfColors.ink,
+        });
+      }
+      cx += colWidths[col];
+    });
+  });
+  return yTop - all.length * rowHeight;
+}
+
+function drawSpendRecordPages({
+  fonts,
+  organizationName,
+  pdf,
+}: {
+  fonts: PdfFonts;
+  organizationName: string;
+  pdf: PDFDocument;
+}) {
+  // Page 11: purpose, notice, identification, categories
+  let page = pdf.addPage(letterPageSize);
+  drawPageChrome({
+    fonts,
+    page,
+    pageNumber: pdf.getPageCount(),
+    title: "Annual AI Governance Expenditure Record",
+  });
+  drawHeading({
+    page,
+    text: "Annual AI Governance Expenditure Record",
+    x: 54,
+    y: 690,
+    font: fonts.bold,
+    size: 20,
+  });
+  page.drawText(organizationName, {
+    x: 54,
+    y: 668,
+    size: 10,
+    font: fonts.regular,
+    color: pdfColors.muted,
+  });
+  page.drawRectangle({
+    x: 54,
+    y: 584,
+    width: 504,
+    height: 66,
+    color: pdfColors.paleBlue,
+    borderColor: pdfColors.border,
+    borderWidth: 1,
+  });
+  drawWrappedText({
+    page,
+    text: SPEND_RECORD_NOTICE,
+    x: 64,
+    y: 636,
+    maxWidth: 484,
+    font: fonts.regular,
+    size: 8.5,
+    lineHeight: 12,
+    color: pdfColors.ink,
+  });
+  let y = drawWrappedText({
+    page,
+    text: "Use this record to document what the organization spends on AI governance during a fiscal year, so it can state what it recorded as spent. Log each expenditure by date, category, vendor, amount, and purpose on the next page, then total it on the Annual Summary. Keep the invoice or reference for every entry. A spend total documents effort and resources; it does not show that controls work or that any law, contract, insurer, or customer requirement is met.",
+    x: 54,
+    y: 562,
+    maxWidth: 504,
+    font: fonts.regular,
+    size: 10,
+    lineHeight: 14,
+  });
+  y -= 10;
+  y = drawGrid({
+    colWidths: [170, 334],
+    fonts,
+    headers: ["Record identification", "Entry"],
+    page,
+    rowHeight: 20,
+    rows: [
+      ["Fiscal year (start - end)", ""],
+      ["Prepared by (name, role) / date", ""],
+      ["Reviewed by (name, role) / date", ""],
+    ],
+    x: 54,
+    yTop: y,
+  });
+  y -= 18;
+  drawHeading({
+    page,
+    text: "Spending categories (one per entry)",
+    x: 54,
+    y,
+    font: fonts.bold,
+    size: 12,
+  });
+  y -= 16;
+  SPEND_CATEGORIES.forEach((category) => {
+    page.drawText(category.name, {
+      x: 54,
+      y,
+      size: 9,
+      font: fonts.bold,
+      color: pdfColors.blue,
+    });
+    y = drawWrappedText({
+      page,
+      text: category.description,
+      x: 54,
+      y: y - 12,
+      maxWidth: 504,
+      font: fonts.regular,
+      size: 8.5,
+      lineHeight: 11,
+      color: pdfColors.muted,
+    });
+    y -= 4;
+  });
+
+  // Page 12: expenditure log
+  page = pdf.addPage(letterPageSize);
+  drawPageChrome({
+    fonts,
+    page,
+    pageNumber: pdf.getPageCount(),
+    title: "Expenditure Log",
+  });
+  drawHeading({
+    page,
+    text: "Expenditure Log",
+    x: 54,
+    y: 690,
+    font: fonts.bold,
+    size: 22,
+  });
+  drawWrappedText({
+    page,
+    text: "One line per expenditure. Add copies of this page as needed, or use the companion spreadsheet or the dashboard spend record to total entries automatically.",
+    x: 54,
+    y: 668,
+    maxWidth: 504,
+    font: fonts.regular,
+    size: 9,
+    lineHeight: 12,
+    color: pdfColors.muted,
+  });
+  drawGrid({
+    colWidths: [58, 92, 90, 140, 56, 68],
+    fonts,
+    headers: ["Date", "Category", "Vendor / payee", "Purpose", "Amount (USD)", "Invoice / ref."],
+    page,
+    rowHeight: 28,
+    rows: Array.from({ length: 18 }, () => ["", "", "", "", "", ""]),
+    x: 54,
+    yTop: 640,
+  });
+
+  // Page 13: annual summary + retention
+  page = pdf.addPage(letterPageSize);
+  drawPageChrome({
+    fonts,
+    page,
+    pageNumber: pdf.getPageCount(),
+    title: "Annual Summary and Retention",
+  });
+  drawHeading({
+    page,
+    text: "Annual Summary",
+    x: 54,
+    y: 690,
+    font: fonts.bold,
+    size: 22,
+  });
+  y = drawGrid({
+    colWidths: [154, 62, 62, 62, 62, 102],
+    fonts,
+    headers: ["Category", "Q1", "Q2", "Q3", "Q4", "Annual total"],
+    page,
+    rowHeight: 22,
+    rows: [
+      ...SPEND_CATEGORIES.map((c) => [c.name, "", "", "", "", ""]),
+      ["Total", "", "", "", "", ""],
+    ],
+    x: 54,
+    yTop: 664,
+  });
+  y -= 22;
+  drawHeading({
+    page,
+    text: "Annual statement",
+    x: 54,
+    y,
+    font: fonts.bold,
+    size: 12,
+  });
+  y = drawWrappedText({
+    page,
+    text: "For fiscal year [year], [organization] recorded [$total] in AI governance spending across [n] entries, mainly in [top categories]. This is the organization's own unaudited record, kept with supporting invoices. Do not describe this figure as a measure of compliance, safety, or insurability, or as certified, verified, or assured by Paladin Compliance or any other party.",
+    x: 54,
+    y: y - 16,
+    maxWidth: 504,
+    font: fonts.regular,
+    size: 9.5,
+    lineHeight: 13,
+  });
+  y -= 14;
+  drawGrid({
+    colWidths: [240, 264],
+    fonts,
+    headers: ["Review and retention", "Entry"],
+    page,
+    rowHeight: 20,
+    rows: [
+      ["Invoices and references kept at (location)", ""],
+      ["Entries matched to invoices by / date", ""],
+      ["Known gaps or estimates", ""],
+      ["Next scheduled review date", ""],
+    ],
+    x: 54,
+    yTop: y,
   });
 }
