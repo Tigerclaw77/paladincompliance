@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/paladin/admin/auth";
 const adminNavItems = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/organizations", label: "Organizations" },
+  { href: "/admin/revisions", label: "Binder revisions" },
 ];
 
 export default async function AdminLayout({

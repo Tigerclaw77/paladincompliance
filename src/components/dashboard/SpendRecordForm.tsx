@@ -14,6 +14,7 @@ import {
 } from "@/lib/paladin/spendRecord";
 
 type Props = {
+  canWriteToAccount: boolean;
   organizationName: string;
   storageKey: string;
 };
@@ -51,7 +52,11 @@ function writeStored(storageKey: string, value: string) {
   listeners.forEach((l) => l());
 }
 
-export default function SpendRecordForm({ organizationName, storageKey }: Props) {
+export default function SpendRecordForm({
+  canWriteToAccount,
+  organizationName,
+  storageKey,
+}: Props) {
   const raw = useSyncExternalStore(
     subscribe,
     () => readStored(storageKey),
@@ -87,6 +92,72 @@ export default function SpendRecordForm({ organizationName, storageKey }: Props)
     notes: "",
   });
   const [error, setError] = useState("");
+  const [syncMessage, setSyncMessage] = useState("");
+  const [syncing, setSyncing] = useState(false);
+
+  async function saveToAccount() {
+    setSyncing(true);
+    setSyncMessage("");
+    try {
+      const response = await fetch("/api/spend-record", {
+        body: JSON.stringify({ entries }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      });
+      const body = (await response.json().catch(() => ({}))) as {
+        error?: string;
+        saved?: number;
+      };
+      setSyncMessage(
+        response.ok
+          ? `Saved ${body.saved ?? 0} entries to your account.`
+          : body.error ?? "Could not save to your account."
+      );
+    } catch {
+      setSyncMessage("Could not reach the server. Entries remain in this browser.");
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  async function loadFromAccount() {
+    setSyncing(true);
+    setSyncMessage("");
+    try {
+      const response = await fetch("/api/spend-record", { cache: "no-store" });
+      const body = (await response.json().catch(() => ({}))) as {
+        entries?: SpendEntry[];
+        error?: string;
+      };
+      if (!response.ok || !Array.isArray(body.entries)) {
+        setSyncMessage(body.error ?? "Could not load from your account.");
+        return;
+      }
+      const merged = new Map(entries.map((e) => [e.id, e]));
+      for (const e of body.entries) merged.set(e.id, e);
+      persist([...merged.values()], fiscalYearStart);
+      setSyncMessage(
+        `Loaded ${body.entries.length} saved entries and merged them with this browser's entries.`
+      );
+    } catch {
+      setSyncMessage("Could not reach the server.");
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  function removeEntry(id: string) {
+    persist(
+      entries.filter((x) => x.id !== id),
+      fiscalYearStart
+    );
+    if (canWriteToAccount) {
+      // Best effort: also remove it from the saved account record if present.
+      void fetch(`/api/spend-record?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      }).catch(() => undefined);
+    }
+  }
 
   function persist(nextEntries: SpendEntry[], nextStart: string) {
     writeStored(
@@ -148,8 +219,10 @@ export default function SpendRecordForm({ organizationName, storageKey }: Props)
     <div className="grid gap-6">
       <section className="rounded-2xl border border-amber-200/20 bg-amber-200/[0.06] p-4 text-xs leading-5 text-amber-100">
         {SPEND_RECORD_NOTICE}{" "}
-        Entries on this page are saved only in this browser. Export the CSV to
-        keep a copy; Paladin does not store or review these figures.
+        Entries are kept in this browser until you choose Save to account,
+        which stores them in your organization&apos;s Paladin account
+        (owners and admins can save; all members can view and export).
+        Paladin stores these figures but does not review or verify them.
       </section>
 
       <section className="rounded-2xl border border-white/10 bg-slate-900/90 p-6">
@@ -263,15 +336,45 @@ export default function SpendRecordForm({ organizationName, storageKey }: Props)
           <h2 className="text-lg font-black text-white">
             Expenditure log ({entries.length})
           </h2>
-          <button
-            className="rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-sm font-bold text-slate-200 transition hover:bg-white/[0.09] disabled:opacity-40"
-            disabled={entries.length === 0}
-            onClick={downloadCsv}
-            type="button"
-          >
-            Export CSV
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              className="rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-sm font-bold text-slate-200 transition hover:bg-white/[0.09] disabled:opacity-40"
+              disabled={entries.length === 0}
+              onClick={downloadCsv}
+              type="button"
+            >
+              Export CSV
+            </button>
+            <button
+              className="rounded-lg border border-blue-300/30 bg-blue-400/10 px-3 py-2 text-sm font-bold text-blue-100 transition hover:bg-blue-400/20 disabled:opacity-40"
+              disabled={syncing || !canWriteToAccount || entries.length === 0}
+              onClick={saveToAccount}
+              title={canWriteToAccount ? undefined : "Owners and admins can save to the account."}
+              type="button"
+            >
+              Save to account
+            </button>
+            <button
+              className="rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-sm font-bold text-slate-200 transition hover:bg-white/[0.09] disabled:opacity-40"
+              disabled={syncing}
+              onClick={loadFromAccount}
+              type="button"
+            >
+              Load from account
+            </button>
+            <a
+              className="rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-sm font-bold text-slate-200 transition hover:bg-white/[0.09]"
+              href={`/dashboard/spend-record/annual?start=${fiscalYearStart}`}
+            >
+              Annual summary (print / CSV)
+            </a>
+          </div>
         </div>
+        {syncMessage ? (
+          <p className="mt-3 text-xs font-bold text-blue-100" role="status">
+            {syncMessage}
+          </p>
+        ) : null}
         {entries.length === 0 ? (
           <p className="mt-4 text-sm text-slate-400">No entries yet.</p>
         ) : (
@@ -300,12 +403,7 @@ export default function SpendRecordForm({ organizationName, storageKey }: Props)
                       <td>
                         <button
                           className="text-slate-500 underline hover:text-red-300"
-                          onClick={() =>
-                            persist(
-                              entries.filter((x) => x.id !== e.id),
-                              fiscalYearStart
-                            )
-                          }
+                          onClick={() => removeEntry(e.id)}
                           type="button"
                         >
                           Remove

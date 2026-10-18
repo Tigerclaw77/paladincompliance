@@ -250,3 +250,177 @@ export function spendStatement(
 ) {
   return `For the fiscal year ${summary.fiscalYearStart} to ${summary.fiscalYearEnd}, ${organizationName} recorded ${formatUsd(summary.total)} in AI governance spending across ${summary.entryCount} ${summary.entryCount === 1 ? "entry" : "entries"}. This is the organization's own unaudited record, kept with supporting invoices.`;
 }
+
+// ---------------------------------------------------------------------------
+// Account-level persistence helpers (pure; used by the /api/spend-record routes
+// and tests). Money is stored as integer cents.
+// ---------------------------------------------------------------------------
+
+export const SPEND_FIELD_LIMITS = {
+  clientId: 64,
+  vendor: 200,
+  purpose: 500,
+  reference: 200,
+  approvedBy: 200,
+  notes: 1000,
+  maxBatch: 500,
+  maxEntriesPerOrganization: 5000,
+  maxAmount: 1_000_000_000,
+} as const;
+
+export type SpendEntryInput = {
+  clientId: string;
+  date: string;
+  category: string;
+  vendor: string;
+  purpose: string;
+  amountCents: number;
+  recurrence: "One-time" | "Recurring";
+  reference: string;
+  approvedBy: string;
+  notes: string;
+};
+
+export type SpendEntryParseResult =
+  | { ok: true; value: SpendEntryInput }
+  | { ok: false; error: string };
+
+function textField(raw: unknown, max: number): string | null {
+  if (raw === undefined || raw === null) return "";
+  if (typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  return trimmed.length <= max ? trimmed : null;
+}
+
+/** Validates one client-supplied entry. Never trusts types, lengths or ids. */
+export function parseSpendEntryInput(raw: unknown): SpendEntryParseResult {
+  if (!raw || typeof raw !== "object") {
+    return { ok: false, error: "Entry must be an object." };
+  }
+  const r = raw as Record<string, unknown>;
+  const clientId = typeof r.id === "string" ? r.id : r.clientId;
+
+  if (
+    typeof clientId !== "string" ||
+    !/^[A-Za-z0-9_-]+$/.test(clientId) ||
+    clientId.length > SPEND_FIELD_LIMITS.clientId
+  ) {
+    return { ok: false, error: "Entry id is missing or invalid." };
+  }
+  if (typeof r.date !== "string" || !parseIsoDate(r.date)) {
+    return { ok: false, error: "Date must be YYYY-MM-DD." };
+  }
+  if (typeof r.category !== "string" || !SPEND_CATEGORY_NAMES.includes(r.category)) {
+    return { ok: false, error: "Unknown category." };
+  }
+  const amount =
+    typeof r.amount === "number" || typeof r.amount === "string"
+      ? parseAmount(r.amount)
+      : null;
+  if (amount === null || amount > SPEND_FIELD_LIMITS.maxAmount) {
+    return { ok: false, error: "Amount must be a non-negative USD figure." };
+  }
+  const vendor = textField(r.vendor, SPEND_FIELD_LIMITS.vendor);
+  const purpose = textField(r.purpose, SPEND_FIELD_LIMITS.purpose);
+  const reference = textField(r.reference, SPEND_FIELD_LIMITS.reference);
+  const approvedBy = textField(r.approvedBy, SPEND_FIELD_LIMITS.approvedBy);
+  const notes = textField(r.notes, SPEND_FIELD_LIMITS.notes);
+  if (vendor === null || purpose === null || reference === null || approvedBy === null || notes === null) {
+    return { ok: false, error: "A text field is too long or not text." };
+  }
+  if (vendor.length < 1 || purpose.length < 3) {
+    return { ok: false, error: "Vendor and purpose are required." };
+  }
+  const recurrence = r.recurrence === "Recurring" ? "Recurring" : "One-time";
+
+  return {
+    ok: true,
+    value: {
+      clientId,
+      date: r.date.trim(),
+      category: r.category,
+      vendor,
+      purpose,
+      amountCents: Math.round(amount * 100),
+      recurrence,
+      reference,
+      approvedBy,
+      notes,
+    },
+  };
+}
+
+/** Only owners and admins may change the organization's spend record. */
+export function canWriteSpendRecords(role: string | null | undefined) {
+  return role === "OWNER" || role === "ADMIN";
+}
+
+export function spendRowToEntry(row: {
+  clientId: string;
+  entryDate: Date;
+  category: string;
+  vendor: string;
+  purpose: string;
+  amountCents: number;
+  recurrence: string;
+  reference: string;
+  approvedBy: string;
+  notes: string;
+}): SpendEntry {
+  return {
+    id: row.clientId,
+    date: row.entryDate.toISOString().slice(0, 10),
+    category: row.category,
+    vendor: row.vendor,
+    purpose: row.purpose,
+    amount: row.amountCents / 100,
+    recurrence: row.recurrence === "Recurring" ? "Recurring" : "One-time",
+    reference: row.reference,
+    approvedBy: row.approvedBy,
+    notes: row.notes,
+  };
+}
+
+/** CSV of the annual summary (category x quarter), for the annual export. */
+export function annualSummaryToCsv(
+  organizationName: string,
+  summary: SpendSummary
+): string {
+  const lines: string[] = [];
+  lines.push(
+    ["Organization", organizationName].map(csvCell).join(","),
+    ["Fiscal year", `${summary.fiscalYearStart} to ${summary.fiscalYearEnd}`]
+      .map(csvCell)
+      .join(","),
+    "",
+    ["Category", "Q1", "Q2", "Q3", "Q4", "Total (USD)", "Share"]
+      .map(csvCell)
+      .join(",")
+  );
+  for (const row of summary.rows) {
+    lines.push(
+      [
+        row.category,
+        ...row.quarters.map((q) => q.toFixed(2)),
+        row.total.toFixed(2),
+        `${(row.share * 100).toFixed(1)}%`,
+      ]
+        .map(csvCell)
+        .join(",")
+    );
+  }
+  lines.push(
+    ["Total", "", "", "", "", summary.total.toFixed(2), ""].map(csvCell).join(","),
+    "",
+    ["Recurring total", summary.recurringTotal.toFixed(2)].map(csvCell).join(","),
+    ["One-time total", summary.oneTimeTotal.toFixed(2)].map(csvCell).join(","),
+    ["Entries counted", summary.entryCount].map(csvCell).join(","),
+    [
+      "Note",
+      "Organization's own unaudited record. Not accounting, tax, legal or insurance advice.",
+    ]
+      .map(csvCell)
+      .join(",")
+  );
+  return `${lines.join("\r\n")}\r\n`;
+}

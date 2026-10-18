@@ -40,6 +40,7 @@ model Organization {
   acquisitionIntent  AcquisitionIntent?
   downloadableAssets DownloadableAsset[]
   trainingModules    TrainingModule[]
+  aiSpendEntries     AiSpendEntry[]
 }
 
 model Membership {
@@ -165,6 +166,69 @@ model AcquisitionIntent {
   organizationId       String          @unique
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+// Subscriber benefits (additive): binder revision log, one-time notices,
+// renewal reminders, and account-level AI spend records.
+model BinderRevision {
+  id         String   @id @default(cuid())
+  version    String   @unique
+  title      String
+  summary    String
+  changes    String   @default("")
+  releasedAt DateTime @default(now())
+  releasedBy String?
+  createdAt  DateTime @default(now())
+
+  notices BinderRevisionNotice[]
+}
+
+model BinderRevisionNotice {
+  id             String   @id @default(cuid())
+  revisionId     String
+  organizationId String
+  email          String
+  sentAt         DateTime @default(now())
+
+  revision BinderRevision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+
+  @@unique([revisionId, email])
+  @@index([organizationId])
+}
+
+model RenewalReminder {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  organizationId String
+  periodEnd      DateTime
+  email          String
+  sentAt         DateTime @default(now())
+
+  @@unique([subscriptionId, periodEnd, email])
+  @@index([organizationId])
+}
+
+model AiSpendEntry {
+  id              String   @id @default(cuid())
+  organizationId  String
+  clientId        String
+  entryDate       DateTime @db.Date
+  category        String
+  vendor          String
+  purpose         String
+  amountCents     Int
+  recurrence      String   @default("One-time")
+  reference       String   @default("")
+  approvedBy      String   @default("")
+  notes           String   @default("")
+  createdByUserId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, clientId])
+  @@index([organizationId, entryDate])
 }
 
 enum MembershipRole {

@@ -1,12 +1,13 @@
 import SpendRecordForm from "@/components/dashboard/SpendRecordForm";
 import { getCurrentOrganization } from "@/lib/paladin/currentOrganization";
+import { canWriteSpendRecords } from "@/lib/paladin/spendRecord";
 
 export const metadata = {
   title: "AI Governance Spend Record",
 };
 
 export default async function SpendRecordPage() {
-  const { organization } = await getCurrentOrganization();
+  const { membership, organization } = await getCurrentOrganization();
 
   return (
     <div className="grid gap-6">
@@ -41,6 +42,7 @@ export default async function SpendRecordPage() {
         </div>
       </header>
       <SpendRecordForm
+        canWriteToAccount={canWriteSpendRecords(membership.role)}
         organizationName={organization.name}
         storageKey={`paladin:spend-record:${organization.id}`}
       />
