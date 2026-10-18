@@ -193,3 +193,20 @@ EMAIL_FROM=Paladin Compliance <security@your-domain.com>
 - Permissions policy
 
 The CSP intentionally stays simple and allows Stripe.js.
+
+
+## Added in the recurring-value pass (operator checklist)
+
+Environment (Vercel project settings; never commit values):
+
+- `CRON_SECRET`: at least 32 random characters. Required for `/api/cron/daily`.
+- `PALADIN_MAX_EMAILS_PER_RUN`: optional, default 50.
+- `PALADIN_ORDER_NOTIFY_EMAIL`: optional, owner address for fulfillment alerts.
+- `STRIPE_LIVE_PRICE_IDS_JSON`: required with live Stripe keys, otherwise checkout fails closed. Build it with `npm run stripe:resolve-live` (read-only) after the live prices exist with the lookup keys listed in `src/lib/paladin/pricing.ts`.
+- `PALADIN_OPERATIONAL_CHECKOUT_ENABLED`: leave unset or `false`. Operational is contact-only.
+
+Database: apply migrations `20261017180000_add_subscriber_benefits` and `20261018000000_add_recurring_value` with `prisma migrate deploy` before deploying this code. The new pages query the new tables, so deploying code first will produce errors on those pages.
+
+Cron: `vercel.json` registers `/api/cron/daily` (14:00 UTC). Confirm in the Vercel dashboard (Settings, Cron Jobs) after deployment and run once with `?dryRun=1`.
+
+Dependencies: Next.js is pinned at 16.4.2 (middleware, cache, and denial-of-service advisories affecting 16.2.2). `npm audit` still reports advisories whose fixes are major upgrades (nodemailer 7 to 10, next-auth and its adapter, prisma tooling); see the pull request description.

@@ -1,35 +1,66 @@
-# Subscriber benefits: operation and scheduling
+# Member benefits: operation and scheduling
 
-Nothing here is scheduled or deployed by this repository. All three jobs are local code that needs (a) the additive migration `20261017180000_add_subscriber_benefits` applied by the operator, and (b) for emails, a real outbound email provider.
+Nothing here is deployed or scheduled by this repository alone. The jobs are local code that needs (a) the additive migrations `20261017180000_add_subscriber_benefits` and `20261018000000_add_recurring_value` applied by the operator, (b) a real outbound email provider for emails, and (c) `CRON_SECRET` set for the scheduled job.
 
-## Email provider requirement
+What a member gets, and what is honestly not offered, is listed in `docs/FEATURE_STATUS.md`.
 
-Revision notices and renewal reminders send through nodemailer using the same settings NextAuth uses for magic links: `EMAIL_SERVER` (SMTP URL), `EMAIL_FROM`, optional `EMAIL_REPLY_TO` (defaults to the public contact address). If `EMAIL_SERVER` is missing or points at localhost, both jobs refuse to send and record nothing (so nothing is silently marked as sent). Check readiness with the admin page `/admin/revisions` (warns when unconfigured) or a `dryRun` call of the cron endpoint.
+## Email provider
 
-## 1. Annual binder revision + notification
+All emails send through nodemailer using the settings NextAuth uses for magic links: `EMAIL_SERVER` (SMTP URL), `EMAIL_FROM`, optional `EMAIL_REPLY_TO` (defaults to the public contact address). If `EMAIL_SERVER` is missing or points at localhost, the jobs refuse to send and record nothing, so nothing is silently marked as sent. Connection and socket timeouts (10 s and 20 s) keep a stuck SMTP server from hanging a cron run.
 
-- Admin (allowlist in `PALADIN_ADMIN_EMAILS`) opens `/admin/revisions`, enters version, title, summary and optional change list, and publishes.
-- The revision is stored (`BinderRevision`) and appears on every member's Updates page.
-- Owners and admins of organizations whose subscription is `active` or `trialing` are emailed once each. Sent notices are recorded (`BinderRevisionNotice`, unique per revision and email). Re-publishing the same version only emails people who have not received it; failed sends are not recorded and are retried.
-- No scheduling: an annual revision is a human release action.
+Recommended production provider: Resend over SMTP (`smtps://resend:<api key>@smtp.resend.com:465`), with the sending domain verified (SPF, DKIM, DMARC). Zoho SMTP also works but has low daily limits and no bounce webhooks. See `LAUNCH_DECISION.md` (outside this repo) for the reasoning.
 
-## 2. Renewal reminders (30 days before)
+### Templates, footer, and unsubscribe
 
-- Endpoint: `GET` or `POST /api/cron/renewal-reminders` with `Authorization: Bearer $CRON_SECRET` (minimum 16 characters; if unset the endpoint returns 503 and does nothing). `?dryRun=1` lists what would be sent without sending or recording.
-- Finds `active`/`trialing` subscriptions whose `currentPeriodEnd` falls in the window now+27 days to now+30 days (a 3-day catch-up so a missed daily run does not skip anyone), skips subscriptions with `cancelAtPeriodEnd`, emails owners/admins, and records `RenewalReminder(subscriptionId, periodEnd, email)`. A unique key on those three columns prevents duplicates, and each new renewal period gets its own reminder.
-- How it would be scheduled (choose one; none is configured):
-  - Vercel Cron: add `{"crons":[{"path":"/api/cron/renewal-reminders","schedule":"0 14 * * *"}]}` to `vercel.json`. Vercel sends `Authorization: Bearer $CRON_SECRET` automatically when the `CRON_SECRET` env var exists.
-  - Any external scheduler (GitHub Actions, cron on a server): `curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" https://<site>/api/cron/renewal-reminders` once a day.
-  - Run it daily; more frequent runs are harmless because of the dedupe key.
+`src/lib/paladin/email/templates.ts` renders every non-auth email: plain text plus simple branded HTML, a one-sentence reason for receiving the message, a contact line, and the disclaimer footer ("documentation and records only; not legal advice, a certification, an audit, or a guarantee of compliance").
 
-## 3. Annual AI spend summary and account persistence
+Two kinds exist:
 
-- Recommendation (implemented): new Prisma model `AiSpendEntry` keyed to `Organization` (cascade delete), unique on `(organizationId, clientId)` so the browser's local entry ids map one-to-one to rows. This is the simplest option consistent with the existing Prisma + NextAuth model: no new auth concepts, no file storage, no external service.
-- Authorization: the organization is always derived from the NextAuth session's first membership (the same rule as `getCurrentOrganization`); the request never supplies an organization id. Any member may read and export. Only OWNER/ADMIN may save or delete. JSON content type is required for writes. Per-field length limits, a 500-entry batch cap and a 5000-entry per-organization cap apply.
-- Browser-local mode is unchanged: entries still live in localStorage and the existing CSV export works. "Save to account" upserts (never deletes); "Load from account" merges by id; removing an entry locally also deletes it from the account for owners/admins.
-- Exports: `GET /api/spend-record/export?kind=summary|log&start=YYYY-MM-DD` (CSV, CSV-injection-safe) and a printable page at `/dashboard/spend-record/annual?start=YYYY-MM-DD` (browser print / save as PDF).
-- Not done: server-side edit of individual entries, per-fiscal-year locking, audit trail of who changed what (only `createdByUserId` is stored), attachments of invoices.
+- Transactional (renewal notice about the member's own billing): no unsubscribe link required.
+- Reminder (compliance calendar reminders, revision notices): must carry an unsubscribe URL. The renderer throws if one is missing. Messages include `List-Unsubscribe` and `List-Unsubscribe-Post: List-Unsubscribe=One-Click` (RFC 8058).
 
-## Applying the migration (operator action, not run here)
+Unsubscribe tokens are stateless HMACs of the lower-cased address, keyed by `AUTH_SECRET` (`src/lib/paladin/email/unsubscribe.ts`). `GET /unsubscribe?e=&t=` shows a confirmation; `POST` (including the one-click POST) records an `EmailOptOut` row. Opted-out addresses are skipped by calendar reminders and revision notices. They still receive sign-in links and billing notices because those are transactional.
 
-`prisma migrate deploy` against the target database after review. The SQL is create-only (4 tables, indexes, 2 foreign keys); nothing existing is altered or dropped. No migration was run against any database in this work.
+### Volume cap, dedup, and logging
+
+- `PALADIN_MAX_EMAILS_PER_RUN` (default 50) is a per-run budget shared by all jobs. Messages over the cap are not sent and not recorded, so the next run picks them up.
+- A dedup row is written only after a successful send: `RenewalReminder`, `ComplianceReminder` (unique on organization, event, due date, email), `BinderRevisionNotice`. Failed sends are retried on the next run.
+- Every run logs one structured line with counts (sent, failed, already sent, opted out, capped). Addresses are not logged.
+
+## Scheduled job
+
+`vercel.json` contains one cron entry: `GET /api/cron/daily` at 14:00 UTC (09:00 America/Chicago during daylight time). It requires `Authorization: Bearer $CRON_SECRET` (minimum 16 characters; if unset the endpoint returns 503). Vercel sends that header automatically when the `CRON_SECRET` environment variable exists. `?dryRun=1` previews counts without sending or recording.
+
+The daily job runs, in order: renewal reminders, then compliance calendar reminders. Vercel's Hobby plan allows one run per day with up to a one hour timing window, which is enough for these jobs, but Hobby is restricted to non-commercial use, so a paying business should use Pro (see LAUNCH_DECISION.md). Any external scheduler also works: `curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" https://<site>/api/cron/daily` once a day. More frequent runs are harmless because of the dedup keys.
+
+`/api/cron/renewal-reminders` still exists for running only that job.
+
+## Benefit details
+
+### Annual binder revision and log
+Admins (`PALADIN_ADMIN_EMAILS`) publish from `/admin/revisions`. Revisions are append-only: a version that already exists with different content is rejected with a conflict (nothing is overwritten), and publishing needs an explicit confirmation checkbox. Members see the log at `/dashboard/updates`. Notices go once per active subscriber (owners and admins), skipping opted-out addresses.
+
+### Renewal reminders (30 days before)
+Window now+27 to now+30 days on `currentPeriodEnd`; skipped when `cancelAtPeriodEnd`. Dedup by subscription, period end, and email. This is a transactional billing notice.
+
+### Compliance calendar
+`/dashboard/calendar` and `GET /api/calendar/ics` (session-authenticated, organization from the session). Dates derive from the membership period (`currentPeriodStart` / `currentPeriodEnd`): quarterly AI tool inventory review, semiannual vendor review, annual training refresh, policy review, spend record review, and renewal. Reminder emails go 7 days before each event. Past events are not shown. If a subscription has no period dates yet, the calendar is empty rather than invented.
+
+### Training acknowledgments
+Three short modules (AI acceptable use, data handling, incident reporting) with real content at `/dashboard/training`. An owner or admin records that a named person read a module, with a date. Records are per organization (`TrainingAcknowledgment`), CSV export at `/api/training/export`. There is no quiz, per-person login, or certificate; the wording is "acknowledgment", never "certification". Acknowledgments are treated as current for 12 months.
+
+### Review checklists
+`/dashboard/reviews`: AI tool inventory review and AI vendor review. Owners and admins save a dated record (`ReviewRecord`, reviewer name, items checked, notes). CSV export at `/api/reviews/export`.
+
+### AI spend record and annual summary
+Unchanged: browser-local by default; "Save to account" stores entries in `AiSpendEntry` for the organization (owners and admins write, all members read). Exports at `/api/spend-record/export`, printable page at `/dashboard/spend-record/annual`. Local-only entries are lost if the browser data is cleared; only saved entries are on the account.
+
+### Quick-reference record PDF
+`GET /api/assets/quick-reference` generates the 13-page PDF on demand (no file storage), for members with the entitlement. Production file storage is not configured and is not needed.
+
+## Order alert for the owner
+Binder and Starter orders are fulfilled by hand. If `PALADIN_ORDER_NOTIFY_EMAIL` is set and email is configured, the Stripe webhook sends the owner one plain-text message per paid binder or Starter checkout (item, quantity, amount, ship-to). It is best effort: a failure is logged and never fails the webhook. The Stripe dashboard remains the order record.
+
+## Applying the migrations (operator action, not run here)
+
+`prisma migrate deploy` against the target database after review. Both migrations are create-only (new tables, indexes, foreign keys); nothing existing is altered or dropped. They were applied successfully to an in-memory Postgres (PGlite) as a syntax check only; they have not been run against Neon or any real database.

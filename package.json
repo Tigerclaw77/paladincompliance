@@ -12,9 +12,11 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --test tests/*.test.mjs",
+    "scan:binder-terms": "node scripts/scan-binder-terminology.mjs",
     "stripe:audit": "node scripts/audit-stripe-catalog.mjs",
     "stripe:create-missing": "node scripts/create-missing-stripe-products.mjs",
     "stripe:export": "node scripts/export-stripe-catalog.mjs",
+    "stripe:resolve-live": "node scripts/resolve-stripe-price-ids.mjs",
     "stripe:price-ids": "node scripts/generate-stripe-price-ids.mjs",
     "stripe:sync": "node scripts/sync-stripe-catalog-metadata.mjs"
   },
