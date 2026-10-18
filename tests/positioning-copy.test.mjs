@@ -26,20 +26,38 @@ test("no legacy contact address or banned name anywhere in src", async () => {
   }
 });
 
-test("public contact email is a fixed constant that ignores env overrides", async () => {
-  const env = await readFile("src/lib/paladin/env.ts", "utf8");
-  assert.match(env, /PUBLIC_CONTACT_EMAIL = "contact@passportinformatics\.com"/);
-  const fn = env.slice(env.indexOf("export function getSupportEmail"));
-  const body = fn.slice(0, fn.indexOf("\n}\n"));
-  assert.match(body, /return PUBLIC_CONTACT_EMAIL/);
-  assert.doesNotMatch(body, /process\.env/);
+test("public contact email: Paladin domain only, single constant, safe override", async () => {
+  const env = await import("../src/lib/paladin/env.ts");
+  assert.equal(env.DEFAULT_PUBLIC_CONTACT_EMAIL, "contact@paladincompliance.com");
+  assert.equal(env.resolvePublicContactEmail(undefined), "contact@paladincompliance.com");
+  assert.equal(
+    env.resolvePublicContactEmail("Support@PaladinCompliance.com"),
+    "support@paladincompliance.com"
+  );
+  assert.equal(
+    env.resolvePublicContactEmail("someone@elsewhere.example"),
+    "contact@paladincompliance.com"
+  );
+  assert.equal(
+    env.resolvePublicContactEmail("x@paladincompliance.com.evil.example"),
+    "contact@paladincompliance.com"
+  );
 });
 
-test("binder pricing: $249.99 public, $125 additional, Starter $499/yr", () => {
+test("no other organization's domain appears in the repo source", async () => {
+  const banned = [["passport", "informatics"].join("")];
+  for (const file of [...(await walk("src")), ...(await walk("tests"))]) {
+    const text = await readFile(file, "utf8");
+    for (const word of banned) assert.doesNotMatch(text, new RegExp(word, "i"), file);
+  }
+});
+
+test("binder pricing: $249.99 public, $124.99 additional, Starter $499/yr", () => {
   assert.equal(PALADIN_PRICING.complianceBinder.amountCents, 24999);
   assert.equal(PALADIN_PRICING.complianceBinder.visibility, "public");
-  assert.equal(PALADIN_PRICING.additionalBinder.amountCents, 12500);
+  assert.equal(PALADIN_PRICING.additionalBinder.amountCents, 12499);
   assert.equal(PALADIN_PRICING.additionalBinder.visibility, "active_coverage");
+  assert.equal(PALADIN_PRICING.additionalBinderHipaa.amountCents, 17499);
   assert.equal(PALADIN_PRICING.starter.amountCents, 49900);
   assert.equal(PALADIN_PRICING.starter.interval, "year");
 });

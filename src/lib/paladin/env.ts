@@ -14,8 +14,11 @@ const publicSiteUrlEnvKeys = [
 ] as const;
 
 export class EnvironmentValidationError extends Error {
-  constructor(public readonly issues: EnvironmentIssue[]) {
+  readonly issues: EnvironmentIssue[];
+
+  constructor(issues: EnvironmentIssue[]) {
     super(issues.map((issue) => issue.message).join("\n"));
+    this.issues = issues;
     this.name = "EnvironmentValidationError";
   }
 }
@@ -66,13 +69,39 @@ export function getConfiguredPublicSiteUrl() {
   return configuredUrl ?? null;
 }
 
-// Public contact address shown on the site. Deliberately NOT overridable by
-// PALADIN_SUPPORT_EMAIL / EMAIL_FROM so a stale production env var cannot
-// re-introduce a legacy address on /contact, /terms, /privacy or /pricing.
-export const PUBLIC_CONTACT_EMAIL = "contact@passportinformatics.com";
+// Public contact address shown on the site. Single source of truth.
+// Default: contact@paladincompliance.com (the domain publishes Zoho MX records;
+// see PR notes: a working mailbox must be confirmed with an approved test email).
+// If that mailbox is not live, set PALADIN_PUBLIC_CONTACT_EMAIL=support@paladincompliance.com
+// (the historically verified address). The override is only honored for
+// @paladincompliance.com addresses so a stale env var cannot re-introduce a
+// legacy or third-party domain on /contact, /terms, /privacy or /pricing.
+export const DEFAULT_PUBLIC_CONTACT_EMAIL = "contact@paladincompliance.com";
+export const PUBLIC_CONTACT_EMAIL_DOMAIN = "paladincompliance.com";
+
+export function resolvePublicContactEmail(configured?: string | null) {
+  const candidate = (configured ?? "").trim().toLowerCase();
+
+  if (
+    /^[a-z0-9._%+-]+@paladincompliance\.com$/.test(candidate)
+  ) {
+    return candidate;
+  }
+
+  return DEFAULT_PUBLIC_CONTACT_EMAIL;
+}
 
 export function getSupportEmail() {
-  return PUBLIC_CONTACT_EMAIL;
+  return resolvePublicContactEmail(process.env.PALADIN_PUBLIC_CONTACT_EMAIL);
+}
+
+// True only when an outbound email provider is explicitly configured. Used to
+// refuse subscriber notification sends (revisions, renewal reminders) instead of
+// silently "sending" to the localhost development default.
+export function isEmailProviderConfigured() {
+  const server = (process.env.EMAIL_SERVER ?? "").trim();
+
+  return Boolean(server) && !/localhost|127\.0\.0\.1/.test(server);
 }
 
 export function getEmailConfig() {

@@ -18,7 +18,7 @@ export type PaladinPriceItem = {
 
 export const PALADIN_PRICING = {
   additionalBinder: {
-    amountCents: 12500,
+    amountCents: 12499,
     currency: "usd",
     displayName: "Paladin Additional Binder",
     employeeRange: null,
