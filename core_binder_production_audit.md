@@ -19,7 +19,7 @@ The finalized Core Governance Binder renders to approximately 197 pages in both 
 | Organization Name | Paladin Compliance | Populated |
 | Binder Title | Paladin Compliance Governance Binder | Populated |
 | Artifact Designation | Controlled Governance Artifact | Populated |
-| Verification Status | Maintained Governance Reference | Populated |
+| Registry Record Status | Maintained Governance Reference | Populated |
 | Effective Date | May 2026 | Populated |
 | Revision Identifier | PC-CORE-v1.0 | Populated |
 | Artifact ID | PC-CORE-v1-2026-001 | Populated |
@@ -29,17 +29,17 @@ No unresolved bracketed placeholders were detected in the final PRINT or DIGITAL
 
 ## QR Implementation Status
 
-The cover page includes a restrained QR verification area aligned to the controlled-artifact identity block. The QR destination is:
+The cover page includes a restrained QR registry reference area aligned to the controlled-artifact identity block. The QR destination is:
 
 `https://paladincompliance.com/verify/PC-CORE-v1-2026-001`
 
-The QR implementation includes the following institutional verification language beneath the code:
+The QR implementation includes the following registry record language beneath the code:
 
 | QR Element | Status |
 |---|---|
-| Controlled Governance Verification Endpoint label | Implemented |
+| Controlled Governance Registry Record Endpoint label | Implemented |
 | Artifact ID display | Implemented |
-| Verification endpoint destination | Implemented |
+| Registry record endpoint destination | Implemented |
 | Stewardship, revision continuity, authenticity, and future supersession purpose language | Implemented |
 | Flashy trust, startup, blockchain, or promotional language | Not used |
 
@@ -151,7 +151,7 @@ The references are intended to support:
 
 ## Governance Legitimacy Observations
 
-The final Core Binder now presents as a controlled, versioned, stewardship-driven governance artifact. The cover identity, QR verification endpoint, revision identifier, artifact ID, section dividers, headers, footers, TOC, and restrained table styling collectively support a credible operational governance field manual rather than a generic policy packet.
+The final Core Binder now presents as a controlled, versioned, stewardship-driven governance artifact. The cover identity, QR registry record endpoint, revision identifier, artifact ID, section dividers, headers, footers, TOC, and restrained table styling collectively support a credible operational governance field manual rather than a generic policy packet.
 
 Key legitimacy elements preserved:
 
