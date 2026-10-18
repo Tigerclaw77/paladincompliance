@@ -4,9 +4,17 @@ declare module "nodemailer" {
   type SendMailOptions = {
     from?: string;
     replyTo?: string;
+    headers?: Record<string, string>;
+    html?: string;
     subject: string;
     text: string;
     to: string;
+  };
+
+  type TransportOptions = {
+    connectionTimeout?: number;
+    greetingTimeout?: number;
+    socketTimeout?: number;
   };
 
   type Transporter = {
@@ -14,7 +22,7 @@ declare module "nodemailer" {
   };
 
   const nodemailer: {
-    createTransport(server: string): Transporter;
+    createTransport(server: string, defaults?: TransportOptions): Transporter;
   };
 
   export default nodemailer;

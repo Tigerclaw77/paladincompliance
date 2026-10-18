@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkCronAuthorization } from "@/lib/paladin/benefits/cronAuth";
-import { runRenewalRemindersWithPrisma } from "@/lib/paladin/benefits/server";
+import {
+  getMaxEmailsPerRun,
+  runRenewalRemindersWithPrisma,
+} from "@/lib/paladin/benefits/server";
+import { createSendBudget } from "@/lib/paladin/benefits/types";
 import { logOperationalEvent } from "@/lib/paladin/logging";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Protected, cron-callable. NOT scheduled by this repository: see
-// docs/SUBSCRIBER_BENEFITS.md for scheduling options. Authenticate with
+// Legacy single-job endpoint (renewal notices only). Prefer /api/cron/daily.
+// See docs/SUBSCRIBER_BENEFITS.md for scheduling options. Authenticate with
 // `Authorization: Bearer $CRON_SECRET`. Add `?dryRun=1` to preview.
 async function handle(request: NextRequest) {
   const authorization = checkCronAuthorization(
@@ -27,7 +31,10 @@ async function handle(request: NextRequest) {
   }
 
   const dryRun = request.nextUrl.searchParams.get("dryRun") === "1";
-  const result = await runRenewalRemindersWithPrisma({ dryRun });
+  const result = await runRenewalRemindersWithPrisma({
+    budget: createSendBudget(getMaxEmailsPerRun()),
+    dryRun,
+  });
 
   logOperationalEvent("info", "renewal_reminders_run", { ...result });
 

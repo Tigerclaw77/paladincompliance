@@ -6,7 +6,6 @@ type StartOperationalPageProps = {
   searchParams: Promise<{
     employees?: string;
     error?: string;
-    hipaa?: string;
   }>;
 };
 
@@ -22,7 +21,6 @@ export default async function StartOperationalPage({
       contactEmail={user.email}
       errorMessage={getErrorMessage(params.error)}
       initialEmployeeCount={parseEmployees(params.employees)}
-      initialHipaaEnabled={params.hipaa === "1"}
       organizationName={organization.name}
       plan="operational"
       savedIntent={organization.acquisitionIntent}

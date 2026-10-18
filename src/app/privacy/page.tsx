@@ -14,7 +14,6 @@ const informationTypes = [
   "Organization and account information used to set up the workspace and registry record.",
   "Billing and subscription information needed to maintain the subscription and account standing.",
   "Registry-record-related operational information used for public registry records, QR assets, and controlled updates.",
-  "Optional healthcare-related organizational information when HIPAA add-on services are selected.",
 ];
 
 const useCases = [

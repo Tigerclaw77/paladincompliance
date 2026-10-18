@@ -9,7 +9,6 @@ type StartStarterPageProps = {
   searchParams: Promise<{
     checkout?: string;
     error?: string;
-    hipaa?: string;
   }>;
 };
 
@@ -29,7 +28,6 @@ export default async function StartStarterPage({
         action={saveStarterIntent}
         contactEmail={userContext.user.email}
         errorMessage={getErrorMessage(params.error)}
-        initialHipaaEnabled={params.hipaa === "1"}
         organizationName={userContext.organization.name}
         plan="starter"
         savedIntent={userContext.organization.acquisitionIntent}
@@ -41,7 +39,6 @@ export default async function StartStarterPage({
   return (
     <GuestStarterForm
       canceled={params.checkout === "cancel"}
-      initialHipaaEnabled={params.hipaa === "1"}
       supportEmail={getSupportEmail()}
     />
   );

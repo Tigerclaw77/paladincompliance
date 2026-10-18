@@ -20,7 +20,6 @@ type TrainingCertificateInput = {
 
 type VerificationCertificateInput = {
   expirationDate?: Date | null;
-  hipaaActive: boolean;
   issueDate: Date;
   organizationName: string;
   revisionId: string;
@@ -31,7 +30,6 @@ type VerificationCertificateInput = {
 
 export async function generateVerificationCertificatePdf({
   expirationDate,
-  hipaaActive,
   issueDate,
   organizationName,
   revisionId,
@@ -114,25 +112,6 @@ export async function generateVerificationCertificatePdf({
     font: fonts.bold,
     size: 30,
   });
-
-  if (hipaaActive) {
-    page.drawRectangle({
-      x: 68,
-      y: height - 306,
-      width: 142,
-      height: 24,
-      color: pdfColors.paleBlue,
-      borderColor: pdfColors.blue,
-      borderWidth: 1,
-    });
-    page.drawText("HIPAA MATERIALS ADD-ON", {
-      x: 78,
-      y: height - 299,
-      size: 8,
-      font: fonts.bold,
-      color: pdfColors.blue,
-    });
-  }
 
   page.drawRectangle({
     x: 68,

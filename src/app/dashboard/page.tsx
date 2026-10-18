@@ -77,12 +77,8 @@ export default async function DashboardPage() {
     ? formatLifecycleDate(subscription.currentPeriodEnd)
     : "Pending";
   const tierLabel = getCoverageTierLabel({
-    hipaaEnabled: entitlements.features.hipaaAddOn.allowed,
     planLabel: planSnapshot.label,
   });
-  const hipaaCoverageLabel = entitlements.features.hipaaAddOn.allowed
-    ? "HIPAA add-on enabled (registry label)"
-    : "HIPAA add-on not enabled";
 
   return (
     <div className="grid gap-6">
@@ -157,10 +153,6 @@ export default async function DashboardPage() {
             <OperationsDatum
               label="Registry Record Lifecycle"
               value={lifecycle.badgeLabel}
-            />
-            <OperationsDatum
-              label="HIPAA Materials"
-              value={hipaaCoverageLabel}
             />
             <OperationsDatum
               label="Current Registry Record URL"
@@ -286,14 +278,6 @@ export default async function DashboardPage() {
             <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
               Optional Upgrades
             </p>
-            <AdminAction
-              href={entitlements.features.hipaaAddOn.allowed ? "/dashboard/assets" : "/pricing"}
-              label={
-                entitlements.features.hipaaAddOn.allowed
-                  ? "HIPAA Add-On Enabled"
-                  : "Add HIPAA Module"
-              }
-            />
             <AdminAction href="/pricing" label="Upgrade Organization Tier" />
             <AdminAction href="/start/enterprise" label="Contact Enterprise" />
           </div>
@@ -515,20 +499,8 @@ function getCoverageStatusLabel({
   return "Unknown";
 }
 
-function getCoverageTierLabel({
-  hipaaEnabled,
-  planLabel,
-}: {
-  hipaaEnabled: boolean;
-  planLabel: string;
-}) {
-  const normalizedPlanLabel = planLabel
+function getCoverageTierLabel({ planLabel }: { planLabel: string }) {
+  return planLabel
     .replace("Custom Enterprise Coverage", "Enterprise")
-    .replace(" + Optional HIPAA Add-On", " + HIPAA Add-On");
-
-  if (!hipaaEnabled || normalizedPlanLabel.toLowerCase().includes("hipaa")) {
-    return normalizedPlanLabel;
-  }
-
-  return `${normalizedPlanLabel} + HIPAA Add-On`;
+    .replace(" + Optional HIPAA Add-On", "");
 }

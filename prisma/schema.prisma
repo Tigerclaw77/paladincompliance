@@ -41,6 +41,9 @@ model Organization {
   downloadableAssets DownloadableAsset[]
   trainingModules    TrainingModule[]
   aiSpendEntries     AiSpendEntry[]
+  trainingAcknowledgments TrainingAcknowledgment[]
+  reviewRecords      ReviewRecord[]
+  complianceReminders ComplianceReminder[]
 }
 
 model Membership {
@@ -229,6 +232,64 @@ model AiSpendEntry {
 
   @@unique([organizationId, clientId])
   @@index([organizationId, entryDate])
+}
+
+// Recurring value (additive): compliance calendar reminders, email opt-outs,
+// training acknowledgments and periodic review records. All organization-scoped.
+model ComplianceReminder {
+  id             String   @id @default(cuid())
+  organizationId String
+  eventKey       String
+  dueDate        DateTime @db.Date
+  email          String
+  sentAt         DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, eventKey, dueDate, email])
+  @@index([organizationId])
+}
+
+model EmailOptOut {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  scope     String   @default("reminders")
+  createdAt DateTime @default(now())
+}
+
+model TrainingAcknowledgment {
+  id               String   @id @default(cuid())
+  organizationId   String
+  moduleSlug       String
+  moduleVersion    String
+  personName       String
+  personEmail      String   @default("")
+  personRole       String   @default("")
+  acknowledgedOn   DateTime @db.Date
+  recordedByUserId String?
+  selfAcknowledged Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, moduleSlug])
+}
+
+model ReviewRecord {
+  id               String   @id @default(cuid())
+  organizationId   String
+  checklistKey     String
+  checklistVersion String
+  reviewedOn       DateTime @db.Date
+  reviewerName     String
+  itemsJson        String
+  notes            String   @default("")
+  recordedByUserId String?
+  createdAt        DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, checklistKey, reviewedOn])
 }
 
 enum MembershipRole {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { type CSSProperties, type ReactNode } from "react";
 import { DISCLAIMER_SHORT, SUPPORTS_NOT_REPLACES } from "@/lib/paladin/copy";
 import {
   formatPaladinPrice,
@@ -13,20 +13,17 @@ type PricingClientProps = {
   supportEmail: string;
 };
 
-type OperationalRange = {
-  employeeCount: number | null;
-  id: string;
-  label: string;
-};
-
 const sharedIncludes = [
   "Initial physical AI Policy & Evidence Binder",
   "Public registry record page",
   "QR registry lookup",
   "Annual binder revision with email notice and revision log",
+  "Compliance calendar in your dashboard, with a downloadable .ics file and reminder emails (unsubscribe any time)",
   "Renewal reminder email about 30 days before renewal",
+  "Three short AI use training modules with dated acknowledgment records (CSV export)",
+  "Quarterly AI tool inventory and semiannual vendor review checklists with dated records",
   "Annual AI spend summary (CSV and printable)",
-  "Email support (no guaranteed response time)",
+  "Email support, answered on business days on a best-effort basis (no guaranteed response time)",
 ];
 
 const starterFeatures = [
@@ -39,7 +36,7 @@ const operationalFeatures = [
   "Sized by organization range",
   "For organizations with broader coordination needs",
   "Everything in Starter, sized by organization range",
-  "Short AI usage training modules with completion records",
+  "Scope and price confirmed in writing before purchase",
 ];
 
 const enterpriseFeatures = [
@@ -47,62 +44,17 @@ const enterpriseFeatures = [
   "Scope, deliverables and pricing confirmed in writing before purchase",
 ];
 
-const operationalRanges: OperationalRange[] = [
-  {
-    employeeCount: 50,
-    id: "26-50",
-    label: "26-50 staff",
-  },
-  {
-    employeeCount: 100,
-    id: "51-100",
-    label: "51-100 staff",
-  },
-  {
-    employeeCount: 250,
-    id: "101-250",
-    label: "101-250 staff",
-  },
-  {
-    employeeCount: null,
-    id: "250-plus",
-    label: "250+",
-  },
-];
-
 export default function PricingClient({
   checkoutCanceled,
   supportEmail,
 }: PricingClientProps) {
-  const [hipaaEnabled, setHipaaEnabled] = useState(false);
-  const [operationalRangeId, setOperationalRangeId] = useState("26-50");
-
-  const selectedOperationalRange = useMemo(
-    () =>
-      operationalRanges.find((range) => range.id === operationalRangeId) ??
-      operationalRanges[0],
-    [operationalRangeId]
-  );
-
   const starterItem = getPaladinPriceItem(
     getCoveragePriceKey({
-      hipaaEnabled,
       plan: "starter",
     })
   );
-  const operationalAmountCents = selectedOperationalRange.employeeCount
-    ? getPaladinPriceItem(
-        getCoveragePriceKey({
-          employeeCount: selectedOperationalRange.employeeCount,
-          hipaaEnabled,
-          plan: "operational",
-        })
-      ).amountCents
-    : null;
   const publicBinderItem = getPaladinPriceItem("complianceBinder");
   const additionalBinderItem = getPaladinPriceItem("additionalBinder");
-
-  const operationalIsEnterpriseFit = !operationalAmountCents;
 
   return (
     <main style={pageStyle}>
@@ -170,31 +122,6 @@ export default function PricingClient({
           </a>
         </section>
 
-        <section style={controlBarStyle} aria-label="Pricing options">
-          <div>
-            <p style={controlLabelStyle}>Optional HIPAA Add-On</p>
-            <p style={controlCopyStyle}>
-              Available on every tier for healthcare organizations. Adds a HIPAA
-              label to the registry record. HIPAA-oriented policy content is
-              not yet part of the binder.
-            </p>
-          </div>
-          <button
-            aria-checked={hipaaEnabled}
-            onClick={() => setHipaaEnabled((current) => !current)}
-            role="switch"
-            style={hipaaEnabled ? toggleOnStyle : toggleOffStyle}
-            type="button"
-          >
-            <span
-              style={hipaaEnabled ? toggleKnobOnStyle : toggleKnobOffStyle}
-            />
-            <span style={hipaaEnabled ? toggleTextOnStyle : toggleTextOffStyle}>
-              {hipaaEnabled ? "On" : "Off"}
-            </span>
-          </button>
-        </section>
-
         <section style={tierGridStyle}>
           <PricingCard
             controls={
@@ -205,8 +132,7 @@ export default function PricingClient({
             }
             ctaHref={createStartHref({
               basePath: "/start/starter",
-              hipaaEnabled,
-            })}
+                    })}
             ctaLabel={`Buy Starter — ${formatAnnualPrice(starterItem.amountCents).replace("/year", "/yr")}`}
             description="For independent practices, small offices, and teams up to 25 staff."
             features={starterFeatures}
@@ -216,55 +142,17 @@ export default function PricingClient({
           />
 
           <PricingCard
-            ctaHref={
-              operationalIsEnterpriseFit
-                ? "/start/enterprise?reason=employee-count"
-                : createStartHref({
-                    basePath: "/start/operational",
-                    employeeCount: selectedOperationalRange.employeeCount,
-                    hipaaEnabled,
-                  })
-            }
-            ctaLabel={
-              operationalIsEnterpriseFit
-                ? "Contact Sales"
-                : "Start Operational"
-            }
-            controls={
-              <label style={rangeLabelStyle}>
-                Organization size
-                <select
-                  onChange={(event) => setOperationalRangeId(event.target.value)}
-                  style={selectStyle}
-                  value={operationalRangeId}
-                >
-                  {operationalRanges.map((range) => (
-                    <option key={range.id} value={range.id}>
-                      {range.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            }
+            ctaHref="/start/enterprise?reason=operational"
+            ctaLabel="Contact Us"
             description="For organizations with 26-250 staff where coordination, public exposure, and internal consistency carry more weight."
             features={operationalFeatures}
-            footnote={
-              operationalIsEnterpriseFit
-                ? "250+ organizations are handled through Enterprise so coordination and rollout scope can be reviewed."
-                : "*Pricing scales by organization size and coordination scope."
-            }
-            price={
-              operationalIsEnterpriseFit
-                ? "Contact sales"
-                : `Starting at ${formatAnnualPrice(
-                    operationalAmountCents
-                  )}*`
-            }
+            footnote="Operational is arranged by email for now: we confirm scope and price in writing before you pay."
+            price="Contact us"
             title="Operational"
             variant="operational"
           />
 
-          <EnterprisePricingCard hipaaEnabled={hipaaEnabled} />
+          <EnterprisePricingCard />
         </section>
 
         <section id="binder" style={binderNoteStyle}>
@@ -321,7 +209,7 @@ export default function PricingClient({
   );
 }
 
-function EnterprisePricingCard({ hipaaEnabled }: { hipaaEnabled: boolean }) {
+function EnterprisePricingCard() {
   return (
     <div style={enterpriseCardStyle}>
       <div style={noiseLayerStyle} />
@@ -341,9 +229,7 @@ function EnterprisePricingCard({ hipaaEnabled }: { hipaaEnabled: boolean }) {
         <div style={priceBlockStyle}>
           <p style={enterprisePriceStyle}>Custom Pricing</p>
           <p style={enterpriseBillingStyle}>
-            {hipaaEnabled
-              ? "Optional HIPAA Add-On reflected in proposal."
-              : "Priced by organizational scope."}
+            Priced by organizational scope.
           </p>
         </div>
 
@@ -428,20 +314,14 @@ function PricingCard({
 function createStartHref({
   basePath,
   employeeCount,
-  hipaaEnabled,
 }: {
   basePath: string;
   employeeCount?: number | null;
-  hipaaEnabled: boolean;
 }) {
   const params = new URLSearchParams();
 
   if (employeeCount) {
     params.set("employees", String(employeeCount));
-  }
-
-  if (hipaaEnabled) {
-    params.set("hipaa", "1");
   }
 
   const query = params.toString();
@@ -558,101 +438,6 @@ const includedLinkStyle: CSSProperties = {
   textDecoration: "none",
 };
 
-const controlBarStyle: CSSProperties = {
-  alignItems: "center",
-  background: "#0f172a",
-  border: "1px solid rgba(198, 168, 91, 0.28)",
-  borderRadius: 12,
-  boxShadow: "0 16px 36px rgba(15, 23, 42, 0.16)",
-  color: "#ffffff",
-  display: "flex",
-  gap: 18,
-  justifyContent: "space-between",
-  marginBottom: 20,
-  padding: "18px 20px",
-};
-
-const controlLabelStyle: CSSProperties = {
-  color: "#f8fafc",
-  fontSize: 17,
-  fontWeight: 900,
-  margin: 0,
-};
-
-const controlCopyStyle: CSSProperties = {
-  color: "#cbd5e1",
-  fontSize: 14,
-  lineHeight: 1.45,
-  marginTop: 4,
-};
-
-const toggleBaseStyle: CSSProperties = {
-  alignItems: "center",
-  borderColor: "rgba(255, 255, 255, 0.2)",
-  borderRadius: 999,
-  borderStyle: "solid",
-  borderWidth: 1,
-  cursor: "pointer",
-  display: "inline-flex",
-  flexShrink: 0,
-  gap: 10,
-  height: 42,
-  justifyContent: "space-between",
-  padding: "4px 12px 4px 4px",
-  position: "relative",
-  transition: "background 180ms ease, border-color 180ms ease",
-  width: 106,
-};
-
-const toggleOffStyle: CSSProperties = {
-  ...toggleBaseStyle,
-  background: "#334155",
-};
-
-const toggleOnStyle: CSSProperties = {
-  ...toggleBaseStyle,
-  background: "#15803d",
-  borderColor: "rgba(187, 247, 208, 0.58)",
-};
-
-const toggleKnobBaseStyle: CSSProperties = {
-  background: "#ffffff",
-  borderRadius: "50%",
-  boxShadow: "0 6px 14px rgba(0,0,0,0.22)",
-  height: 32,
-  left: 4,
-  position: "absolute",
-  transition: "transform 180ms ease",
-  width: 32,
-};
-
-const toggleKnobOffStyle: CSSProperties = {
-  ...toggleKnobBaseStyle,
-  transform: "translateX(0)",
-};
-
-const toggleKnobOnStyle: CSSProperties = {
-  ...toggleKnobBaseStyle,
-  transform: "translateX(66px)",
-};
-
-const toggleTextBaseStyle: CSSProperties = {
-  color: "#ffffff",
-  fontSize: 13,
-  fontWeight: 900,
-  position: "absolute",
-};
-
-const toggleTextOffStyle: CSSProperties = {
-  ...toggleTextBaseStyle,
-  right: 18,
-};
-
-const toggleTextOnStyle: CSSProperties = {
-  ...toggleTextBaseStyle,
-  left: 18,
-};
-
 const tierGridStyle: CSSProperties = {
   alignItems: "stretch",
   display: "grid",
@@ -717,14 +502,6 @@ const controlSlotStyle: CSSProperties = {
   minHeight: 78,
 };
 
-const rangeLabelStyle: CSSProperties = {
-  color: "#102033",
-  display: "grid",
-  fontSize: 13,
-  fontWeight: 900,
-  gap: 8,
-};
-
 const scopeStaticStyle: CSSProperties = {
   background: "#f8fafc",
   border: "1px solid #dbe3ef",
@@ -740,16 +517,6 @@ const scopeStaticLabelStyle: CSSProperties = {
   fontSize: 12,
   fontWeight: 900,
   textTransform: "uppercase",
-};
-
-const selectStyle: CSSProperties = {
-  background: "#f8fafc",
-  border: "1px solid #cbd5e1",
-  borderRadius: 8,
-  color: "#102033",
-  fontSize: 15,
-  fontWeight: 800,
-  padding: "12px 14px",
 };
 
 const listStyle: CSSProperties = {

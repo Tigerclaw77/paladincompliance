@@ -20,7 +20,8 @@ test("guest Starter input is normalized and validated", () => {
   const result = parseGuestStarterInput(valid);
   assert.equal(result.ok, true);
   assert.equal(result.value.email, "buyer@example.com");
-  assert.equal(result.value.hipaaEnabled, true);
+  // HIPAA add-on is removed from every purchase path; input is forced off.
+  assert.equal(result.value.hipaaEnabled, false);
   assert.equal(parseGuestStarterInput({ ...valid, staffAttestation: false }).ok, false);
   assert.equal(parseGuestStarterInput({ ...valid, email: "nope" }).ok, false);
   assert.equal(parseGuestStarterInput({ ...valid, organizationName: "A" }).ok, false);
@@ -33,7 +34,7 @@ test("guest Starter input is normalized and validated", () => {
 
 test("only Starter catalog keys are guest-purchasable", () => {
   assert.equal(isGuestStarterCatalogKey("starter"), true);
-  assert.equal(isGuestStarterCatalogKey("starterHipaa"), true);
+  assert.equal(isGuestStarterCatalogKey("starterHipaa"), false);
   assert.equal(isGuestStarterCatalogKey("operational26To50"), false);
   assert.equal(isGuestStarterCatalogKey("complianceBinder"), false);
 });

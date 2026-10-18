@@ -1,7 +1,7 @@
 // Pure helpers for the guest (no-account) Starter checkout. No server-only or
 // database imports so they can be unit tested with `node --test`.
 
-export const GUEST_STARTER_CATALOG_KEYS = ["starter", "starterHipaa"] as const;
+export const GUEST_STARTER_CATALOG_KEYS = ["starter"] as const;
 export type GuestStarterCatalogKey = (typeof GUEST_STARTER_CATALOG_KEYS)[number];
 
 export const GUEST_CHECKOUT_METADATA_FLAG = "guest_checkout";
@@ -12,7 +12,8 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export type GuestStarterInput = {
   email: string;
-  hipaaEnabled: boolean;
+  /** Always false: the HIPAA add-on is not offered. */
+  hipaaEnabled: false;
   industry: string;
   organizationName: string;
 };
@@ -53,7 +54,7 @@ export function parseGuestStarterInput(
     ok: true,
     value: {
       email,
-      hipaaEnabled: industry === "Healthcare" && body.hipaaEnabled === true,
+      hipaaEnabled: false,
       industry,
       organizationName,
     },

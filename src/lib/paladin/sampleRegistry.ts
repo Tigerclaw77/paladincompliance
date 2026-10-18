@@ -37,7 +37,6 @@ export function getSampleRegistryProps(siteUrl: string) {
   return {
     activeModules,
     activeThroughDate: SAMPLE_ACTIVE_THROUGH,
-    hipaaActive: false,
     issueDate: SAMPLE_ISSUE_DATE,
     lifecycle,
     organizationName: SAMPLE_ORGANIZATION_NAME,

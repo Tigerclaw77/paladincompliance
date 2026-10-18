@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { resolveOrganizationEntitlements } from "@/lib/paladin/entitlements/service";
 import { generateVerificationCertificatePdf } from "@/lib/paladin/pdf/certificate";
 import { getAbsoluteVerificationUrl } from "@/lib/paladin/siteUrl";
 import { normalizeOrganizationSlug } from "@/lib/paladin/slugs";
@@ -52,10 +51,6 @@ export async function GET(
   }
 
   const organization = verificationPage.organization;
-  const entitlements = resolveOrganizationEntitlements({
-    acquisitionIntent: organization.acquisitionIntent,
-    subscription: organization.subscription,
-  });
   const lifecycle = resolveVerificationLifecycle({
     currentPeriodEnd: organization.subscription?.currentPeriodEnd,
     subscriptionStatus: organization.subscription?.status,
@@ -72,7 +67,6 @@ export async function GET(
   const revisionId = getVerificationRevisionId(verificationPage.updatedAt);
   const pdf = await generateVerificationCertificatePdf({
     expirationDate: organization.subscription?.currentPeriodEnd,
-    hipaaActive: entitlements.features.hipaaAddOn.allowed,
     issueDate: verificationPage.publishedAt ?? verificationPage.createdAt,
     organizationName: organization.name,
     revisionId,

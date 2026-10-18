@@ -13,7 +13,6 @@ type SubscribeActionsProps = {
   checkoutLabel?: string;
   employeeCount?: number | null;
   hasStripeCustomer?: boolean;
-  hipaaEnabled?: boolean;
   plan?: CoveragePlanKey;
   showManageBilling?: boolean;
 };
@@ -22,13 +21,11 @@ export default function SubscribeActions({
   checkoutLabel = "Complete Checkout",
   employeeCount,
   hasStripeCustomer = false,
-  hipaaEnabled = false,
   plan = "starter",
   showManageBilling = true,
 }: SubscribeActionsProps) {
   const priceKey = getCoveragePriceKey({
     employeeCount,
-    hipaaEnabled,
     plan,
   });
   const priceItem = getPaladinPriceItem(priceKey);

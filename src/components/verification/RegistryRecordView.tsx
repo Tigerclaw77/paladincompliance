@@ -12,7 +12,6 @@ export type RegistryRecordViewProps = {
   activeThroughDate?: Date | null;
   recordDownloadHref?: string;
   displayVerificationUrl?: string;
-  hipaaActive?: boolean;
   issueDate: Date;
   lifecycle: VerificationLifecycle;
   organizationName: string;
@@ -30,7 +29,6 @@ export default function RegistryRecordView({
   activeThroughDate,
   recordDownloadHref,
   displayVerificationUrl,
-  hipaaActive = false,
   issueDate,
   lifecycle,
   organizationName,
@@ -99,11 +97,6 @@ export default function RegistryRecordView({
                   <span className="max-w-full break-words rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-slate-200 sm:text-xs sm:tracking-[0.16em]">
                     Plan status: {planStatusLabel}
                   </span>
-                  {hipaaActive && (
-                    <span className="max-w-full break-words rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-emerald-100 sm:text-xs sm:tracking-[0.16em]">
-                      HIPAA Materials Add-On
-                    </span>
-                  )}
                   <span className="max-w-full break-all rounded-full border border-blue-300/20 bg-blue-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-blue-100 sm:text-xs sm:tracking-[0.16em]">
                     ID {verificationId}
                   </span>

@@ -6,6 +6,7 @@ import {
   stripe,
 } from "@/lib/stripe";
 import { logOperationalEvent } from "@/lib/paladin/logging";
+import { notifyOwnerOfOrder } from "@/lib/paladin/orders/notify";
 import { prisma } from "@/lib/prisma";
 import {
   isGuestStarterCheckoutSession,
@@ -171,6 +172,7 @@ async function handleCheckoutSessionCompleted(
         shippingAddressCollected: Boolean(shippingDetails?.address),
         shippingCountry: shippingDetails?.address?.country ?? undefined,
       });
+      await notifyOwnerOfOrder(checkoutSession);
     }
 
     return;
@@ -189,6 +191,7 @@ async function handleCheckoutSessionCompleted(
       eventId: event.id,
       eventType: event.type,
     });
+    await notifyOwnerOfOrder(checkoutSession);
     return;
   }
 

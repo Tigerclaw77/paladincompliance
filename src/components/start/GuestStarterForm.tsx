@@ -6,26 +6,20 @@ import { formatPaladinPrice, getPaladinPriceItem } from "@/lib/paladin/pricing";
 
 type GuestStarterFormProps = {
   canceled?: boolean;
-  initialHipaaEnabled?: boolean;
   supportEmail: string;
 };
 
 export default function GuestStarterForm({
   canceled = false,
-  initialHipaaEnabled = false,
   supportEmail,
 }: GuestStarterFormProps) {
   const [organizationName, setOrganizationName] = useState("");
   const [email, setEmail] = useState("");
-  const [industry, setIndustry] = useState(
-    initialHipaaEnabled ? "Healthcare" : ""
-  );
-  const [hipaaEnabled, setHipaaEnabled] = useState(initialHipaaEnabled);
+  const [industry, setIndustry] = useState("");
   const [staffAttestation, setStaffAttestation] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
-  const withHipaa = industry === "Healthcare" && hipaaEnabled;
-  const priceItem = getPaladinPriceItem(withHipaa ? "starterHipaa" : "starter");
+  const priceItem = getPaladinPriceItem("starter");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,7 +30,6 @@ export default function GuestStarterForm({
       const response = await fetch("/api/stripe/create-checkout-session", {
         body: JSON.stringify({
           email,
-          hipaaEnabled: withHipaa,
           industry,
           organizationName,
           priceKey: "starter",
@@ -120,17 +113,6 @@ export default function GuestStarterForm({
               value={industry}
             />
 
-            {industry === "Healthcare" && (
-              <label style={checkboxLabelStyle}>
-                <input
-                  checked={hipaaEnabled}
-                  onChange={(event) => setHipaaEnabled(event.target.checked)}
-                  type="checkbox"
-                />
-                Add the optional HIPAA-oriented policy materials
-              </label>
-            )}
-
             <label style={checkboxLabelStyle}>
               <input
                 checked={staffAttestation}
@@ -151,7 +133,7 @@ export default function GuestStarterForm({
           <aside style={cardStyle}>
             <p style={eyebrowStyle}>Selected package</p>
             <h2 style={{ fontSize: 22, fontWeight: 900 }}>
-              {withHipaa ? "Starter + Optional HIPAA Add-On" : "Starter"}
+              Starter
             </h2>
             <p style={priceStyle}>{formatPaladinPrice(priceItem)}</p>
             <p style={mutedStyle}>Billed annually. U.S. shipping address collected at checkout for the initial binder.</p>

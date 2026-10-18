@@ -158,7 +158,6 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
       activeModules={activeModules}
       activeThroughDate={activeThroughDate}
       recordDownloadHref={certificateHref}
-      hipaaActive={entitlements.features.hipaaAddOn.allowed}
       issueDate={issueDate}
       lifecycle={lifecycle}
       organizationName={organization.name}

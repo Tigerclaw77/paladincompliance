@@ -31,6 +31,7 @@ import {
   isGuestStarterCatalogKey,
   parseGuestStarterInput,
 } from "@/lib/paladin/guestStarter";
+import { isCheckoutKeyEnabled } from "@/lib/paladin/pricing";
 import { createGuestStarterCheckoutSession } from "@/lib/stripe/guestCheckout";
 
 export const runtime = "nodejs";
@@ -40,7 +41,6 @@ const MAX_BINDER_QUANTITY = 25;
 
 type CreateCheckoutSessionBody = {
   email?: unknown;
-  hipaaEnabled?: unknown;
   industry?: unknown;
   organizationName?: unknown;
   priceKey?: string;
@@ -122,8 +122,7 @@ export async function POST(request: NextRequest) {
         }
 
         const checkoutSession = await createGuestStarterCheckoutSession({
-          catalogKey:
-            guestInput.value.hipaaEnabled ? "starterHipaa" : "starter",
+          catalogKey: "starter",
           input: guestInput.value,
         });
 
@@ -228,7 +227,9 @@ function getAllowedCatalogItem(body: CreateCheckoutSessionBody) {
       ? normalizeCheckoutCatalogKey(body.priceKey)
       : null;
 
-  return priceKey ? getStripeCatalogItem(priceKey) : null;
+  return priceKey && isCheckoutKeyEnabled(priceKey)
+    ? getStripeCatalogItem(priceKey)
+    : null;
 }
 
 function getCheckoutQuantity(

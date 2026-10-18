@@ -212,15 +212,25 @@ export type CheckoutPriceKey =
   | CoveragePriceKey
   | PublicBinderPriceKey;
 
+// HIPAA variants stay in PALADIN_PRICING for database/Stripe-snapshot
+// compatibility only. They are NOT customer-purchasable: no HIPAA deliverable
+// exists, so they are excluded from every list that drives a purchase path.
 export const publicBinderPriceKeys: PublicBinderPriceKey[] = [
   "complianceBinder",
-  "complianceBinderHipaa",
 ];
 
 export const additionalBinderPriceKeys: AdditionalBinderPriceKey[] = [
   "additionalBinder",
-  "additionalBinderHipaa",
 ];
+
+export const hipaaPriceKeys = [
+  "additionalBinderHipaa",
+  "complianceBinderHipaa",
+  "operational101To250Hipaa",
+  "operational26To50Hipaa",
+  "operational51To100Hipaa",
+  "starterHipaa",
+] as const satisfies readonly PaladinPriceKey[];
 
 export const legacyCoveragePriceKeyAliases = {
   foundation: "starter",
@@ -235,18 +245,48 @@ export const legacyCoveragePriceKeyAliases = {
 
 export const checkoutPriceKeys: CheckoutPriceKey[] = [
   "starter",
-  "starterHipaa",
   "operational26To50",
-  "operational26To50Hipaa",
   "operational51To100",
-  "operational51To100Hipaa",
   "operational101To250",
-  "operational101To250Hipaa",
   "complianceBinder",
-  "complianceBinderHipaa",
   "additionalBinder",
-  "additionalBinderHipaa",
 ];
+
+/** Operational tiers are not self-serve at launch (see LAUNCH_DECISION.md). */
+export const operationalPriceKeys: PaladinPriceKey[] = [
+  "operational26To50",
+  "operational51To100",
+  "operational101To250",
+];
+
+/** Stable Stripe lookup keys (set when the owner creates the live prices). */
+export const STRIPE_LOOKUP_KEYS = {
+  additionalBinder: "paladin_binder_additional",
+  complianceBinder: "paladin_binder_standalone",
+  operational101To250: "paladin_operational_101_250_annual",
+  operational26To50: "paladin_operational_26_50_annual",
+  operational51To100: "paladin_operational_51_100_annual",
+  starter: "paladin_starter_annual",
+} as const;
+
+/**
+ * Whether a checkout key may be purchased right now. HIPAA keys never can.
+ * Operational keys need PALADIN_OPERATIONAL_CHECKOUT_ENABLED=true.
+ */
+export function isCheckoutKeyEnabled(
+  key: string,
+  env: Record<string, string | undefined> = process.env
+) {
+  if (!isCheckoutPriceKey(key)) {
+    return false;
+  }
+
+  if ((operationalPriceKeys as string[]).includes(key)) {
+    return env.PALADIN_OPERATIONAL_CHECKOUT_ENABLED === "true";
+  }
+
+  return true;
+}
 
 const priceKeys = Object.keys(PALADIN_PRICING) as PaladinPriceKey[];
 
@@ -277,17 +317,18 @@ export function normalizeCheckoutPriceKey(
     return value;
   }
 
-  return (
-    legacyCoveragePriceKeyAliases[value as LegacyCoveragePriceKey] ?? null
-  );
+  const aliased =
+    legacyCoveragePriceKeyAliases[value as LegacyCoveragePriceKey] ?? null;
+
+  return aliased && isCheckoutPriceKey(aliased) ? aliased : null;
 }
 
 export function getCoveragePriceKey({
   employeeCount,
-  hipaaEnabled = false,
   plan,
 }: {
   employeeCount?: number | null;
+  /** Ignored: the HIPAA add-on is not offered (no deliverable exists). */
   hipaaEnabled?: boolean | null;
   plan:
     | CoveragePlanKey
@@ -298,20 +339,20 @@ export function getCoveragePriceKey({
   const normalizedPlan = plan.toLowerCase();
 
   if (normalizedPlan === "foundation" || normalizedPlan === "starter") {
-    return hipaaEnabled ? "starterHipaa" : "starter";
+    return "starter";
   }
 
   const normalizedEmployeeCount = Math.max(26, employeeCount ?? 26);
 
   if (normalizedEmployeeCount <= 50) {
-    return hipaaEnabled ? "operational26To50Hipaa" : "operational26To50";
+    return "operational26To50";
   }
 
   if (normalizedEmployeeCount <= 100) {
-    return hipaaEnabled ? "operational51To100Hipaa" : "operational51To100";
+    return "operational51To100";
   }
 
-  return hipaaEnabled ? "operational101To250Hipaa" : "operational101To250";
+  return "operational101To250";
 }
 
 export function formatPaladinPrice(
@@ -328,11 +369,11 @@ export function formatPaladinPrice(
 
 export function getPaladinPlanName(item: PaladinPriceItem) {
   if (item.plan === "starter") {
-    return item.hipaa ? "Starter + Optional HIPAA Add-On" : "Starter";
+    return "Starter";
   }
 
   if (item.plan === "operational") {
-    return formatOperationalPlanLabel(item.hipaa);
+    return formatOperationalPlanLabel();
   }
 
   return item.displayName;
@@ -344,21 +385,20 @@ export function normalizePaladinPlanName(planName: string | null | undefined) {
   }
 
   const normalizedPlanName = planName.toLowerCase();
-  const includesHipaa = normalizedPlanName.includes("hipaa");
 
   if (
     normalizedPlanName.includes("foundation") ||
     normalizedPlanName.includes("starter") ||
     normalizedPlanName.includes("paladin foundation")
   ) {
-    return includesHipaa ? "Starter + Optional HIPAA Add-On" : "Starter";
+    return "Starter";
   }
 
   if (
     normalizedPlanName.includes("growth") ||
     normalizedPlanName.includes("operational")
   ) {
-    return formatOperationalPlanLabel(includesHipaa);
+    return formatOperationalPlanLabel();
   }
 
   return planName;
@@ -372,8 +412,6 @@ export function requiresActiveCoverage(item: PaladinPriceItem) {
   return item.visibility === "active_coverage";
 }
 
-function formatOperationalPlanLabel(includesHipaa: boolean) {
-  const baseLabel = "Operational";
-
-  return includesHipaa ? `${baseLabel} + Optional HIPAA Add-On` : baseLabel;
+function formatOperationalPlanLabel() {
+  return "Operational";
 }

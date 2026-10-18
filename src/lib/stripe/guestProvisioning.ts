@@ -68,7 +68,7 @@ export async function provisionGuestStarterOrganization(
 
   if (!organizationId) {
     const provisioned = await createOrganizationForGuest({
-      catalogKey: metadata.catalog_key === "starterHipaa" ? "starterHipaa" : "starter",
+      catalogKey: "starter",
       customerId,
       email,
       industry: metadata.industry ?? "",
@@ -122,7 +122,7 @@ async function createOrganizationForGuest({
   organizationName,
   subscriptionId,
 }: {
-  catalogKey: "starter" | "starterHipaa";
+  catalogKey: "starter";
   customerId: string;
   email: string;
   industry: string;
@@ -146,7 +146,7 @@ async function createOrganizationForGuest({
   const existingOrganization = user.memberships[0]?.organization ?? null;
   const subscriptionData = {
     billingInterval: "year",
-    planName: catalogItem.hipaa ? "Starter + Optional HIPAA Add-On" : "Starter",
+    planName: "Starter",
     status: "pending_checkout",
     stripeCustomerId: customerId,
     stripePriceId: catalogItem.priceId,
@@ -156,7 +156,7 @@ async function createOrganizationForGuest({
     billingInterval: "YEAR" as const,
     employeeCount: null,
     estimatedAnnualCents: catalogItem.amountCents,
-    hipaaEnabled: catalogItem.hipaa,
+    hipaaEnabled: false,
     industry,
     plan: PlanTier.STARTER,
   };

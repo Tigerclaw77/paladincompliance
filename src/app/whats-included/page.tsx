@@ -20,10 +20,13 @@ const physicalItems = [
 
 const digitalItems = [
   "Member workspace access during an active subscription",
-  "Quick-reference record (13-page PDF), a short digital companion; the full binder is the printed copy and is not offered as a download",
-  "Registry record (PDF), QR files, and AI spend record templates (spreadsheet and CSV)",
+  "Quick-reference record (13-page PDF), generated on demand as a short digital companion; the full binder is the printed copy and is not offered as a download",
+  "Registry record (PDF) and QR code downloads for your public registry page",
   "AI spend record you can save to your account, with annual summary (CSV and printable)",
-  "Operational plans only: short AI usage training modules with completion records",
+  "Compliance calendar with a downloadable .ics file and emailed reminders you can unsubscribe from",
+  "Three short AI use training modules with dated acknowledgment records (CSV export)",
+  "AI tool inventory and vendor review checklists with dated records (CSV export)",
+  "Annual binder revision log with email notice of updates",
 ];
 
 const verificationItems = [
@@ -161,10 +164,9 @@ export default function WhatsIncludedPage() {
               </ul>
               <p className="mt-5 break-words text-sm leading-7 text-slate-300">
                 The digital quick-reference record summarizes the binder&apos;s policy
-                sections; it does not contain the full binder. The HIPAA
-                add-on currently adds a HIPAA label to the registry record only;
-                HIPAA-oriented policy content is not yet included, and nothing
-                here is legal certification or a regulatory guarantee.
+                sections; it does not contain the full binder. Nothing
+                here is legal certification or a regulatory guarantee, and no
+                HIPAA-specific materials are offered.
               </p>
             </section>
           </section>

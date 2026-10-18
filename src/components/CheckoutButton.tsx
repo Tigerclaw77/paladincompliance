@@ -3,10 +3,6 @@
 import { loadStripe } from "@stripe/stripe-js";
 import { useState, type CSSProperties } from "react";
 import type { CheckoutPriceKey } from "@/lib/paladin/pricing";
-import {
-  getStripePriceId,
-  isConfiguredStripePriceId,
-} from "@/lib/stripe/catalog";
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
@@ -41,12 +37,6 @@ export default function CheckoutButton({
       if (!publishableKey || !stripePromise) {
         throw new Error(
           "Checkout is not configured yet. Please contact Paladin support."
-        );
-      }
-
-      if (!isConfiguredStripePriceId(getStripePriceId(priceKey))) {
-        throw new Error(
-          "This billing option is not configured yet. Please contact Paladin support."
         );
       }
 

@@ -117,7 +117,6 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
               <SubscribeActions
                 checkoutLabel="Complete Checkout"
                 employeeCount={acquisitionIntent.employeeCount}
-                hipaaEnabled={Boolean(acquisitionIntent.hipaaEnabled)}
                 plan={getCheckoutPlan(acquisitionIntent.plan)}
                 showManageBilling={false}
               />
@@ -179,19 +178,6 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
               allowed={entitlements.features.downloadableAssets.allowed}
               href="/dashboard/assets"
               label="Downloadable assets"
-            />
-            <AccessLine
-              allowed={entitlements.features.hipaaAddOn.allowed}
-              href={
-                entitlements.features.hipaaAddOn.allowed
-                  ? "/dashboard/assets"
-                  : "/pricing"
-              }
-              label={
-                entitlements.features.hipaaAddOn.allowed
-                  ? "HIPAA materials"
-                  : "HIPAA add-on"
-              }
             />
             <AccessLine
               allowed={entitlements.features.verificationModules.allowed}
@@ -360,5 +346,5 @@ function hasUpgradeAvailable(priceId: string | null | undefined) {
     return false;
   }
 
-  return catalogItem.key !== "operational101To250Hipaa";
+  return catalogItem.key !== "operational101To250";
 }

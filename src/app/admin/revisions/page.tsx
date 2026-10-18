@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/paladin/admin/auth";
 import { releaseRevisionWithPrisma } from "@/lib/paladin/benefits/server";
-import { validateRevisionInput } from "@/lib/paladin/benefits/revisions";
+import {
+  RevisionConflictError,
+  validateRevisionInput,
+} from "@/lib/paladin/benefits/revisions";
 import { isEmailProviderConfigured } from "@/lib/paladin/env";
 import { logOperationalEvent } from "@/lib/paladin/logging";
 import { prisma } from "@/lib/prisma";
@@ -15,6 +18,8 @@ type PageProps = {
     sent?: string;
     failed?: string;
     already?: string;
+    capped?: string;
+    optedOut?: string;
     version?: string;
   }>;
 };
@@ -38,7 +43,23 @@ async function publishRevision(formData: FormData) {
     redirect(`/admin/revisions?error=${encodeURIComponent(parsed.error)}`);
   }
 
-  const result = await releaseRevisionWithPrisma(parsed.value);
+  if (formData.get("confirm") !== "yes") {
+    redirect(
+      `/admin/revisions?error=${encodeURIComponent("Tick the confirmation box: publishing emails every active subscriber.")}`
+    );
+  }
+
+  let result;
+
+  try {
+    result = await releaseRevisionWithPrisma(parsed.value);
+  } catch (error) {
+    if (error instanceof RevisionConflictError) {
+      redirect(`/admin/revisions?error=${encodeURIComponent(error.message)}`);
+    }
+
+    throw error;
+  }
 
   logOperationalEvent("info", "binder_revision_released", {
     alreadyNotified: result.alreadyNotified,
@@ -51,6 +72,8 @@ async function publishRevision(formData: FormData) {
 
   const query = new URLSearchParams({
     already: String(result.alreadyNotified),
+    capped: String(result.capped),
+    optedOut: String(result.optedOut),
     failed: String(result.failed),
     notified: result.emailConfigured ? "1" : "0",
     sent: String(result.sent),
@@ -100,7 +123,7 @@ export default async function AdminRevisionsPage({ searchParams }: PageProps) {
         <p className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm font-semibold text-emerald-100">
           Revision {params.version} recorded.{" "}
           {params.notified === "1"
-            ? `Emails sent: ${params.sent}; already notified: ${params.already}; failed: ${params.failed}.`
+            ? `Emails sent: ${params.sent}; already notified: ${params.already}; opted out: ${params.optedOut ?? "0"}; failed: ${params.failed}; held back by the per-run cap: ${params.capped ?? "0"} (publish the same version again to send the rest).`
             : "No email was sent because no email provider is configured."}
         </p>
       )}
@@ -124,6 +147,10 @@ export default async function AdminRevisionsPage({ searchParams }: PageProps) {
         <label className="grid gap-1 text-xs font-bold text-slate-300">
           What changed (optional, one item per line)
           <textarea className={inputClass} maxLength={5000} name="changes" rows={5} />
+        </label>
+        <label className="flex items-start gap-2 text-xs font-bold text-slate-300">
+          <input name="confirm" required type="checkbox" value="yes" />
+          I confirm this will email every active subscriber (owners and admins) and that a published version cannot be edited afterwards.
         </label>
         <div>
           <button

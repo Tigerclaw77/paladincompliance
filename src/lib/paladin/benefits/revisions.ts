@@ -1,4 +1,19 @@
-import type { Mailer } from "./types";
+import { renderEmail } from "../email/templates.ts";
+import {
+  createSendBudget,
+  sendWithBudget,
+  type Mailer,
+  type SendBudget,
+} from "./types.ts";
+
+export class RevisionConflictError extends Error {
+  constructor(version: string) {
+    super(
+      `Revision ${version} was already released with different content. The revision log is append-only: publish a new version instead.`
+    );
+    this.name = "RevisionConflictError";
+  }
+}
 
 export type RevisionInput = {
   version: string;
@@ -35,8 +50,12 @@ export type RevisionDeps = {
     email: string;
   }): Promise<void>;
   sendMail: Mailer;
+  /** Lower-cased emails that opted out of update/reminder emails. */
+  listOptedOutEmails(emails: string[]): Promise<Set<string>>;
+  unsubscribeUrlFor(email: string): string;
   emailConfigured: boolean;
   siteUrl: string;
+  contactEmail: string;
 };
 
 export type RevisionReleaseResult = {
@@ -46,7 +65,9 @@ export type RevisionReleaseResult = {
   recipients: number;
   sent: number;
   alreadyNotified: number;
+  optedOut: number;
   failed: number;
+  capped: number;
 };
 
 const VERSION_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$/;
@@ -88,38 +109,45 @@ export function validateRevisionInput(
 }
 
 export function buildRevisionEmail({
+  contactEmail = "contact@paladincompliance.com",
   organizationName,
   revision,
   siteUrl,
+  unsubscribeUrl,
 }: {
+  contactEmail?: string;
   organizationName: string;
   revision: RevisionRecord;
   siteUrl: string;
+  unsubscribeUrl: string;
 }) {
-  const lines = [
-    `A new revision of the Paladin AI Policy & Evidence Binder is available for ${organizationName}.`,
-    "",
-    `Revision ${revision.version}: ${revision.title}`,
-    "",
-    revision.summary,
-  ];
-
-  if (revision.changes) {
-    lines.push("", "What changed:", revision.changes);
-  }
-
-  lines.push(
-    "",
-    `Revision log: ${siteUrl}/dashboard/updates`,
-    `Download the current quick-reference record: ${siteUrl}/dashboard/assets`,
-    "",
-    "This revision is documentation only. It is not legal advice, a certification, or a guarantee of compliance.",
-    "You are receiving this because your organization has an active Paladin Compliance subscription."
-  );
+  const bullets = revision.changes
+    ? revision.changes
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+    : [];
+  const rendered = renderEmail({
+    bullets,
+    contactEmail,
+    cta: { label: "Open the revision log", url: `${siteUrl}/dashboard/updates` },
+    heading: `Binder revision ${revision.version}: ${revision.title}`,
+    kind: "reminder",
+    paragraphs: [
+      `A new revision of the Paladin AI Policy & Evidence Binder is available for ${organizationName}.`,
+      revision.summary,
+      ...(bullets.length ? ["What changed:"] : []),
+    ],
+    reason:
+      "You are receiving this because your organization has an active Paladin Compliance membership.",
+    unsubscribeUrl,
+  });
 
   return {
+    headers: rendered.headers,
+    html: rendered.html,
     subject: `Paladin binder revision ${revision.version}: ${revision.title}`,
-    text: lines.join("\n"),
+    text: rendered.text,
   };
 }
 
@@ -132,7 +160,8 @@ export function buildRevisionEmail({
  */
 export async function releaseBinderRevision(
   deps: RevisionDeps,
-  input: RevisionInput
+  input: RevisionInput,
+  { budget = createSendBudget(undefined) }: { budget?: SendBudget } = {}
 ): Promise<RevisionReleaseResult> {
   const parsed = validateRevisionInput(input);
 
@@ -141,6 +170,17 @@ export async function releaseBinderRevision(
   }
 
   const revision = await deps.upsertRevision(parsed.value);
+
+  // Append-only log: the same version may be re-published to retry failed or
+  // capped sends, but never with different content.
+  if (
+    revision.title !== parsed.value.title ||
+    revision.summary !== parsed.value.summary ||
+    revision.changes !== parsed.value.changes
+  ) {
+    throw new RevisionConflictError(parsed.value.version);
+  }
+
   const result: RevisionReleaseResult = {
     revisionId: revision.id,
     version: revision.version,
@@ -148,7 +188,9 @@ export async function releaseBinderRevision(
     recipients: 0,
     sent: 0,
     alreadyNotified: 0,
+    optedOut: 0,
     failed: 0,
+    capped: 0,
   };
 
   if (!deps.emailConfigured) {
@@ -159,6 +201,9 @@ export async function releaseBinderRevision(
     deps.listActiveSubscriberRecipients(),
     deps.listNoticedEmails(revision.id),
   ]);
+  const optedOut = await deps.listOptedOutEmails(
+    recipients.map((recipient) => recipient.email.trim().toLowerCase())
+  );
   const seen = new Set<string>();
 
   for (const recipient of recipients) {
@@ -176,21 +221,37 @@ export async function releaseBinderRevision(
       continue;
     }
 
+    if (optedOut.has(email)) {
+      result.optedOut += 1;
+      continue;
+    }
+
     const message = buildRevisionEmail({
+      contactEmail: deps.contactEmail,
       organizationName: recipient.organizationName,
       revision,
       siteUrl: deps.siteUrl,
+      unsubscribeUrl: deps.unsubscribeUrlFor(email),
+    });
+    const outcome = await sendWithBudget(budget, deps.sendMail, {
+      to: email,
+      ...message,
     });
 
-    try {
-      await deps.sendMail({ to: email, ...message });
-      await deps.recordNotice({
-        revisionId: revision.id,
-        organizationId: recipient.organizationId,
-        email,
-      });
-      result.sent += 1;
-    } catch {
+    if (outcome === "sent") {
+      try {
+        await deps.recordNotice({
+          revisionId: revision.id,
+          organizationId: recipient.organizationId,
+          email,
+        });
+        result.sent += 1;
+      } catch {
+        result.failed += 1;
+      }
+    } else if (outcome === "capped") {
+      result.capped += 1;
+    } else {
       result.failed += 1;
     }
   }

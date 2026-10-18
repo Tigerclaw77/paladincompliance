@@ -180,8 +180,6 @@ export function getActiveModules(
     entitlements?.features?.verificationModules?.allowed ?? true;
   const downloadsAllowed =
     entitlements?.features?.downloadableAssets?.allowed ?? true;
-  const hipaaAllowed = entitlements?.features?.hipaaAddOn?.allowed ?? false;
-  const hipaaRequested = entitlements?.hipaaRequested ?? false;
   const tone = verificationAllowed ? getStatusTone(status) : "inactive";
   const subscriptionTone = getStatusTone(subscription?.status);
   // The binder is a physical item issued with the plan; downloadable assets are
@@ -207,11 +205,11 @@ export function getActiveModules(
     },
     {
       description: hasActivePlan
-        ? "AI Policy & Evidence Binder issued with the annual plan."
-        : "Binder issuance is recorded here once the plan is active.",
+        ? "AI Policy & Evidence Binder is included with the annual plan. Printed copies are shipped separately to the address given at checkout."
+        : "Binder inclusion is shown here once the plan is active.",
       label: "Binder",
       stateLabel: binderIssued
-        ? "Issued"
+        ? "Included with plan"
         : downloadsAllowed
           ? "Not yet issued"
           : "Not active",
@@ -225,22 +223,6 @@ export function getActiveModules(
   ];
 
   baseModules.forEach((module) => moduleMap.set(module.label, module));
-
-  if (hipaaAllowed) {
-    moduleMap.set("HIPAA Materials Included", {
-      description:
-        "HIPAA-oriented policy materials are included. This is not a HIPAA certification.",
-      label: "HIPAA Materials Included",
-      tone: "active",
-    });
-  } else if (hipaaRequested) {
-    moduleMap.set("HIPAA Materials Pending", {
-      description:
-        "HIPAA materials add-on request is recorded and will display when the plan is active.",
-      label: "HIPAA Materials Pending",
-      tone: "warning",
-    });
-  }
 
   if (downloadsAllowed) {
     assets.forEach((asset) => {

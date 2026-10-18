@@ -14,7 +14,7 @@ const contactReasons = [
   "Subscription, billing, or renewal questions",
   "Public registry record or QR asset support",
   "Binder fulfillment, replacement, or additional binder questions",
-  "Plan fit, HIPAA materials add-on, or Enterprise review",
+  "Plan fit or Enterprise review",
 ];
 
 export default function ContactPage() {

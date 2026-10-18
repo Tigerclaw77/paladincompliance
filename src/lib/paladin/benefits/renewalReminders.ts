@@ -1,4 +1,10 @@
-import type { Mailer } from "./types";
+import { renderEmail } from "../email/templates.ts";
+import {
+  createSendBudget,
+  sendWithBudget,
+  type Mailer,
+  type SendBudget,
+} from "./types.ts";
 
 export const RENEWAL_REMINDER_DAYS = 30;
 // Catch-up window so a missed daily run does not skip a subscriber.
@@ -34,6 +40,7 @@ export type RenewalReminderDeps = {
   sendMail: Mailer;
   emailConfigured: boolean;
   siteUrl: string;
+  contactEmail: string;
 };
 
 export type RenewalReminderResult = {
@@ -46,6 +53,7 @@ export type RenewalReminderResult = {
   alreadySent: number;
   sent: number;
   failed: number;
+  capped: number;
   wouldSend: number;
 };
 
@@ -67,28 +75,38 @@ export function formatRenewalDate(date: Date) {
 }
 
 export function buildRenewalReminderEmail({
+  contactEmail = "contact@paladincompliance.com",
   organizationName,
   periodEnd,
   planName,
   siteUrl,
 }: {
+  contactEmail?: string;
   organizationName: string;
   periodEnd: Date;
   planName: string | null;
   siteUrl: string;
 }) {
   const date = formatRenewalDate(periodEnd);
+  const rendered = renderEmail({
+    contactEmail,
+    cta: { label: "Manage billing", url: `${siteUrl}/dashboard/billing` },
+    heading: `Your membership renews on ${date}`,
+    kind: "transactional",
+    paragraphs: [
+      `The annual Paladin Compliance membership for ${organizationName}${planName ? ` (${planName})` : ""} is scheduled to renew on ${date}.`,
+      "No action is needed to keep the membership and registry record active. To review the payment method, change the plan, or cancel before renewal, open Manage Billing. Billing is handled by Stripe.",
+      "This is a one-time reminder about an already-scheduled renewal, sent about 30 days ahead.",
+    ],
+    reason:
+      "You are receiving this billing notice because you are an owner or admin of this Paladin Compliance membership.",
+  });
 
   return {
+    headers: rendered.headers,
+    html: rendered.html,
     subject: `Your Paladin Compliance membership renews on ${date}`,
-    text: [
-      `The annual Paladin Compliance membership for ${organizationName}${planName ? ` (${planName})` : ""} is scheduled to renew on ${date}.`,
-      "",
-      "No action is needed to keep the membership and registry record active. To review the payment method, change the plan, or cancel before renewal, open Manage Billing:",
-      `${siteUrl}/dashboard/billing`,
-      "",
-      "Billing is handled by Stripe. This is a reminder of an already-scheduled renewal; it is sent once per renewal period.",
-    ].join("\n"),
+    text: rendered.text,
   };
 }
 
@@ -101,7 +119,11 @@ export function buildRenewalReminderEmail({
  */
 export async function runRenewalReminders(
   deps: RenewalReminderDeps,
-  { now = new Date(), dryRun = false }: { now?: Date; dryRun?: boolean } = {}
+  {
+    now = new Date(),
+    dryRun = false,
+    budget = createSendBudget(undefined),
+  }: { now?: Date; dryRun?: boolean; budget?: SendBudget } = {}
 ): Promise<RenewalReminderResult> {
   const { from, to } = renewalWindow(now);
   const result: RenewalReminderResult = {
@@ -114,6 +136,7 @@ export async function runRenewalReminders(
     alreadySent: 0,
     sent: 0,
     failed: 0,
+    capped: 0,
     wouldSend: 0,
   };
 
@@ -161,16 +184,28 @@ export async function runRenewalReminders(
         periodEnd: subscription.periodEnd,
         planName: subscription.planName,
         siteUrl: deps.siteUrl,
+        contactEmail: deps.contactEmail,
+      });
+      const outcome = await sendWithBudget(budget, deps.sendMail, {
+        to: email,
+        ...message,
       });
 
-      try {
-        await deps.sendMail({ to: email, ...message });
-        await deps.recordReminder({
-          ...key,
-          organizationId: subscription.organizationId,
-        });
-        result.sent += 1;
-      } catch {
+      if (outcome === "sent") {
+        try {
+          await deps.recordReminder({
+            ...key,
+            organizationId: subscription.organizationId,
+          });
+          result.sent += 1;
+        } catch {
+          // Sent but not recorded: counted as failed so the operator sees it;
+          // a duplicate is possible on the next run (documented trade-off).
+          result.failed += 1;
+        }
+      } else if (outcome === "capped") {
+        result.capped += 1;
+      } else {
         result.failed += 1;
       }
     }

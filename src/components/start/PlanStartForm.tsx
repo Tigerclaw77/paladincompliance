@@ -15,7 +15,6 @@ const DEFAULT_OPERATIONAL_EMPLOYEE_COUNT = 50;
 
 type IntentDefaults = {
   employeeCount?: number | null;
-  hipaaEnabled?: boolean;
   industry?: string;
 };
 
@@ -24,7 +23,6 @@ type PlanStartFormProps = {
   contactEmail: string;
   errorMessage?: string;
   initialEmployeeCount?: number | null;
-  initialHipaaEnabled?: boolean;
   organizationName: string;
   plan: PlanKey;
   savedIntent?: IntentDefaults | null;
@@ -35,16 +33,12 @@ export default function PlanStartForm({
   contactEmail,
   errorMessage = "",
   initialEmployeeCount = null,
-  initialHipaaEnabled = false,
   organizationName,
   plan,
   savedIntent,
 }: PlanStartFormProps) {
   const [industry, setIndustry] = useState(
-    savedIntent?.industry ?? (initialHipaaEnabled ? "Healthcare" : "")
-  );
-  const hipaaEnabled = Boolean(
-    savedIntent?.hipaaEnabled ?? initialHipaaEnabled
+    savedIntent?.industry ?? ""
   );
   const employeeCount =
     plan === "operational"
@@ -55,7 +49,6 @@ export default function PlanStartForm({
   const selectedPriceItem = getPaladinPriceItem(
     getCoveragePriceKey({
       employeeCount,
-      hipaaEnabled,
       plan,
     })
   );
@@ -105,8 +98,6 @@ export default function PlanStartForm({
                 value={employeeCount ?? DEFAULT_OPERATIONAL_EMPLOYEE_COUNT}
               />
             )}
-
-            {hipaaEnabled && <input name="hipaaEnabled" type="hidden" value="on" />}
 
             <div style={staticFieldStyle}>
               <span style={staticLabelStyle}>Annual Package</span>

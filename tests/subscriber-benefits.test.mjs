@@ -40,6 +40,9 @@ function revisionDeps(overrides = {}) {
     sendMail: async (m) => {
       sent.push(m);
     },
+    listOptedOutEmails: async () => new Set(),
+    unsubscribeUrlFor: (email) => `https://example.test/unsubscribe?e=${email}`,
+    contactEmail: "contact@example.test",
     ...overrides,
   };
   return { deps, sent, notices };
@@ -57,6 +60,7 @@ test("revision email states it is documentation only and links the log", () => {
     organizationName: "Org One",
     revision: { id: "r", ...input },
     siteUrl: "https://example.test",
+    unsubscribeUrl: "https://example.test/unsubscribe?t=x",
   });
   assert.match(mail.subject, /2027\.1/);
   assert.match(mail.text, /dashboard\/updates/);
@@ -139,6 +143,9 @@ function reminderDeps(subs, overrides = {}) {
     sendMail: async (m) => {
       sent.push(m);
     },
+    listOptedOutEmails: async () => new Set(),
+    unsubscribeUrlFor: (email) => `https://example.test/unsubscribe?e=${email}`,
+    contactEmail: "contact@example.test",
     ...overrides,
   };
   return { deps, sent, recorded, queries };

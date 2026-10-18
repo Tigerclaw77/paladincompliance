@@ -81,8 +81,8 @@ async function saveStartIntent(
     plan === "GROWTH"
       ? Math.max(26, getPositiveInteger(formData, "employees"))
       : null;
-  const hipaaEnabled =
-    industry === "Healthcare" && getBoolean(formData, "hipaaEnabled");
+  // The HIPAA add-on is not offered (no deliverable exists); never persist it.
+  const hipaaEnabled = false;
 
   if (plan === "GROWTH" && employeeCount && employeeCount > 250) {
     redirect("/start/enterprise?reason=employee-count");
@@ -176,10 +176,6 @@ function getString(formData: FormData, field: string) {
   const value = formData.get(field);
 
   return typeof value === "string" ? value.trim() : "";
-}
-
-function getBoolean(formData: FormData, field: string) {
-  return formData.get(field) === "on";
 }
 
 function getPositiveInteger(formData: FormData, field: string) {

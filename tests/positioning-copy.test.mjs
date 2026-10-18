@@ -117,7 +117,7 @@ test("sample pages are clearly labeled and contain no invented customers", async
   assert.doesNotMatch(sample + registry + data, /testimonial|trusted by|customers include/i);
 });
 
-test("binder module shows Issued for active plans (not 'Preparing')", () => {
+test("binder module shows 'Included with plan' for active plans", () => {
   const entitlements = {
     features: {
       downloadableAssets: { allowed: true },
@@ -128,7 +128,7 @@ test("binder module shows Issued for active plans (not 'Preparing')", () => {
   const find = (mods) => mods.find((m) => m.label === "Binder");
   const active = find(getActiveModules("published", { status: "active" }, [], entitlements));
   assert.equal(active.tone, "active");
-  assert.equal(active.stateLabel, "Issued");
+  assert.equal(active.stateLabel, "Included with plan");
   const none = find(getActiveModules("draft", null, [], entitlements));
   assert.equal(none.tone, "draft");
   assert.equal(none.stateLabel, "Not yet issued");
